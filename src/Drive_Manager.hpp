@@ -25,9 +25,17 @@ namespace FRC
 		void rotateTo(int degrees);//rotates to a certain value
 		void getEncSpeeds();//fills in encSpeed with the encoder values.
 		bool leniency(int degree);//Creates leniency, which means it doesn't have to be exact, so it doesn't oscillate.
-		double ramp();//A method for moderating acceleration.
+
 		void toggleDrive(bool driveType);//True = tankdrive, False is mecanum.
-		void rampStart();//Activates ramping. Takes it to a superlative.
+
+		double Xramp();//A method for moderating acceleration.
+		void XrampStart();//Activates ramping.
+
+		double Yramp();//A method for moderating acceleration.
+		void YrampStart();//Activates ramping.
+
+		double Zramp();//A method for moderating acceleration.
+		void ZrampStart();//Activates ramping.
 
 		// Variables
 		double const RATE_FREQUENCY = 2000; // Target Velocity
@@ -49,11 +57,21 @@ namespace FRC
 
 		double rotateSpeed = 0.5;//The default speed of rotation.
 
-		double timer = 0;//Keeps track of the number of loops in which it ramps up.
-		double rampSpeed = 1;//The speed dictated to each motor under Ramp. If it goes in different directions...
+		double Xtimer = 0;//Keeps track of the number of loops in which it ramps up.
+		double XrampSpeed = 0;//The speed dictated to each motor under Ramp. If it goes in different directions...
 		//We will need changes.
-		bool rampOn = false;//rampOn basically indicates whether or not
-		int rampdirection = 1;//
+		bool XrampOn = false;//rampOn basically indicates whether or not
+
+		double Ytimer = 0;//Keeps track of the number of loops in which it ramps up.
+		double YrampSpeed = 0;//The speed dictated to each motor under Ramp. If it goes in different directions...
+		//We will need changes.
+		bool YrampOn = false;//rampOn basically indicates whether or not
+
+
+		double Ztimer = 0;//Keeps track of the number of loops in which it ramps up.
+		double ZrampSpeed = 0;//The speed dictated to each motor under Ramp. If it goes in different directions...
+		//We will need changes.
+		bool ZrampOn = false;//rampOn basically indicates whether or not
 	};
 }
 

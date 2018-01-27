@@ -9,6 +9,9 @@ class Robot: public SampleRobot
 	FRC::Input_Manager Input_Man;
 	FRC::Lift_Manager Lift_Man;
 	double joyX, joyY, joyZ, joySlide, currentAngle;
+	double oldX, oldY, oldZ, diffX, diffY, diffZ, currentX, currentY, currentZ;
+	double currentXSpeed, currentYSpeed, currentZSpeed;
+	double unchangedcurrentXSpeed, unchangedcurrentYSpeed, unchangedcurrentZSpeed;
 	bool toggleDriveButton;
 
 public:
@@ -21,6 +24,23 @@ public:
 		joyX = 0;
 		joyY = 0;
 		joyZ = 0;
+		oldX = 0;
+		oldY = 0;
+		oldZ = 0;
+		diffX = 0;
+		diffY = 0;
+		diffZ = 0;
+		currentX = 0;
+		currentY = 0;
+		currentZ = 0;
+		currentXSpeed = 0;
+		currentYSpeed = 0;
+		currentZSpeed = 0;
+
+		unchangedcurrentXSpeed = 0;
+		unchangedcurrentYSpeed = 0;
+		unchangedcurrentZSpeed = 0;
+
 		joySlide = 0;
 		currentAngle = 0;
 		toggleDriveButton = false;
@@ -44,12 +64,68 @@ public:
 		{
 			// VARIABLE SETTING
 			Drive_Man.getEncSpeeds();
-			joyX = Input_Man.getX();
+			/*joyX = Input_Man.getX();
 			joyY = Input_Man.getY();
-			joyZ = Input_Man.getZ();
+			joyZ = Input_Man.getZ();*/
+
+			//If change happens, the joystick values will change.
+			if(fabs(Input_Man.getX() - currentX) >= 0.05)
+			{
+				diffX = Input_Man.getX() - currentX;
+				oldX = currentXSpeed;
+				currentX = Input_Man.getX();
+				Drive_Man.XrampStart();
+			}
+			else if(fabs(Input_Man.getY() - currentY) >= 0.05)
+			{
+				diffY = Input_Man.getY() - currentY;
+				oldY = currentYSpeed;
+				currentY = Input_Man.getY();
+				Drive_Man.YrampStart();
+			}
+			else if(fabs(Input_Man.getZ() - currentZ) >= 0.05)
+			{
+				diffZ = Input_Man.getZ() - currentZ;
+				oldZ = currentZSpeed;
+				currentZ = Input_Man.getZ();
+				Drive_Man.ZrampStart();
+			}
 			joySlide = Input_Man.getSlide();
 			currentAngle = Input_Man.getAngle();
 			toggleDriveButton = Input_Man.getDriveButton();
+
+//While ramping is occuring, they will ramp. However,
+			if(Drive_Man.XrampOn)
+			{
+				currentXSpeed = oldX + (diffX * Drive_Man.XrampSpeed);
+				unchangedcurrentXSpeed = currentXSpeed;
+			}
+			else
+			{
+				oldX = unchangedcurrentXSpeed;
+			}
+			if(Drive_Man.YrampOn)
+			{
+				currentYSpeed = oldY + (diffY * Drive_Man.YrampSpeed);
+				unchangedcurrentYSpeed = currentYSpeed;
+			}
+			else
+			{
+				oldY = unchangedcurrentYSpeed;
+			}
+			if(Drive_Man.ZrampOn)
+			{
+				currentZSpeed = oldZ + (diffZ * Drive_Man.ZrampSpeed);
+				unchangedcurrentZSpeed = currentZSpeed;
+			}
+			else
+			{
+				oldZ = unchangedcurrentZSpeed;
+			}
+
+			joyX = currentXSpeed;
+			joyY = currentYSpeed;
+			joyZ = currentZSpeed;
 
 			Drive_Man.toggleDrive();
 			// DRIVE

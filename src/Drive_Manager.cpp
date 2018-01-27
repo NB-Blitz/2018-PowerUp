@@ -160,23 +160,62 @@ void FRC::Drive_Manager::getEncSpeeds()
 	encSpeed[3] = Right_Back.GetSelectedSensorVelocity(0);
 }
 
-double FRC::Drive_Manager::ramp()
+void FRC::Drive_Manager::Xramp()
 {
-	if(rampOn)
+	if(XrampOn)
 	{
-	rampSpeed = (timer^6) - (3*(timer^4) + (3*(timer^2)));//Had my math guys working on this.
-	timer += 0.005;
-		if(timer == 1)
+	XrampSpeed = (Xtimer^6) - (3*(Xtimer^4) + (3*(Xtimer^2)));//Had my math guys working on this.
+	Xtimer += 0.005;
+		if(Xtimer >= 1)
 		{
-			timer = 0;
-			rampOn = false;
+			Xtimer = 0;
+			XrampOn = false;
+			XrampSpeed = 0;
 		}
-	return rampSpeed;
 	}
 }
-void FRC::Drive_Manager::rampStart()
+void FRC::Drive_Manager::Yramp()
 {
-	rampOn = true;
+	if(YrampOn)
+	{
+	YrampSpeed = (Ytimer^6) - (3*(Ytimer^4) + (3*(Ytimer^2)));//Had my math guys working on this.
+	Ytimer += 0.005;
+		if(Ytimer == 1)
+		{
+			Ytimer = 0;
+			YrampOn = false;
+			YrampSpeed = 0;
+		}
+	}
+}
+double FRC::Drive_Manager::Zramp()
+{
+	if(ZrampOn)
+	{
+	ZrampSpeed = (Ztimer^6) - (3*(Ztimer^4) + (3*(Ztimer^2)));//Had my math guys working on this.
+	Ztimer += 0.005;
+		if(Ztimer == 1)
+		{
+			Ztimer = 0;
+			ZrampOn = false;
+			ZrampSpeed = 0;
+		}
+	}
+}
+void FRC::Drive_Manager::XrampStart()
+{
+	XrampOn = true;
+	Xtimer = 0;
+}
+void FRC::Drive_Manager::YrampStart()
+{
+	YrampOn = true;
+	Ytimer = 0;
+}
+void FRC::Drive_Manager::ZrampStart()
+{
+	ZrampOn = true;
+	Ztimer = 0;
 }
 void FRC::Drive_Manager::toggleDrive(bool driveType)
 {

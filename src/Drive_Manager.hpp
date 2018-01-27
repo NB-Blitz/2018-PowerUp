@@ -25,8 +25,11 @@ namespace FRC
 		void rotateTo(int degrees);//rotates to a certain value
 		void getEncSpeeds();//fills in encSpeed with the encoder values.
 		bool leniency(int degree);//Creates leniency, which means it doesn't have to be exact, so it doesn't oscillate.
-		void ramp(int motorselected, double desiredval);//An experimental method I plan to use to moderate acceleration
+		double ramp();//A method for moderating acceleration.
 		void toggleDrive(bool driveType);//True = tankdrive, False is mecanum.
+		void rampStart();//Activates ramping. Takes it to a superlative.
+		void rampBack();//Makes it ramp backward.
+		void rampForward();//Makes it ramp forward.
 
 		// Variables
 		double const RATE_FREQUENCY = 2000; // Target Velocity
@@ -47,6 +50,12 @@ namespace FRC
 		double encSpeed[4];
 
 		double rotateSpeed = 0.5;//The default speed of rotation.
+
+		double timer = 0;//Keeps track of the number of loops in which it ramps up.
+		double rampSpeed = 1;//The speed dictated to each motor under Ramp. If it goes in different directions...
+		//We will need changes.
+		bool rampOn = false;//rampOn basically indicates whether or not
+		int rampdirection = 1;//
 	};
 }
 

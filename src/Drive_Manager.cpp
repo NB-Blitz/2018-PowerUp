@@ -160,39 +160,32 @@ void FRC::Drive_Manager::getEncSpeeds()
 	encSpeed[3] = Right_Back.GetSelectedSensorVelocity(0);
 }
 
-void FRC::Drive_Manager::ramp(int motorselected, double desiredval)//Lets you pick which motor to ramp
-{//Really bad code. Can someone write a better version?
-	double speed;
-	if(motorselected == 0)
+double FRC::Drive_Manager::ramp()
+{
+	if(rampOn)
 	{
-		speed = Left_Front.GetSelectedSensorVelocity(0);
-		double difference = desiredval - speed;
-		difference /= 1.2;
-		speed += difference;
-	}
-	else if(motorselected == 1)
-	{
-		speed = Left_Back.GetSelectedSensorVelocity(0);
-		double difference = desiredval - speed;
-		difference /= 1.2;
-		speed += difference;
-	}
-	else if(motorselected == 2)
-	{
-		speed = Right_Front.GetSelectedSensorVelocity(0);
-		double difference = desiredval - speed;
-		difference /= 1.2;
-		speed += difference;
-	}
-	else if(motorselected == 3)
-	{
-		speed = Right_Back.GetSelectedSensorVelocity(0);
-		double difference = desiredval - speed;
-		difference /= 1.2;
-		speed += difference;
+	rampSpeed = (timer^6) - (3*(timer^4) + (3*(timer^2)));//Had my math guys working on this.
+	timer += 0.005;
+		if(timer == 1)
+		{
+			timer = 0;
+			rampOn = false;
+		}
+	return rampSpeed;
 	}
 }
-
+void FRC::Drive_Manager::rampStart()
+{
+	rampOn = true;
+}
+void FRC::Drive_Manager::rampBack()
+{
+	rampdirection = -1;
+}
+void FRC::Drive_Manager::rampForward()
+{
+	rampdirection = 1;
+}
 void FRC::Drive_Manager::toggleDrive(bool driveType)
 {
 	Left_Solenoid.Set(driveType);

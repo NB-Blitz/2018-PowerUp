@@ -188,7 +188,7 @@ void FRC::Drive_Manager::Yramp()
 		}
 	}
 }
-double FRC::Drive_Manager::Zramp()
+void FRC::Drive_Manager::Zramp()
 {
 	if(ZrampOn)
 	{

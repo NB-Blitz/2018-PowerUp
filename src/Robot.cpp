@@ -12,6 +12,7 @@ class Robot: public SampleRobot
 	double oldX, oldY, oldZ, diffX, diffY, diffZ, currentX, currentY, currentZ;
 	double currentXSpeed, currentYSpeed, currentZSpeed;
 	double unchangedcurrentXSpeed, unchangedcurrentYSpeed, unchangedcurrentZSpeed;
+	bool testBoolX, testBoolY, testBoolZ;
 	bool toggleDriveButton;
 
 public:
@@ -40,6 +41,10 @@ public:
 		unchangedcurrentXSpeed = 0;
 		unchangedcurrentYSpeed = 0;
 		unchangedcurrentZSpeed = 0;
+
+		testBoolX = true;
+		testBoolY = true;
+		testBoolZ = true;
 
 		joySlide = 0;
 		currentAngle = 0;
@@ -71,21 +76,21 @@ public:
 			//If change happens, the joystick values will change.
 			if(fabs(Input_Man.getX() - currentX) >= 0.05)
 			{
-				diffX = Input_Man.getX() - currentX;
+				diffX = Input_Man.getX() - currentXSpeed;
 				oldX = currentXSpeed;
 				currentX = Input_Man.getX();
 				Drive_Man.XrampStart();
 			}
 			else if(fabs(Input_Man.getY() - currentY) >= 0.05)
 			{
-				diffY = Input_Man.getY() - currentY;
+				diffY = Input_Man.getY() - currentYSpeed;
 				oldY = currentYSpeed;
 				currentY = Input_Man.getY();
 				Drive_Man.YrampStart();
 			}
 			else if(fabs(Input_Man.getZ() - currentZ) >= 0.05)
 			{
-				diffZ = Input_Man.getZ() - currentZ;
+				diffZ = Input_Man.getZ() - currentZSpeed;
 				oldZ = currentZSpeed;
 				currentZ = Input_Man.getZ();
 				Drive_Man.ZrampStart();
@@ -126,8 +131,43 @@ public:
 			joyX = currentXSpeed;
 			joyY = currentYSpeed;
 			joyZ = currentZSpeed;
-
-			Drive_Man.toggleDrive();
+//Encoder+Input testing starts here.
+			if((currentYSpeed+currentZSpeed != (Drive_Man.Right_Front) || currentYSpeed+currentZSpeed != (Drive_Man.Right_Back)) && Drive_Man.Left_Solenoid.Get())
+			{
+				testBoolY = false;
+				testBoolZ = false;
+			}
+			else if((currentYSpeed-currentZSpeed != (Drive_Man.Left_Front) || currentYSpeed+currentZSpeed != (Drive_Man.Left_Back)) && Drive_Man.Right_Solenoid.Get())
+						{
+				testBoolY = false;
+				testBoolZ = false;
+			}
+			else if(-(currentXSpeed+currentYSpeed+currentZSpeed) != Drive_Man.Right_Back)//3
+			{
+				testBoolX = false;
+				testBoolY = false;
+				testBoolZ = false;
+			}
+			else if(-(-currentXSpeed+currentYSpeed+currentZSpeed) != Drive_Man.Right_Back)//1Left Back
+			{
+				testBoolX = false;
+				testBoolY = false;
+				testBoolZ = false;
+			}
+			else if((-currentXSpeed+currentYSpeed-currentZSpeed) != Drive_Man.Right_Back)//2Right Front
+			{
+				testBoolX = false;
+				testBoolY = false;
+				testBoolZ = false;
+			}
+			else if((currentXSpeed+currentYSpeed-currentZSpeed) != Drive_Man.Right_Back)//0Left Front
+			{
+				testBoolX = false;
+				testBoolY = false;
+				testBoolZ = false;
+			}
+//Put all the testing in the test box? Might make sense to do so.
+			Drive_Man.toggleDrive(toggleDriveButton);
 			// DRIVE
 			if (toggleDriveButton)
 			{

@@ -28,13 +28,13 @@ namespace FRC
 
 		void toggleDrive(bool driveType);//True = tankdrive, False is mecanum.
 
-		double Xramp();//A method for moderating acceleration.
+		void Xramp();//A method for moderating acceleration.
 		void XrampStart();//Activates ramping.
 
-		double Yramp();//A method for moderating acceleration.
+		void Yramp();//A method for moderating acceleration.
 		void YrampStart();//Activates ramping.
 
-		double Zramp();//A method for moderating acceleration.
+		void Zramp();//A method for moderating acceleration.
 		void ZrampStart();//Activates ramping.
 
 		// Variables

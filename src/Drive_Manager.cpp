@@ -178,14 +178,6 @@ void FRC::Drive_Manager::rampStart()
 {
 	rampOn = true;
 }
-void FRC::Drive_Manager::rampBack()
-{
-	rampdirection = -1;
-}
-void FRC::Drive_Manager::rampForward()
-{
-	rampdirection = 1;
-}
 void FRC::Drive_Manager::toggleDrive(bool driveType)
 {
 	Left_Solenoid.Set(driveType);

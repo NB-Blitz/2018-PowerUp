@@ -44,4 +44,3 @@ void FRC::Input_Manager::resetNav()
 	nav.Reset();
 }
 
-bool FRC::Input_Manager::

@@ -22,9 +22,6 @@ namespace FRC
 		double getZ();
 		double getSlide();
 		bool getDriveButton();
-		bool joyChangeX();
-		bool joyChangeY();
-		bool joyChangeZ();
 		void resetNav();
 	};
 }

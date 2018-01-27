@@ -28,8 +28,6 @@ namespace FRC
 		double ramp();//A method for moderating acceleration.
 		void toggleDrive(bool driveType);//True = tankdrive, False is mecanum.
 		void rampStart();//Activates ramping. Takes it to a superlative.
-		void rampBack();//Makes it ramp backward.
-		void rampForward();//Makes it ramp forward.
 
 		// Variables
 		double const RATE_FREQUENCY = 2000; // Target Velocity

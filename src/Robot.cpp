@@ -51,6 +51,7 @@ public:
 			currentAngle = Input_Man.getAngle();
 			toggleDriveButton = Input_Man.getDriveButton();
 
+			Drive_Man.toggleDrive();
 			// DRIVE
 			if (toggleDriveButton)
 			{

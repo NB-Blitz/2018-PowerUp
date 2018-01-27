@@ -15,14 +15,18 @@ namespace FRC
 		// Objects
 		FRC::Input_Manager Input_Man;
 		WPI_TalonSRX Left_Back, Left_Front, Right_Back, Right_Front;
+		Solenoid Left_Solenoid, Right_Solenoid;
 
 		// Methods
 		void arcadeDrive(double joyY, double joyZ);
 		void mecanumDrive(double x, double y, double rotate);
-		double PICorrection(double defaultVal, double encSpeed);
-		void rotate(int degrees);
-		void rotateTo(int degrees);
-		void getEncSpeeds();
+		double PICorrection(double defaultVal, double encSpeed);//activates the PI correction
+		void rotate(int degrees);//rotates by a certain angle
+		void rotateTo(int degrees);//rotates to a certain value
+		void getEncSpeeds();//fills in encSpeed with the encoder values.
+		bool leniency(int degree);//Creates leniency, which means it doesn't have to be exact, so it doesn't oscillate.
+		void ramp(int motorselected, double desiredval);//An experimental method I plan to use to moderate acceleration
+		void toggleDrive(bool driveType);//True = tankdrive, False is mecanum.
 
 		// Variables
 		double const RATE_FREQUENCY = 2000; // Target Velocity
@@ -41,6 +45,8 @@ namespace FRC
 		bool useEnc;
 
 		double encSpeed[4];
+
+		double rotateSpeed = 0.5;//The default speed of rotation.
 	};
 }
 

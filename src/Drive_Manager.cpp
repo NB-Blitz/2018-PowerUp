@@ -1,5 +1,6 @@
 #include "WPILib.h"
 #include "Drive_Manager.hpp"
+#include "math.h"
 
 FRC::Drive_Manager::Drive_Manager():
 	Input_Man(),
@@ -7,7 +8,10 @@ FRC::Drive_Manager::Drive_Manager():
 	Left_Back(1),
 	Left_Front(0),
 	Right_Back(3),
-	Right_Front(2)
+	Right_Front(2),
+
+	Left_Solenoid(0),
+	Right_Solenoid(1)
 
 {
 	maxMagnitude = 0;
@@ -57,7 +61,7 @@ void FRC::Drive_Manager::mecanumDrive(double x, double y, double rotate)
 
 	for (int i = 1; i < 4; i++)
 	{
-		double speed = std::fabs(baseSpeed[i]);
+		double speed = fabs(baseSpeed[i]);
 		if (maxMagnitude < speed)
 		{
 			maxMagnitude = speed;
@@ -102,12 +106,49 @@ double FRC::Drive_Manager::PICorrection(double defaultVal, double encSpeed)
 
 void FRC::Drive_Manager::rotate(int degrees)
 {
+	double turnvalue = Input_Man.getAngle();
 
+	turnvalue += degrees;
+	turnvalue %= 360;
+
+	if((degrees > 0) && (leniency(turnvalue)))//Turn right if rotating to the right. Turn left if rotating left.
+	{
+		Left_Front.Set(rotateSpeed);
+		Left_Back.Set(rotateSpeed);
+		Right_Front.Set(-rotateSpeed);
+		Right_Back.Set(-rotateSpeed);
+	}
+	else if((degrees < 0) && (leniency(turnvalue)))
+	{
+		Left_Front.Set(-rotateSpeed);
+		Left_Back.Set(-rotateSpeed);
+		Right_Front.Set(rotateSpeed);
+		Right_Back.Set(rotateSpeed);
+	}
+	else
+	{
+		Left_Front.Set(0);
+		Left_Back.Set(0);
+		Right_Front.Set(0);
+		Right_Back.Set(0);
+	}
 }
 
+bool FRC::Drive_Manager::leniency(int degrees){
+	if((Input_Man.getAngle() > (degrees + 1)) || (Input_Man.getAngle() < (degrees - 1)))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 void FRC::Drive_Manager::rotateTo(int degrees)
 {
-
+	int angle = Input_Man.getAngle();
+	int change = degrees - angle;
+	rotate(change);
 }
 
 void FRC::Drive_Manager::getEncSpeeds()
@@ -117,4 +158,43 @@ void FRC::Drive_Manager::getEncSpeeds()
 	encSpeed[1] = Left_Back.GetSelectedSensorVelocity(0);
 	encSpeed[2] = Right_Front.GetSelectedSensorVelocity(0);
 	encSpeed[3] = Right_Back.GetSelectedSensorVelocity(0);
+}
+
+void FRC::Drive_Manager::ramp(int motorselected, double desiredval)//Lets you pick which motor to ramp
+{//Really bad code. Can someone write a better version?
+	double speed;
+	if(motorselected == 0)
+	{
+		speed = Left_Front.GetSelectedSensorVelocity(0);
+		double difference = desiredval - speed;
+		difference /= 1.2;
+		speed += difference;
+	}
+	else if(motorselected == 1)
+	{
+		speed = Left_Back.GetSelectedSensorVelocity(0);
+		double difference = desiredval - speed;
+		difference /= 1.2;
+		speed += difference;
+	}
+	else if(motorselected == 2)
+	{
+		speed = Right_Front.GetSelectedSensorVelocity(0);
+		double difference = desiredval - speed;
+		difference /= 1.2;
+		speed += difference;
+	}
+	else if(motorselected == 3)
+	{
+		speed = Right_Back.GetSelectedSensorVelocity(0);
+		double difference = desiredval - speed;
+		difference /= 1.2;
+		speed += difference;
+	}
+}
+
+void FRC::Drive_Manager::toggleDrive(bool driveType)
+{
+	Left_Solenoid.Set(driveType);
+	Right_Solenoid.Set(driveType);
 }

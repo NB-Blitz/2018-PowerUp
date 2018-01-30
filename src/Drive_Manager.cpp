@@ -7,7 +7,10 @@ FRC::Drive_Manager::Drive_Manager():
 	Left_Back(1),
 	Left_Front(0),
 	Right_Back(3),
-	Right_Front(2)
+	Right_Front(2),
+
+	Left_Solenoid(0),
+	Right_Solenoid(1)
 
 {
 	maxMagnitude = 0;
@@ -50,6 +53,8 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 
 void FRC::Drive_Manager::mecanumDrive(double x, double y, double rotate)
 {
+	Left_Front.PIDWrite(x);
+
 	baseSpeed[0] = x + y - rotate;
 	baseSpeed[1] = -(-x + y + rotate);
 	baseSpeed[2] = -x + y - rotate;
@@ -112,9 +117,21 @@ void FRC::Drive_Manager::rotateTo(int degrees)
 
 void FRC::Drive_Manager::getEncSpeeds()
 {
-	useEnc = true;
+	useEnc = false;
 	encSpeed[0] = Left_Front.GetSelectedSensorVelocity(0);
 	encSpeed[1] = Left_Back.GetSelectedSensorVelocity(0);
 	encSpeed[2] = Right_Front.GetSelectedSensorVelocity(0);
 	encSpeed[3] = Right_Back.GetSelectedSensorVelocity(0);
+}
+
+void FRC::Drive_Manager::solenoidsOut()
+{
+	Left_Solenoid.Set(false);
+	Right_Solenoid.Set(false);
+}
+
+void FRC::Drive_Manager::solenoidsIn()
+{
+	Left_Solenoid.Set(true);
+	Right_Solenoid.Set(true);
 }

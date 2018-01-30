@@ -14,29 +14,14 @@ double FRC::Input_Manager::getAngle()
 	return nav.GetFusedHeading();
 }
 
-double FRC::Input_Manager::getX()
+double FRC::Input_Manager::getAxis(int axis)
 {
-	return stick.GetX();
+	return stick.GetRawAxis(axis);
 }
 
-double FRC::Input_Manager::getY()
+bool FRC::Input_Manager::getJoyButton(int button)
 {
-	return stick.GetY();
-}
-
-double FRC::Input_Manager::getZ()
-{
-	return stick.GetRawAxis(2);
-}
-
-double FRC::Input_Manager::getSlide()
-{
-	return stick.GetRawAxis(3);
-}
-
-bool FRC::Input_Manager::getDriveButton()
-{
-	return stick.GetRawButton(0); // 0 ????????? (Trigger)
+	return stick.GetRawAxis(button);
 }
 
 void FRC::Input_Manager::resetNav()

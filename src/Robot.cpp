@@ -9,7 +9,7 @@ class Robot: public SampleRobot
 	FRC::Input_Manager Input_Man;
 	FRC::Lift_Manager Lift_Man;
 	double joyX, joyY, joyZ, joySlide, currentAngle;
-	bool toggleDriveButton;
+	bool isArcade;
 
 public:
 	Robot() :
@@ -23,7 +23,7 @@ public:
 		joyZ = 0;
 		joySlide = 0;
 		currentAngle = 0;
-		toggleDriveButton = false;
+		isArcade = false;
 	}
 
 /*-----------------------------------------------------------------------------------------------
@@ -44,22 +44,22 @@ public:
 		{
 			// VARIABLE SETTING
 			Drive_Man.getEncSpeeds();
-			joyX = Input_Man.getX();
-			joyY = Input_Man.getY();
-			joyZ = Input_Man.getZ();
-			joySlide = Input_Man.getSlide();
+			joyX = Input_Man.getAxis(0);
+			joyY = Input_Man.getAxis(1);
+			joyZ = Input_Man.getAxis(2);
+			joySlide = Input_Man.getAxis(3);
 			currentAngle = Input_Man.getAngle();
-			toggleDriveButton = Input_Man.getDriveButton();
+			isArcade = Input_Man.getJoyButton(1);
 
 			// DRIVE
-			if (toggleDriveButton)
+			if (isArcade)
 			{
-				// Pneumatic cylinders out
+				Drive_Man.solenoidsOut();
 				Drive_Man.arcadeDrive(joyY, joyZ);
 			}
 			else
 			{
-				// Pneumatic cylinders in
+				Drive_Man.solenoidsIn();
 				Drive_Man.mecanumDrive(joyX, joyY, joyZ * .7);
 			}
 
@@ -84,7 +84,7 @@ public:
 	{
 		while (IsTest() && IsEnabled())
 		{
-			Lift_Man.resetLift();
+			//Lift_Man.resetLift();
 		}
 	}
 };

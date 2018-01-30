@@ -15,6 +15,7 @@ namespace FRC
 		// Objects
 		FRC::Input_Manager Input_Man;
 		WPI_TalonSRX Left_Back, Left_Front, Right_Back, Right_Front;
+		Solenoid Left_Solenoid, Right_Solenoid;
 
 		// Methods
 		void arcadeDrive(double joyY, double joyZ);
@@ -23,6 +24,8 @@ namespace FRC
 		void rotate(int degrees);
 		void rotateTo(int degrees);
 		void getEncSpeeds();
+		void solenoidsOut();
+		void solenoidsIn();
 
 		// Variables
 		double const RATE_FREQUENCY = 2000; // Target Velocity

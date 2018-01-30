@@ -17,11 +17,8 @@ namespace FRC
 
 		// Methods
 		double getAngle();
-		double getX();
-		double getY();
-		double getZ();
-		double getSlide();
-		bool getDriveButton();
+		double getAxis(int axis);
+		bool getJoyButton(int button);
 		void resetNav();
 	};
 }

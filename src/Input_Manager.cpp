@@ -21,7 +21,7 @@ double FRC::Input_Manager::getAxis(int axis)
 
 bool FRC::Input_Manager::getJoyButton(int button)
 {
-	return stick.GetRawAxis(button);
+	return stick.GetRawButton(button);
 }
 
 void FRC::Input_Manager::resetNav()

@@ -26,6 +26,7 @@ namespace FRC
 		void getEncSpeeds();
 		void solenoidsOut();
 		void solenoidsIn();
+		void testMotorPorts(bool port0, bool port1, bool port2, bool port3);
 
 		// Variables
 		double const RATE_FREQUENCY = 2000; // Target Velocity

@@ -43,23 +43,25 @@ public:
 		while (IsOperatorControl() && IsEnabled())
 		{
 			// VARIABLE SETTING
-			Drive_Man.getEncSpeeds();
+			//Drive_Man.getEncSpeeds();
 			joyX = Input_Man.getAxis(0);
-			joyY = Input_Man.getAxis(1);
+			joyY = -Input_Man.getAxis(1);
 			joyZ = Input_Man.getAxis(2);
 			joySlide = Input_Man.getAxis(3);
 			currentAngle = Input_Man.getAngle();
 			isArcade = Input_Man.getJoyButton(1);
 
+			SmartDashboard::PutBoolean("Is Arcade", isArcade);
+
 			// DRIVE
 			if (isArcade)
 			{
-				Drive_Man.solenoidsOut();
+				//Drive_Man.solenoidsOut();
 				Drive_Man.arcadeDrive(joyY, joyZ);
 			}
 			else
 			{
-				Drive_Man.solenoidsIn();
+				//Drive_Man.solenoidsIn();
 				Drive_Man.mecanumDrive(joyX, joyY, joyZ * .7);
 			}
 
@@ -84,7 +86,17 @@ public:
 	{
 		while (IsTest() && IsEnabled())
 		{
-			//Lift_Man.resetLift();
+			bool button9 = Input_Man.getJoyButton(9);
+			bool button10 = Input_Man.getJoyButton(10);
+			bool button11 = Input_Man.getJoyButton(11);
+			bool button12 = Input_Man.getJoyButton(12);
+
+			SmartDashboard::PutBoolean("Button 9", button9);
+			SmartDashboard::PutBoolean("Button 10", button10);
+			SmartDashboard::PutBoolean("Button 11", button11);
+			SmartDashboard::PutBoolean("Button 12", button12);
+
+			Drive_Man.testMotorPorts(button9, button10, button11, button12);
 		}
 	}
 };

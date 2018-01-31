@@ -24,12 +24,14 @@ FRC::Drive_Manager::Drive_Manager():
 
 void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 {
-	double speeds[2] = {joyY + joyZ, joyY - joyZ};
-	double maxMagnitude = 0;
+	baseSpeed[0] = joyY + joyZ;
+	baseSpeed[1] = joyY + joyZ;
+	baseSpeed[2] = joyY - joyZ;
+	baseSpeed[3] = joyY - joyZ;
 
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 4; i++)
 	{
-		double speed = fabs(speeds[i]);
+		double speed = fabs(baseSpeed[i]);
 
 		if (maxMagnitude < speed)
 		{
@@ -39,53 +41,79 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 
 	if (maxMagnitude > 1)
 	{
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 4; i++)
 		{
-			speeds[i] /= maxMagnitude;
+			baseSpeed[i] /= maxMagnitude;
 		}
 	}
 
-	Left_Front.Set(speeds[1]);
-	Left_Back.Set(speeds[1]);
-	Right_Front.Set(speeds[0]);
-	Right_Back.Set(speeds[0]);
+	// PI Loop (Supposed to make the motors run at the same velocity)
+	finalSpeed[0] = PICorrection(baseSpeed[0], encSpeed[0]);
+	finalSpeed[1] = PICorrection(baseSpeed[1], encSpeed[1]);
+	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
+	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
+
+	// Deadband
+	for (int i = 0; i < 4; i++)
+	{
+		if (fabs(finalSpeed[i]) < .1)
+		{
+			finalSpeed[i] = 0;
+		}
+	}
+
+	Left_Front.Set(finalSpeed[0] * .6);
+	Left_Back.Set(finalSpeed[1] * .6);
+	Right_Front.Set(finalSpeed[2] * .6);
+	Right_Back.Set(finalSpeed[3] * .6);
 }
 
-void FRC::Drive_Manager::mecanumDrive(double x, double y, double rotate)
+void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 {
-	Left_Front.PIDWrite(x);
+	baseSpeed[0] = joyX + joyY + joyZ;
+	baseSpeed[1] = -joyX + joyY + joyZ;
+	baseSpeed[2] = -joyX + joyY - joyZ;
+	baseSpeed[3] = joyX + joyY - joyZ;
 
-	baseSpeed[0] = x + y - rotate;
-	baseSpeed[1] = -(-x + y + rotate);
-	baseSpeed[2] = -x + y - rotate;
-	baseSpeed[3] = -(x + y + rotate);
-
-	for (int i = 1; i < 4; i++)
+	// Sets maxMagnitude to the highest speed out of the 4 motors
+	for (int i = 0; i < 4; i++)
 	{
-		double speed = std::fabs(baseSpeed[i]);
+		double speed = fabs(baseSpeed[i]);
 		if (maxMagnitude < speed)
 		{
 			maxMagnitude = speed;
 		}
 	}
 
-	if (maxMagnitude > 1.0)
+	// If maxMagnitude is over 1, divide all 4 motors by maxMagnitude
+	// Ensures that the motor speeds are set within -1 and 1
+	if (maxMagnitude > 1)
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			baseSpeed[i] = baseSpeed[i] / maxMagnitude;
+			baseSpeed[i] /= maxMagnitude;
 		}
 	}
 
+	// PI Loop (Supposed to make the motors run at the same velocity)
 	finalSpeed[0] = PICorrection(baseSpeed[0], encSpeed[0]);
 	finalSpeed[1] = PICorrection(baseSpeed[1], encSpeed[1]);
 	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
 	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
 
-	Left_Front.Set(finalSpeed[0]);
-	Left_Back.Set(finalSpeed[1]);
-	Right_Front.Set(finalSpeed[2]);
-	Right_Back.Set(finalSpeed[3]);
+	// Deadband
+	for (int i = 0; i < 4; i++)
+	{
+		if (fabs(finalSpeed[i]) < .1)
+		{
+			finalSpeed[i] = 0;
+		}
+	}
+
+	Left_Front.Set(finalSpeed[0] * .6);
+	Left_Back.Set(finalSpeed[1] * .6);
+	Right_Front.Set(finalSpeed[2] * .6);
+	Right_Back.Set(finalSpeed[3] * .6);
 }
 
 double FRC::Drive_Manager::PICorrection(double defaultVal, double encSpeed)
@@ -134,4 +162,43 @@ void FRC::Drive_Manager::solenoidsIn()
 {
 	Left_Solenoid.Set(true);
 	Right_Solenoid.Set(true);
+}
+
+void FRC::Drive_Manager::testMotorPorts(bool port0, bool port1, bool port2, bool port3)
+{
+	if (port0)
+	{
+		Left_Front.Set(1);
+	}
+	else
+	{
+		Left_Front.Set(0);
+	}
+
+	if (port1)
+	{
+		Left_Back.Set(1);
+	}
+	else
+	{
+		Left_Back.Set(0);
+	}
+
+	if (port2)
+	{
+		Right_Front.Set(1);
+	}
+	else
+	{
+		Right_Front.Set(0);
+	}
+
+	if (port3)
+	{
+		Right_Back.Set(1);
+	}
+	else
+	{
+		Right_Back.Set(0);
+	}
 }

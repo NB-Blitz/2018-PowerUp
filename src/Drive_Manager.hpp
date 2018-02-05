@@ -2,7 +2,6 @@
 #define SRC_DRIVE_MANAGER_HPP_
 
 #include "WPILib.h"
-#include "Input_Manager.hpp"
 #include "ctre/Phoenix.h"
 
 namespace FRC
@@ -13,8 +12,7 @@ namespace FRC
 		Drive_Manager();
 
 		// Objects
-		FRC::Input_Manager Input_Man;
-		WPI_TalonSRX Left_Back, Left_Front, Right_Back, Right_Front;
+		WPI_TalonSRX Left_Front, Left_Back, Right_Front, Right_Back;
 		Solenoid Left_Solenoid, Right_Solenoid;
 
 		// Methods

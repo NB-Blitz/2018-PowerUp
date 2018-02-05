@@ -2,12 +2,10 @@
 #include "Drive_Manager.hpp"
 
 FRC::Drive_Manager::Drive_Manager():
-	Input_Man(),
-
-	Left_Back(1),
 	Left_Front(0),
-	Right_Back(3),
+	Left_Back(1),
 	Right_Front(2),
+	Right_Back(3),
 
 	Left_Solenoid(0),
 	Right_Solenoid(1)
@@ -62,10 +60,10 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 		}
 	}
 
-	Left_Front.Set(finalSpeed[0] * .6);
-	Left_Back.Set(finalSpeed[1] * .6);
-	Right_Front.Set(finalSpeed[2] * .6);
-	Right_Back.Set(finalSpeed[3] * .6);
+	Left_Front.Set(finalSpeed[0]);
+	Left_Back.Set(finalSpeed[1]);
+	Right_Front.Set(finalSpeed[2]);
+	Right_Back.Set(finalSpeed[3]);
 }
 
 void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
@@ -110,10 +108,10 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 		}
 	}
 
-	Left_Front.Set(finalSpeed[0] * .6);
-	Left_Back.Set(finalSpeed[1] * .6);
-	Right_Front.Set(finalSpeed[2] * .6);
-	Right_Back.Set(finalSpeed[3] * .6);
+	Left_Front.Set(finalSpeed[0]);
+	Left_Back.Set(finalSpeed[1]);
+	Right_Front.Set(finalSpeed[2]);
+	Right_Back.Set(finalSpeed[3]);
 }
 
 double FRC::Drive_Manager::PICorrection(double defaultVal, double encSpeed)

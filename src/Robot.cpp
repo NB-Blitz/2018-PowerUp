@@ -10,7 +10,7 @@ class Robot: public SampleRobot
 	FRC::Input_Manager Input_Man;
 	FRC::Lift_Manager Lift_Man;
 	FRC::Manip_Manager Manip_Man;
-	double joyX, joyY, joyZ, joySlide, leftManip, rightManip, currentAngle;
+	double joyX, joyY, joyZ, joySlide, leftControlY, rightControlX, rightControlY, currentAngle;
 	bool leftIntake, rightIntake, isArcade;
 
 public:
@@ -25,9 +25,10 @@ public:
 		joyY = 0;
 		joyZ = 0;
 		joySlide = 0;
+		leftControlY = 0;
+		rightControlX = 0;
+		rightControlY = 0;
 		currentAngle = 0;
-		leftManip = 0;
-		rightManip = 0;
 		leftIntake = false;
 		rightIntake = false;
 		isArcade = false;
@@ -56,8 +57,9 @@ public:
 			joyZ = Input_Man.getAxis(2);
 			joySlide = Input_Man.getAxis(3);
 
-			leftManip = Input_Man.getControllerAxis(2);
-			rightManip = Input_Man.getControllerAxis(3);
+			leftControlY = Input_Man.getControllerAxis(1);
+			rightControlX = Input_Man.getControllerAxis(4);
+			rightControlY = Input_Man.getControllerAxis(5);
 
 			leftIntake = Input_Man.getControllerButton(5);
 			rightIntake = Input_Man.getControllerButton(6);
@@ -66,6 +68,10 @@ public:
 
 			isArcade = Input_Man.getJoyButton(1);
 
+//			joyX = Input_Man.prevXRamp(joyX);
+//			joyY = Input_Man.prevYRamp(joyY);
+//			joyZ = Input_Man.prevZRamp(joyZ);
+
 			joyX = Input_Man.xRamp(joyX);
 			joyY = Input_Man.yRamp(joyY);
 			joyZ = Input_Man.zRamp(joyZ);
@@ -73,21 +79,22 @@ public:
 			// DRIVE
 			if (isArcade)
 			{
-//				Drive_Man.solenoidsOut();
+//				Drive_Man.toArcade();
 				Drive_Man.arcadeDrive(joyY, joyZ);
 			}
 			else
 			{
-//				Drive_Man.solenoidsIn();
+//				Drive_Man.toMecanum();
 				Drive_Man.mecanumDrive(joyX, joyY, joyZ);
 			}
 
 			// LIFT
-//			Lift_Man.moveLift(joyY);
+//			Lift_Man.moveLift(leftControlY);
 //			Lift_Man.moveLiftTo(joySlide);
 
 			// MANIPULATOR
-			Manip_Man.moveArms(leftManip, rightManip);
+			Manip_Man.moveManip(rightControlY);
+			Manip_Man.moveArms(rightControlX);
 			Manip_Man.intake(leftIntake, rightIntake);
 
 			Wait(0.005);

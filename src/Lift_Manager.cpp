@@ -3,9 +3,7 @@
 #include "ctre/Phoenix.h"
 
 FRC::Lift_Manager::Lift_Manager() :
-	Lift_Motor(0),
-	Top_Switch(0),
-	Bottom_Switch(1)
+	Lift_Motor(5)
 
 {
 
@@ -33,25 +31,11 @@ void FRC::Lift_Manager::moveLiftTo(double joyPos)
 
 void FRC::Lift_Manager::moveLift(double stickY)
 {
-	if (Top_Switch.Get() || Bottom_Switch.Get())
-	{
-		Lift_Motor.Set(0);
-	}
-	else
-	{
-		Lift_Motor.Set(stickY);
-	}
+	Lift_Motor.Set(stickY);
 }
 
 void FRC::Lift_Manager::resetLift()
 {
-	if (!Bottom_Switch.Get())
-	{
-		Lift_Motor.Set(-0.2);
-	}
-	else
-	{
-		Lift_Motor.Set(0);
-		Lift_Motor.SetSelectedSensorPosition(0,0,0);
-	}
+	Lift_Motor.Set(-0.2);
+	Lift_Motor.SetSelectedSensorPosition(0,0,0);
 }

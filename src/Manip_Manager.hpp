@@ -12,11 +12,12 @@ namespace FRC
 		Manip_Manager();
 
 		// Objects
-		WPI_TalonSRX Manip_Motor;
+		WPI_TalonSRX Manip_Motor, Arm_Motor;
 		Relay Left_Spike, Right_Spike;
 
 		// Methods
-		void moveArms(double leftButton, double rightButton);
+		void moveManip(double rightControlY);
+		void moveArms(double rightControlX);
 		void intake(bool leftButton, bool rightButton);
 	};
 }

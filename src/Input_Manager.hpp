@@ -20,7 +20,6 @@ namespace FRC
 		double yRamp(double joyY);
 		double zRamp(double joyZ);
 
-		double * ramp(double joyX, double joyY, double joyZ);
 		double prevXRamp(double joyX);
 		double prevYRamp(double joyY);
 		double prevZRamp(double joyZ);
@@ -51,7 +50,6 @@ namespace FRC
 		double joyXRaw;
 		double joyYRaw;
 		double joyZRaw;
-		double finalAxis[3];
 	};
 }
 

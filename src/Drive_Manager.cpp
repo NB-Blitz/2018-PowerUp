@@ -2,10 +2,10 @@
 #include "Drive_Manager.hpp"
 
 FRC::Drive_Manager::Drive_Manager():
-	Left_Front(0),
-	Left_Back(1),
-	Right_Front(2),
-	Right_Back(3),
+	Left_Front(1),
+	Left_Back(2),
+	Right_Front(3),
+	Right_Back(4),
 
 	Left_Solenoid(0),
 	Right_Solenoid(1)
@@ -150,13 +150,13 @@ void FRC::Drive_Manager::getEncSpeeds()
 	encSpeed[3] = Right_Back.GetSelectedSensorVelocity(0);
 }
 
-void FRC::Drive_Manager::solenoidsOut()
+void FRC::Drive_Manager::toArcade()
 {
 	Left_Solenoid.Set(false);
 	Right_Solenoid.Set(false);
 }
 
-void FRC::Drive_Manager::solenoidsIn()
+void FRC::Drive_Manager::toMecanum()
 {
 	Left_Solenoid.Set(true);
 	Right_Solenoid.Set(true);

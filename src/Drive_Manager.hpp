@@ -22,8 +22,8 @@ namespace FRC
 		void rotate(int degrees);
 		void rotateTo(int degrees);
 		void getEncSpeeds();
-		void solenoidsOut();
-		void solenoidsIn();
+		void toArcade();
+		void toMecanum();
 		void testMotorPorts(bool port0, bool port1, bool port2, bool port3);
 
 		// Variables

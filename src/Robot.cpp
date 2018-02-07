@@ -70,6 +70,7 @@ public:
 			joyY = Input_Man.yRamp(joyY);
 			joyZ = Input_Man.zRamp(joyZ);
 
+			PIDLoop(joyX, joyY, joyZ, true);
 			// DRIVE
 			if (isArcade)
 			{

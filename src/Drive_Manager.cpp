@@ -18,6 +18,7 @@ FRC::Drive_Manager::Drive_Manager():
 	propOut = 0;
 	PIOut = 0;
 	useEnc = false;
+	_loops = 0;
 }
 
 void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
@@ -199,4 +200,58 @@ void FRC::Drive_Manager::testMotorPorts(bool port0, bool port1, bool port2, bool
 	{
 		Right_Back.Set(0);
 	}
+}
+
+void PIDLoop(double x, double y, double z, bool button)
+{
+
+			/* get gamepad axis */
+			/*double leftXstick = x;
+			double leftYstick = y;
+			double leftZstick = z;*/
+			/* prepare line to print
+			_sb.append("\tout:");
+			_sb.append(std::to_string(motorOutput));
+			_sb.append("\tspd:");
+			_sb.append(std::to_string(_talon->GetSelectedSensorVelocity(kPIDLoopIdx)));
+			 while button1 is held down, closed-loop on target velocity */
+			if (button)
+			{
+	        	/* Speed mode */
+				/* Convert 500 RPM to units / 100ms.
+				 * 4096 Units/Rev * 500 RPM / 600 100ms/min in either direction:
+				 * velocity setpoint is in units/100ms
+				 */
+				double Left_Front_targetVelocity_UnitsPer100ms = x+y+z * 500.0 * 4096 / 600;
+				double Left_Back_targetVelocity_UnitsPer100ms = -x+y+z * 500.0 * 4096 / 600;
+				double Right_Front_targetVelocity_UnitsPer100ms = -x+y-z * 500.0 * 4096 / 600;
+				double Right_Back_targetVelocity_UnitsPer100ms = x+y-z * 500.0 * 4096 / 600;
+				/* 500 RPM in either direction */
+
+	        	Left_Front.Set(ControlMode::Velocity, Left_Front_targetVelocity_UnitsPer100ms);
+	        	Left_Back.Set(ControlMode::Velocity, Left_Back_targetVelocity_UnitsPer100ms);
+	        	Right_Front.Set(ControlMode::Velocity, Right_Front_targetVelocity_UnitsPer100ms);
+	        	Right_Back.Set(ControlMode::Velocity, Right_Back_targetVelocity_UnitsPer100ms);
+
+				/* append more signals to print when in speed mode.
+				_sb.append("\terrNative:");
+				_sb.append(std::to_string(_talon->GetClosedLoopError(kPIDLoopIdx)));
+				_sb.append("\ttrg:");
+				_sb.append(std::to_string(targetVelocity_UnitsPer100ms));*/
+	        }
+			else
+			{
+				/* Percent voltage mode */
+				Left_Front.Set(ControlMode::PercentOutput, x+y+z);
+				Left_Back.Set(ControlMode::PercentOutput, -x+y+z);
+				Right_Front.Set(ControlMode::PercentOutput, -x+y-z);
+				Right_Back.Set(ControlMode::PercentOutput, x+y-z);
+			}
+			/* print every ten loops, printing too much too fast is generally bad for performance
+			if (++_loops >= 10) {
+				_loops = 0;
+				printf("%s\n",_sb.c_str());
+			}
+			_sb.clear();*/
+
 }

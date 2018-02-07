@@ -3,6 +3,8 @@
 
 #include "WPILib.h"
 #include "ctre/Phoenix.h"
+#include "PIDController.h"
+#include "Constants.h"
 
 namespace FRC
 {
@@ -26,6 +28,8 @@ namespace FRC
 		void solenoidsIn();
 		void testMotorPorts(bool port0, bool port1, bool port2, bool port3);
 
+		void PIDLoop(double x, double y, double z, bool button);//The PID code that was 'borrowed' from CTRE.
+
 		// Variables
 		double const RATE_FREQUENCY = 2000; // Target Velocity
 		double const PROPORTIONAL_GAIN = 1.0; // Proportional multiplier
@@ -43,6 +47,9 @@ namespace FRC
 		bool useEnc;
 
 		double encSpeed[4];
+
+		std::string _sd;//??
+		int _loops;
 	};
 }
 

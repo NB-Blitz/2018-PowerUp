@@ -4,6 +4,7 @@
 #include "WPILib.h"
 #include "Input_Manager.hpp"
 #include "ctre/Phoenix.h"
+#include <math.h>
 
 namespace FRC
 {

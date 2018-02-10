@@ -30,7 +30,9 @@ namespace FRC
 		 * @returns
 		 * Boolean stating if current path will result in a collision or not
 		 */
-		bool checkColision(double sensorTheta, double sensorDistance, double joyStickX, double joyStickY, double joyStickTheta);
+		bool checkCollision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta);
+
+		bool sonicCheckCollision(int distance, double joyStickX, double joyStickY, double joyStickTheta);
 
 
 		/* Returns Direction for nav-x board to send the robot if it cant go forwards
@@ -41,11 +43,20 @@ namespace FRC
 		 *2 - go to the left
 		 *3 - forwards, left, and right will cause collision
 		 */
-		int avoidColision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta);
+		int avoidCollision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta);
+
+		int sonicAvoidCollision(int frontSonic, int rightSonic, int leftSonic, double joyStickX, double joyStickY, double joyStickTheta);
+
+		//Utility
+		 double convertMB1220SonicVoltageToInches(double voltage);
+
+		 double convertMB1013SonicVoltageToInches(double voltage);
+
+		 double convertMB1010SonicVoltageToInches(double voltage);
 
 	private:
 
-		const double MINIMUM_DISTANCE = 2; //The Distance in meters that is the closest the robot can go to an obstacle without override
+		const double MINIMUM_DISTANCE = 24; //The Distance in meters that is the closest the robot can go to an obstacle without override
 
 	};
 }

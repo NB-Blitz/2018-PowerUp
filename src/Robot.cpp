@@ -8,17 +8,17 @@ class Robot: public SampleRobot
 {
 	FRC::Drive_Manager Drive_Man;
 	FRC::Input_Manager Input_Man;
-	FRC::Lift_Manager Lift_Man;
-	FRC::Manip_Manager Manip_Man;
+	//FRC::Lift_Manager Lift_Man;
+	//FRC::Manip_Manager Manip_Man;
 	double joyX, joyY, joyZ, joySlide, leftControlY, rightControlX, rightControlY, currentAngle;
 	bool leftIntake, rightIntake, isArcade;
 
 public:
 	Robot() :
 		Drive_Man(),
-		Input_Man(),
-		Lift_Man(),
-		Manip_Man()
+		Input_Man()
+		//Lift_Man(),
+		//Manip_Man()
 
 	{
 		joyX = 0;
@@ -85,7 +85,7 @@ public:
 			else
 			{
 //				Drive_Man.toMecanum();
-				Drive_Man.mecanumDrive(joyX, joyY, joyZ);
+				Drive_Man.mecanumDrive(joyX * 0, joyY * .5, joyZ * 0);
 			}
 
 			// LIFT
@@ -93,10 +93,22 @@ public:
 //			Lift_Man.moveLiftTo(joySlide);
 
 			// MANIPULATOR
-			Manip_Man.moveManip(rightControlY);
-			Manip_Man.moveArms(rightControlX);
-			Manip_Man.intake(leftIntake, rightIntake);
+			//Manip_Man.moveManip(rightControlY);
+			//Manip_Man.moveArms(rightControlX);
+			//Manip_Man.intake(leftIntake, rightIntake);
 
+
+			SmartDashboard::PutNumber("Left Front Speed", Drive_Man.Left_Front.Get());
+			SmartDashboard::PutNumber("Left Back Speed", Drive_Man.Left_Front.Get());
+			SmartDashboard::PutNumber("Right Front Speed", Drive_Man.Left_Front.Get());
+			SmartDashboard::PutNumber("Right Back Speed", Drive_Man.Left_Front.Get());
+			SmartDashboard::PutNumber("Current_Value", Drive_Man.Left_Front.Get());
+
+			SmartDashboard::PutNumber("Left Front Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
+			SmartDashboard::PutNumber("Left Back Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
+			SmartDashboard::PutNumber("Right Front Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
+			SmartDashboard::PutNumber("Right Back Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
+			SmartDashboard::PutNumber("PID_Value", Drive_Man.PIDOut);
 			Wait(0.005);
 		}
 	}

@@ -1,5 +1,6 @@
 #include "WPILib.h"
 #include "Input_Manager.hpp"
+#include "Math.h"
 
 FRC::Input_Manager::Input_Manager():
 	Nav(SPI::Port::kMXP),

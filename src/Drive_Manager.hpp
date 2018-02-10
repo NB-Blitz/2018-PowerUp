@@ -46,7 +46,7 @@ namespace FRC
 		double error;
 		double propOut;
 		double PIOut;
-		bool useEnc;
+		bool useEnc = false;
 
 		double integralOut;
 		double derivativeOut;

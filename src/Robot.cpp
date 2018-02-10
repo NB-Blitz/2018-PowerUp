@@ -15,8 +15,8 @@ class Robot: public SampleRobot
 	double frontSonicDistance, rightSonicDistance, leftSonicDistance;
 	AnalogInput frontSonic, rightSonic, leftSonic;
 	bool isArcade;
-	const double RIGHT_STRAFE_SPEED = 0.5;
-	const double LEFT_STRAFE_SPEED = -0.5;
+	const double RIGHT_STRAFE_SPEED = -0.5;
+	const double LEFT_STRAFE_SPEED = 0.5;
 
 public:
 	Robot() :
@@ -41,7 +41,7 @@ public:
 		while(IsAutonomous() && IsEnabled())
 		{
 			joyX = 0;
-			joyY = .5;
+			joyY = .25;
 			joyZ = 0;
 			frontSonicDistance = Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage());
 			rightSonicDistance = Auto_Manager.convertMB1013SonicVoltageToInches(rightSonic.GetVoltage());

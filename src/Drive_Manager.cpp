@@ -31,7 +31,7 @@ FRC::Drive_Manager::Drive_Manager():
 	integralOut = 0;
 	derivativeOut = 0;
 	PIDOut = 0;
-	useEnc = true;
+	useEnc = false;
 	Left_Front_Controller.Enable();
 }
 
@@ -84,10 +84,10 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 
 
 	// PI Loop (Supposed to make the motors run at the same velocity)
-	finalSpeed[0] = PICorrection(baseSpeed[0], encSpeed[0]);
-	finalSpeed[1] = PICorrection(baseSpeed[1], encSpeed[1]);
-	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
-	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
+	finalSpeed[0] = baseSpeed[0]; //PICorrection(baseSpeed[0], encSpeed[0]);
+	finalSpeed[1] = baseSpeed[1]; //PICorrection(baseSpeed[1], encSpeed[1]);
+	finalSpeed[2] = baseSpeed[2]; //PICorrection(baseSpeed[2], encSpeed[2]);
+	finalSpeed[3] = baseSpeed[3]; //PICorrection(baseSpeed[3], encSpeed[3]);
 
 	// Deadband
 	for (int i = 0; i < 4; i++)
@@ -143,10 +143,10 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 	 */
 
 	// PI Loop (Supposed to make the motors run at the same velocity)
-	finalSpeed[0] = PIDCorrection(baseSpeed[0], encSpeed[0]);
-	finalSpeed[1] = PIDCorrection(baseSpeed[1], encSpeed[1]);
-	finalSpeed[2] = PIDCorrection(baseSpeed[2], encSpeed[2]);
-	finalSpeed[3] = PIDCorrection(baseSpeed[3], encSpeed[3]);
+	finalSpeed[0] = PICorrection(baseSpeed[0], encSpeed[0]);
+	finalSpeed[1] = PICorrection(baseSpeed[1], encSpeed[1]);
+	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
+	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
 	std::cout << "Left Front Enc: " << encSpeed[0] << " Left Back Enc: " << encSpeed[1] << "Right Front Enc: " << encSpeed[2] << " Right Back Enc: " << encSpeed[3] <<"\n";
 
 
@@ -160,10 +160,10 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 	}
 
 
-	Left_Front.Set(-finalSpeed[0]);
-	Left_Back.Set(-finalSpeed[1]);
-	Right_Front.Set(finalSpeed[2]);
-	Right_Back.Set(finalSpeed[3]);
+	Left_Front.Set(-finalSpeed[0] * 0.6);
+	Left_Back.Set(-finalSpeed[1] * 0.6);
+	Right_Front.Set(finalSpeed[2] * 0.6);
+	Right_Back.Set(finalSpeed[3] * 0.6);
 }
 
 double FRC::Drive_Manager::PICorrection(double defaultVal, double encSpeed) //Old Version

@@ -74,6 +74,7 @@ int FRC::AutoManager::sonicAvoidCollision(int frontSonic, int rightSonic, int le
  * @returns
  * Boolean stating if current path will result in a collision or not
  */
+
 //bool FRC::AutoManager::checkCollision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta)
 //{
 //	if(joyStickY < 0 || joyStickY > 0)

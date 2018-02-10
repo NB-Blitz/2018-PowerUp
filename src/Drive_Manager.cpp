@@ -69,6 +69,7 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 			baseSpeed[i] /= maxMagnitude;
 		}
 	}
+
 	/* For WPILib Version
 	 * for (int j = 0; j < 4; j++)
 	 * {
@@ -80,11 +81,13 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 	 * PIDControlWPILib(baseSpeed[0], baseSpeed[1], baseSpeed[2], baseSpeed[3]);
 	 *
 	 */
+
+
 	// PI Loop (Supposed to make the motors run at the same velocity)
-	finalSpeed[0] = PIDCorrection(baseSpeed[0], encSpeed[0]);
-	finalSpeed[1] = PIDCorrection(baseSpeed[1], encSpeed[1]);
-	finalSpeed[2] = PIDCorrection(baseSpeed[2], encSpeed[2]);
-	finalSpeed[3] = PIDCorrection(baseSpeed[3], encSpeed[3]);
+	finalSpeed[0] = PICorrection(baseSpeed[0], encSpeed[0]);
+	finalSpeed[1] = PICorrection(baseSpeed[1], encSpeed[1]);
+	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
+	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
 
 	// Deadband
 	for (int i = 0; i < 4; i++)
@@ -95,8 +98,8 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 		}
 	}
 
-	Left_Front.Set(finalSpeed[0]);
-	Left_Back.Set(finalSpeed[1]);
+	Left_Front.Set(-finalSpeed[0]);
+	Left_Back.Set(-finalSpeed[1]);
 	Right_Front.Set(finalSpeed[2]);
 	Right_Back.Set(finalSpeed[3]);
 }

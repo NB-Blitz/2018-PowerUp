@@ -2,12 +2,16 @@
 #include "Drive_Manager.hpp"
 #include "Input_Manager.hpp"
 #include "Lift_Manager.hpp"
+#include "Auto_Manager.hpp"
+#include "camera_Manager.hpp"
 
 class Robot: public SampleRobot
 {
 	FRC::Drive_Manager Drive_Man;
 	FRC::Input_Manager Input_Man;
 	FRC::Lift_Manager Lift_Man;
+	FRC::Auto_Manager autoMan;
+	FRC::camera_Manager cameraMan;
 	double joyX, joyY, joyZ, joySlide, currentAngle;
 	bool isArcade;
 
@@ -15,7 +19,8 @@ public:
 	Robot() :
 		Drive_Man(),
 		Input_Man(),
-		Lift_Man()
+		Lift_Man(),
+		autoMan()
 
 	{
 		joyX = 0;
@@ -24,6 +29,24 @@ public:
 		joySlide = 0;
 		currentAngle = 0;
 		isArcade = false;
+	}
+
+	void Autonomous()
+	{
+		cameraMan.netSetup();
+
+		while(IsAutonomous() && IsEnabled())
+		{
+			cameraMan.grabData();
+			cameraMan.camScan();
+
+			SmartDashboard::PutNumber("xPos", cameraMan.angle);
+			SmartDashboard::PutNumber("yPos", cameraMan.yPos);
+
+			autoMan.driveToCam(cameraMan.angle);
+
+			Wait(0.005);
+		}
 	}
 
 /*-----------------------------------------------------------------------------------------------

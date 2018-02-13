@@ -9,5 +9,12 @@ FRC::Auto_Manager::Auto_Manager():
 
 void FRC::Auto_Manager::driveToCam(int angle)
 {
-	Drive_Man.mecanumDrive(0, .15, -angle * 0.01);
+	if(angle != -1)
+	{
+		Drive_Man.mecanumDrive(0, .25, -angle * 0.004);
+	}
+	else
+	{
+		Drive_Man.mecanumDrive(0, 0, 0);
+	}
 }

@@ -96,10 +96,10 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 	}
 
 	// PI Loop (Supposed to make the motors run at the same velocity)
-	finalSpeed[0] = PICorrection(baseSpeed[0], encSpeed[0]);
-	finalSpeed[1] = PICorrection(baseSpeed[1], encSpeed[1]);
-	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
-	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
+	finalSpeed[0] = baseSpeed[0];//PICorrection(baseSpeed[0], encSpeed[0]);
+	finalSpeed[1] = baseSpeed[1];//PICorrection(baseSpeed[1], encSpeed[1]);
+	finalSpeed[2] = baseSpeed[2];//PICorrection(baseSpeed[2], encSpeed[2]);
+	finalSpeed[3] = baseSpeed[3];//PICorrection(baseSpeed[3], encSpeed[3]);
 
 	// Deadband
 	for (int i = 0; i < 4; i++)

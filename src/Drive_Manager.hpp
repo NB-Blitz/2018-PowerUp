@@ -4,7 +4,6 @@
 #include "WPILib.h"
 #include "ctre/Phoenix.h"
 #include "PIDController.h"
-#include "Constants.h"
 
 namespace FRC
 {
@@ -28,7 +27,8 @@ namespace FRC
 		void solenoidsIn();
 		void testMotorPorts(bool port0, bool port1, bool port2, bool port3);
 
-		void PIDLoop(double x, double y, double z, bool button);//The PID code that was 'borrowed' from CTRE.
+		void PIDSetup();
+		double PIDLoop(int motorId, double speed, bool straight);//Toggles between straight
 
 		// Variables
 		double const RATE_FREQUENCY = 2000; // Target Velocity
@@ -45,6 +45,10 @@ namespace FRC
 		double propOut;
 		double PIOut;
 		bool useEnc;
+
+		const double PROPORTIONAL_COEFFICIENT = 1;
+		const double INTEGRAL_COEFFICIENT = 0.1;
+		const double DERIVATIVE_COEFFICIENT = 0.1;
 
 		double encSpeed[4];
 

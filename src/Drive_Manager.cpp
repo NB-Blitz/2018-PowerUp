@@ -95,10 +95,10 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 	}
 
 	// PI Loop (Supposed to make the motors run at the same velocity)
-	finalSpeed[0] = PICorrection(baseSpeed[0], encSpeed[0]);
-	finalSpeed[1] = PICorrection(baseSpeed[1], encSpeed[1]);
-	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
-	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
+	finalSpeed[0] = PIDLoop(0, baseSpeed[0], true);
+	finalSpeed[1] = PIDLoop(1, baseSpeed[1], true);
+	finalSpeed[2] = PIDLoop(2, baseSpeed[2], true);
+	finalSpeed[3] = PIDLoop(3, baseSpeed[3], true);
 
 	// Deadband
 	for (int i = 0; i < 4; i++)
@@ -202,56 +202,72 @@ void FRC::Drive_Manager::testMotorPorts(bool port0, bool port1, bool port2, bool
 	}
 }
 
-void PIDLoop(double x, double y, double z, bool button)
+void FRC::Drive_Manager::PIDSetup()//Run it once
 {
 
-			/* get gamepad axis */
-			/*double leftXstick = x;
-			double leftYstick = y;
-			double leftZstick = z;*/
-			/* prepare line to print
-			_sb.append("\tout:");
-			_sb.append(std::to_string(motorOutput));
-			_sb.append("\tspd:");
-			_sb.append(std::to_string(_talon->GetSelectedSensorVelocity(kPIDLoopIdx)));
-			 while button1 is held down, closed-loop on target velocity */
-			if (button)
-			{
-	        	/* Speed mode */
-				/* Convert 500 RPM to units / 100ms.
-				 * 4096 Units/Rev * 500 RPM / 600 100ms/min in either direction:
-				 * velocity setpoint is in units/100ms
-				 */
-				double Left_Front_targetVelocity_UnitsPer100ms = x+y+z * 500.0 * 4096 / 600;
-				double Left_Back_targetVelocity_UnitsPer100ms = -x+y+z * 500.0 * 4096 / 600;
-				double Right_Front_targetVelocity_UnitsPer100ms = -x+y-z * 500.0 * 4096 / 600;
-				double Right_Back_targetVelocity_UnitsPer100ms = x+y-z * 500.0 * 4096 / 600;
-				/* 500 RPM in either direction */
+	Right_Front.IFollower.Follow(Left_Front);
+	Left_Back.IFollower.Follow(Left_Front);
+	Right_Back.IFollower.Follow(Left_Front);
 
-	        	Left_Front.Set(ControlMode::Velocity, Left_Front_targetVelocity_UnitsPer100ms);
-	        	Left_Back.Set(ControlMode::Velocity, Left_Back_targetVelocity_UnitsPer100ms);
-	        	Right_Front.Set(ControlMode::Velocity, Right_Front_targetVelocity_UnitsPer100ms);
-	        	Right_Back.Set(ControlMode::Velocity, Right_Back_targetVelocity_UnitsPer100ms);
+}
+double FRC::Drive_Manager::PIDLoop(int motorId, double speed, bool straight)
+{
+	Left_Front.Set(speed);
+	Left_Back.Set(speed);
+	Right_Front.Set(speed);
+	Right_Back.Set(speed);
+	if(straight)
+	{
 
-				/* append more signals to print when in speed mode.
-				_sb.append("\terrNative:");
-				_sb.append(std::to_string(_talon->GetClosedLoopError(kPIDLoopIdx)));
-				_sb.append("\ttrg:");
-				_sb.append(std::to_string(targetVelocity_UnitsPer100ms));*/
-	        }
-			else
-			{
-				/* Percent voltage mode */
-				Left_Front.Set(ControlMode::PercentOutput, x+y+z);
-				Left_Back.Set(ControlMode::PercentOutput, -x+y+z);
-				Right_Front.Set(ControlMode::PercentOutput, -x+y-z);
-				Right_Back.Set(ControlMode::PercentOutput, x+y-z);
-			}
-			/* print every ten loops, printing too much too fast is generally bad for performance
-			if (++_loops >= 10) {
-				_loops = 0;
-				printf("%s\n",_sb.c_str());
-			}
-			_sb.clear();*/
+		if(motorId == 1)
+		{
+			return ((PROPORTIONAL_COEFFICIENT * Left_Front.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Left_Front.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Left_Front.GetErrorDerivative(1)));
+		}
 
+		else if(motorId == 2)
+		{
+			return ((PROPORTIONAL_COEFFICIENT * Left_Back.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Left_Back.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Left_Back.GetErrorDerivative(1)));
+		}
+
+		else if(motorId == 3)
+		{
+			return ((PROPORTIONAL_COEFFICIENT * Right_Front.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Right_Front.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Right_Front.GetErrorDerivative(1)));
+		}
+
+		else if(motorId == 4)
+		{
+			return ((PROPORTIONAL_COEFFICIENT * Right_Back.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Right_Back.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Right_Back.GetErrorDerivative(1)));
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	else
+	{
+		if(motorId == 1)
+		{
+			return ((PROPORTIONAL_COEFFICIENT * Left_Front.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Left_Front.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Left_Front.GetErrorDerivative(0)));
+		}
+
+		else if(motorId == 2)
+		{
+			return ((PROPORTIONAL_COEFFICIENT * Left_Back.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Left_Back.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Left_Back.GetErrorDerivative(0)));
+		}
+
+		else if(motorId == 3)
+		{
+			return ((PROPORTIONAL_COEFFICIENT * Right_Front.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Right_Front.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Right_Front.GetErrorDerivative(0)));
+		}
+
+		else if(motorId == 4)
+		{
+			return ((PROPORTIONAL_COEFFICIENT * Right_Back.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Right_Back.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Right_Back.GetErrorDerivative(0)));
+		}
+		else
+		{
+			return 0;
+		}
+	}
 }

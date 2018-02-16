@@ -12,6 +12,7 @@ class Robot: public SampleRobot
 	//FRC::Manip_Manager Manip_Man;
 	double joyX, joyY, joyZ, joySlide, leftControlY, rightControlX, rightControlY, currentAngle;
 	bool leftIntake, rightIntake, isArcade;
+	bool toggle;
 
 public:
 	Robot() :
@@ -32,6 +33,7 @@ public:
 		leftIntake = false;
 		rightIntake = false;
 		isArcade = false;
+		toggle = false;
 	}
 
 /*-----------------------------------------------------------------------------------------------
@@ -47,7 +49,7 @@ public:
 	void OperatorControl()
 	{
 		Input_Man.resetNav();
-
+		double currAngle = Drive_Man.getAngle();
 		while (IsOperatorControl() && IsEnabled())
 		{
 			// VARIABLE SETTING
@@ -77,16 +79,29 @@ public:
 			joyZ = Input_Man.zRamp(joyZ);
 
 			// DRIVE
+/*
 			if (isArcade)
 			{
 //				Drive_Man.toArcade();
 				Drive_Man.arcadeDrive(joyY, joyZ);
 			}
+			else if(Input_Man.getJoyButton(9))
+			{
+				if(!toggle)
+				{
+					currAngle = Input_Man.getAngle();
+					toggle = true;
+				}
+				Drive_Man.straightDrive(joyX, joyY, currAngle);
+			}
 			else
 			{
-//				Drive_Man.toMecanum();
-				Drive_Man.mecanumDrive(joyX * 0, joyY * .5, joyZ * 0);
+				Drive_Man.toMecanum();
+				Drive_Man.mecanumDrive(joyX * .5, joyY * .5, joyZ * .3);
+				toggle = false;
 			}
+			*/
+			Drive_Man.mecanumDrive(joyX * .5, joyY * .5, joyZ * .3);
 
 			// LIFT
 //			Lift_Man.moveLift(leftControlY);
@@ -97,18 +112,68 @@ public:
 			//Manip_Man.moveArms(rightControlX);
 			//Manip_Man.intake(leftIntake, rightIntake);
 
+			//SmartDashboard Variables from Manual PID Correction
+			/*
+			SmartDashboard::PutNumber("PID Out Left Front", Drive_Man.PIDOut[0]);
+			SmartDashboard::PutNumber("EncSpeed Left Front", Drive_Man.encSpeed[0]);
+			SmartDashboard::PutNumber("P-Component Left Front", Drive_Man.propOut[0]);
+			SmartDashboard::PutNumber("I-Component Left Front", Drive_Man.integralOut[0]);
+			SmartDashboard::PutNumber("D-Compone
+			nt Left Front", Drive_Man.derivativeOut[0]);
+			SmartDashboard::PutNumber("Target Speed Left Front", Drive_Man.targetSpeed[0]);
+			*/
+			SmartDashboard::PutNumber("Error Left Front", Drive_Man.error[0]);
+			SmartDashboard::PutNumber("PID Out Left Back", Drive_Man.PIDOut[1]);
+			SmartDashboard::PutNumber("EncSpeed Left Back", Drive_Man.encSpeed[1]);
+			SmartDashboard::PutNumber("P-Component Left Back", Drive_Man.propOut[1]);
+			SmartDashboard::PutNumber("I-Component Left Back", Drive_Man.integralOut[1]);
+			SmartDashboard::PutNumber("D-Component Left Back", Drive_Man.derivativeOut[1]);
+			SmartDashboard::PutNumber("Target Speed Left Back", Drive_Man.targetSpeed[1]);
+			SmartDashboard::PutNumber("Error Left Back", Drive_Man.error[1]);
+			SmartDashboard::PutNumber("PID Out Right Front", Drive_Man.PIDOut[2]);
+			SmartDashboard::PutNumber("EncSpeed Right Front", Drive_Man.encSpeed[2]);
+			SmartDashboard::PutNumber("P-Component Right Front", Drive_Man.propOut[2]);
+			SmartDashboard::PutNumber("I-Component Right Front", Drive_Man.integralOut[2]);
+			SmartDashboard::PutNumber("D-Component Right Front", Drive_Man.derivativeOut[2]);
+			SmartDashboard::PutNumber("Target Speed Right Front", Drive_Man.targetSpeed[2]);
+			SmartDashboard::PutNumber("Error Right Front", Drive_Man.error[2]);
+			SmartDashboard::PutNumber("PID Out Right Back", Drive_Man.PIDOut[3]);
+			SmartDashboard::PutNumber("EncSpeed Right Back", Drive_Man.encSpeed[3]);
+			SmartDashboard::PutNumber("P-Component Right Back", Drive_Man.propOut[3]);
+			SmartDashboard::PutNumber("I-Component Right Back", Drive_Man.integralOut[3]);
+			SmartDashboard::PutNumber("D-Component Right Back", Drive_Man.derivativeOut[3]);
+			SmartDashboard::PutNumber("Target Speed Right Back", Drive_Man.targetSpeed[3]);
+			SmartDashboard::PutNumber("Error Right Back", Drive_Man.error[3]);
+/*
+			SmartDashboard::PutNumber("Encoder Error Left Front", Drive_Man.Left_Front.GetClosedLoopError(0));
+			SmartDashboard::PutNumber("Encoder Integral Left Front", Drive_Man.Left_Front.GetIntegralAccumulator(0));
+			SmartDashboard::PutNumber("Encoder Derivative Left Front", Drive_Man.Left_Front.GetErrorDerivative(0));
+			SmartDashboard::PutNumber("Encoder Error Left Back", Drive_Man.Left_Back.GetClosedLoopError(0));
+			SmartDashboard::PutNumber("Encoder Integral Left Back", Drive_Man.Left_Back.GetIntegralAccumulator(0));
+			SmartDashboard::PutNumber("Encoder Derivative Left Back", Drive_Man.Left_Back.GetErrorDerivative(0));
+			SmartDashboard::PutNumber("Encoder Error Right Front", Drive_Man.Right_Front.GetClosedLoopError(0));
+			SmartDashboard::PutNumber("Encoder Integral Right Front", Drive_Man.Right_Front.GetIntegralAccumulator(0));
+			SmartDashboard::PutNumber("Encoder Derivative Right Front", Drive_Man.Right_Front.GetErrorDerivative(0));
+			SmartDashboard::PutNumber("Encoder Error Right Back", Drive_Man.Right_Back.GetClosedLoopError(0));
+			SmartDashboard::PutNumber("Encoder Integral Right Back", Drive_Man.Right_Back.GetIntegralAccumulator(0));
+			SmartDashboard::PutNumber("Encoder Derivative Right Back", Drive_Man.Right_Back.GetErrorDerivative(0));
+			SmartDashboard::PutNumber("Cascade Encoder Error Left Front", Drive_Man.Left_Front.GetClosedLoopError(1));
+			SmartDashboard::PutNumber("Cascade Encoder Integral Left Front", Drive_Man.Left_Front.GetIntegralAccumulator(1));
+			SmartDashboard::PutNumber("Cascade Encoder Derivative Left Front", Drive_Man.Left_Front.GetErrorDerivative(1));
+			SmartDashboard::PutNumber("Cascade Encoder Error Left Back", Drive_Man.Left_Back.GetClosedLoopError(1));
+			SmartDashboard::PutNumber("Cascade Encoder Integral Left Back", Drive_Man.Left_Back.GetIntegralAccumulator(1));
+			SmartDashboard::PutNumber("Cascade Encoder Derivative Left Back", Drive_Man.Left_Back.GetErrorDerivative(1));
+			SmartDashboard::PutNumber("Cascade Encoder Error Right Front", Drive_Man.Right_Front.GetClosedLoopError(1));
+			SmartDashboard::PutNumber("Cascade Encoder Integral Right Front", Drive_Man.Right_Front.GetIntegralAccumulator(1));
+			SmartDashboard::PutNumber("Cascade Encoder Derivative Right Front", Drive_Man.Right_Front.GetErrorDerivative(1));
+			SmartDashboard::PutNumber("Cascade Encoder Error Right Back", Drive_Man.Right_Back.GetClosedLoopError(1));
+			SmartDashboard::PutNumber("Cascade Encoder Integral Right Back", Drive_Man.Right_Back.GetIntegralAccumulator(1));
+			SmartDashboard::PutNumber("Cascade Encoder Derivative Right Back", Drive_Man.Right_Back.GetErrorDerivative(1));
+*/
 
-			SmartDashboard::PutNumber("Left Front Speed", Drive_Man.Left_Front.Get());
-			SmartDashboard::PutNumber("Left Back Speed", Drive_Man.Left_Front.Get());
-			SmartDashboard::PutNumber("Right Front Speed", Drive_Man.Left_Front.Get());
-			SmartDashboard::PutNumber("Right Back Speed", Drive_Man.Left_Front.Get());
-			SmartDashboard::PutNumber("Current_Value", Drive_Man.Left_Front.Get());
-
-			SmartDashboard::PutNumber("Left Front Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
-			SmartDashboard::PutNumber("Left Back Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
-			SmartDashboard::PutNumber("Right Front Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
-			SmartDashboard::PutNumber("Right Back Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
-			SmartDashboard::PutNumber("PID_Value", Drive_Man.PIDOut);
+			SmartDashboard::PutNumber("CurrAngle", currAngle);
+			SmartDashboard::PutNumber("Real Angle", Input_Man.getAngle());
+			SmartDashboard::PutNumber("Delta", Drive_Man.delta);
 			Wait(0.005);
 		}
 	}

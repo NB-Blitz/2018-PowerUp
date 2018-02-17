@@ -16,8 +16,8 @@ namespace FRC
 	public:
 		camera_Manager();
 
-		Servo pan;
-		//Servo tilt;
+		Servo *tilt;
+		Servo *pan;
 
 		sockaddr_in server;
 		unsigned short port = 5800;
@@ -33,6 +33,7 @@ namespace FRC
 		int camTiltPos = 0;
 		int panDir = 1;
 		int tiltDir = 1;
+		int defaultTilt = 90;
 
 		void netSetup();
 		void grabData();
@@ -40,7 +41,17 @@ namespace FRC
 		void sendData(std::string data);
 		void closeNet();
 
-		void camScan();
+		void camScan(int autoGoal);
+		void setPanPos(double pos);
+		void setTiltPos(double pos);
+
+		const int CAM_HEIGHT = 50;
+		const int MIN_TILT = 45;
+		const int MAX_TILT = 180;
+		const int MIN_PAN = 0;
+		const int MAX_PAN = 180;
+		const int DEFAULT_SWITCH_POS = 135;
+		const int DEFAULT_SCALE_POS = 90;
 
 	private:
 

@@ -5,17 +5,20 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
+#include "Auto_Manager.hpp"
 #include "camera_Manager.hpp"
 
-FRC::camera_Manager::camera_Manager():
-	pan(0)
-	//tilt(1)
+
+FRC::camera_Manager::camera_Manager()
 {
 
 }
 
 void FRC::camera_Manager::netSetup()
 {
+	tilt = new Servo(1);
+	pan = new Servo(0);
+
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
 	server.sin_addr.s_addr = inet_addr("10.51.48.36");
@@ -23,6 +26,9 @@ void FRC::camera_Manager::netSetup()
 	serverLen = sizeof(server);
 
 	udpSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+	camTiltPos = defaultTilt;
+
 }
 
 void FRC::camera_Manager::grabData()
@@ -48,16 +54,16 @@ void FRC::camera_Manager::grabData()
 	yPos = atoi(yPosStr.c_str());
 
 
-	char distBuffer[2];
+//	char distBuffer[2];
 
-	msg = "d";
-	SmartDashboard::PutNumber("step: ", 1);
-	sendto(udpSock, msg,sizeof(msg),0,(struct sockaddr *)&server,serverLen);
-	recv(udpSock,distBuffer,256,0);
-	//std::string distStr(buffer);
-	SmartDashboard::PutString("dist: ", distBuffer);
-
-	dist = atoi(distBuffer);
+//	msg = "d";
+//	SmartDashboard::PutNumber("step: ", 1);
+//	sendto(udpSock, msg,sizeof(msg),0,(struct sockaddr *)&server,serverLen);
+//	recv(udpSock,distBuffer,256,0);
+//	//std::string distStr(buffer);
+//	SmartDashboard::PutString("dist: ", distBuffer);
+//
+//	dist = atoi(distBuffer);
 }
 
 void FRC::camera_Manager::closeNet()
@@ -76,37 +82,71 @@ void FRC::camera_Manager::trackColor(std::string color)
 	sendData(color.substr(0,1));
 }
 
-void FRC::camera_Manager::camScan()
+void FRC::camera_Manager::camScan(int autoGoal)
 {
-	if(xPos == -1)
+	if(true)
 	{
-		/*if(camPanPos >= 180)
+		if(camPanPos >= 180)
 		{
-			panDir = -1;
+			panDir = -2.5;
 		}
 		else if(camPanPos <= 0)
 		{
-			panDir = 1;
+			panDir = 2.5;
 		}
 
-		if(camTiltPos >= 180)
+		if(autoGoal == 1)
 		{
-			tiltDir = -1;
+			camTiltPos = DEFAULT_SCALE_POS;
 		}
-		else if(camTiltPos <= 0)
+		else if(autoGoal == 2)
 		{
-			tiltDir = 1;
-		}*/
+			camTiltPos = DEFAULT_SWITCH_POS;
+		}
+
 		angle = 0;
+		dist = -1;
+
+		camPanPos += panDir;
+
+		setTiltPos(camTiltPos);
 	}
 	else
 	{
-		angle = xPos;
+		if(xPos > 1 && camPanPos < MIN_PAN)
+		{
+			camPanPos += 1;
+		}
+		else if(xPos < -1 && camPanPos < MAX_PAN)
+		{
+			camPanPos -= 1;
+		}
+		angle = camPanPos;
+
+		if(yPos > 1 && camTiltPos < MIN_TILT)
+		{
+			camTiltPos += 1;
+		}
+		else if(yPos < -1 && camTiltPos < MAX_TILT)
+		{
+			camTiltPos -= 1;
+		}
+
+		dist = tan(camTiltPos) * (M_PI/180) * CAM_HEIGHT;
 	}
 
-	camPanPos += panDir;
-	camTiltPos += tiltDir;
+	setPanPos(camPanPos);
 
-	pan.SetAngle(camPanPos);
-	//tilt.SetAngle(camTiltPos);
+	setTiltPos(camTiltPos);
+}
+
+
+void FRC::camera_Manager::setPanPos(double pos)
+{
+	pan->Set(pos/180);
+}
+
+void FRC::camera_Manager::setTiltPos(double pos)
+{
+	tilt->Set(pos/180);
 }

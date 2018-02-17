@@ -12,35 +12,33 @@ FRC::Drive_Manager::Drive_Manager():
 
 	Left_Solenoid(0),
 	Right_Solenoid(1),
-	ahrs {SPI::Port::kMXP}
+	ahrs {SPI::Port::kMXP},
+
+	Left_Front_Source(Left_Front),
+	Left_Back_Source(Left_Back),
+	Right_Front_Source(Right_Front),
+	Right_Back_Source(Right_Back),
+	Left_Front_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Left_Front_Source, Left_Front),
+	Left_Back_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Left_Back_Source, Left_Back),
+	Right_Front_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Right_Front_Source, Right_Front),
+	Right_Back_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Right_Back_Source, Right_Back)
 
 
 {
 
 
-	/* WPILib PID Method Code
-	BlitzPIDSource Left_Front_Source(Left_Front);
-	BlitzPIDSource Left_Back_Source(Left_Back);
-	BlitzPIDSource Right_Front_Source(Right_Front);
-	BlitzPIDSource Right_Back_Source(Right_Back);
-	PIDController Left_Front_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Left_Front_Source, Left_Front);
-	PIDController Left_Back_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Left_Back_Source, Left_Back);
-	PIDController Right_Front_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Right_Front_Source, Right_Front);
-	PIDController Right_Back_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Right_Back_Source, Right_Back);
-	*/
-
 }
 
 
 //WPILib Motor Control Method
-/*
+
 void FRC::Drive_Manager::PIDControlWPIlib(double leftFront, double leftBack, double rightFront, double rightBack) {
-	Left_Front_Controller.SetSetpoint(leftFront);
-	Left_Back_Controller.SetSetpoint(leftBack);
-	Right_Front_Controller.SetSetpoint(rightFront);
-	Right_Back_Controller.SetSetpoint(rightBack);
+	Left_Front_PID.SetSetpoint(leftFront);
+	Left_Back_PID.SetSetpoint(leftBack);
+	Right_Front_PID.SetSetpoint(rightFront);
+	Right_Back_PID.SetSetpoint(rightBack);
 }
-*/
+
 
 //Get robot's current angle
 float FRC::Drive_Manager::getAngle()
@@ -73,25 +71,26 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 			baseSpeed[i] /= maxMagnitude;
 		}
 	}
-	/* For WPILib Version
-	 * for (int j = 0; j < 4; j++)
-	 * {
-	 * 		if(fabs(baseSpeed[j]) < .1)
-	 * 		{
-	 * 			baseSpeed[j] = 0;
-	 * 		}
-	 * }
-	 * PIDControlWPILib(baseSpeed[0], baseSpeed[1], baseSpeed[2], baseSpeed[3]);
-	 *
-	 */
+	 //For WPILib Version
+	for (int j = 0; j < 4; j++)
+	{
+	 	if(fabs(baseSpeed[j]) < .1)
+ 		{
+	  		baseSpeed[j] = 0;
+	  	}
+	}
+	PIDControlWPIlib(baseSpeed[0], baseSpeed[1], baseSpeed[2], baseSpeed[3]);
+
+
 	//Manual PID Loop (Supposed to make the motors run at the same velocity)
+	/*
 	getEncSpeeds();
 	numberOfLoops++;
 	finalSpeed[0] = PIDCorrection(baseSpeed[0], encSpeed[0], 0);
 	finalSpeed[1] = PIDCorrection(baseSpeed[1], encSpeed[1], 1);
 	finalSpeed[2] = PIDCorrection(baseSpeed[2], encSpeed[2], 2);
 	finalSpeed[3] = PIDCorrection(baseSpeed[3], encSpeed[3], 3);
-
+	*/
 
 	// Deadband
 	for (int i = 0; i < 4; i++)
@@ -139,26 +138,27 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 		}
 	}
 
-	/* For WPILib Version
-	 * for (int j = 0; j < 4; j++)
-	 * {
-	 * 		if(fabs(baseSpeed[j]) < .1)
-	 * 		{
-	 * 			baseSpeed[j] = 0;
-	 * 		}
-	 * }
-	 * PIDControlWPILib(baseSpeed[0], baseSpeed[1], baseSpeed[2], baseSpeed[3]);
-	 */
+	// For WPILib Version
+	for (int j = 0; j < 4; j++)
+	{
+	   	if(fabs(baseSpeed[j]) < .1)
+	   	{
+	   		baseSpeed[j] = 0;
+	   	}
+	}
+	PIDControlWPIlib(baseSpeed[0], baseSpeed[1], baseSpeed[2], baseSpeed[3]);
 
 	//Manual PID Loop (Supposed to make the motors run at the same velocity)
+	/*
 	getEncSpeeds(); //Update Enc Speeds
 	numberOfLoops++;
 	finalSpeed[0] = PIDCorrection(baseSpeed[0], encSpeed[0], 0);
 	finalSpeed[1] = PIDCorrection(baseSpeed[1], encSpeed[1], 1);
 	finalSpeed[2] = PIDCorrection(baseSpeed[2], encSpeed[2], 2);
 	finalSpeed[3] = PIDCorrection(baseSpeed[3], encSpeed[3], 3);
+	*/
 /*
-	//Keven's CTRE Method
+	//Kevin's CTRE Method
 	finalSpeed[0] = PIDLoop(0, baseSpeed[0], true) + baseSpeed[0];
 	finalSpeed[1] = PIDLoop(1, baseSpeed[1], true) + baseSpeed[1];
 	finalSpeed[2] = PIDLoop(2, baseSpeed[2], true) + baseSpeed[2];
@@ -204,6 +204,7 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 }
 */
 //Manual Motor Correction
+/*
 double FRC::Drive_Manager::PIDCorrection(double desiredSpeed, double actualSpeed, int motorID) //Manual Version
 {
 	//if(useEnc)
@@ -225,7 +226,7 @@ double FRC::Drive_Manager::PIDCorrection(double desiredSpeed, double actualSpeed
 			{
 				runningIntegral[motorID] = 0;
 			}
-			/* Smart Dashboard Pass/Receive PID Array (Non-functional)
+			Smart Dashboard Pass/Receive PID Array (Non-functional)
 			if (motorID == 0)
 			{
 				std::vector<double> PID(3);
@@ -233,7 +234,7 @@ double FRC::Drive_Manager::PIDCorrection(double desiredSpeed, double actualSpeed
 				SmartDashboard::SetDefaultNumberArray("PID (Vector)", PID);
 
 			}
-			*/
+
 			return PIDOut[motorID] / (RATE_FREQUENCY/MAX_HZ); //Returns new speed in -1 to 1 range
 		//}
 		//else
@@ -241,7 +242,7 @@ double FRC::Drive_Manager::PIDCorrection(double desiredSpeed, double actualSpeed
 		//	return desiredSpeed;
 		//}
 }
-
+*/
 //Update Encoder Speeds for PID Correction
 void FRC::Drive_Manager::getEncSpeeds()
 {
@@ -305,7 +306,7 @@ void FRC::Drive_Manager::testMotorPorts(bool port0, bool port1, bool port2, bool
 		Right_Back.Set(0);
 	}
 }
-//Keven's PID Functions
+//Kevin's PID Functions
 /*
 void FRC::Drive_Manager::PIDSetup()//Run it once
 {

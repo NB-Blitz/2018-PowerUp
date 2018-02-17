@@ -4,6 +4,7 @@
 #include "WPILib.h"
 #include "ctre/Phoenix.h"
 #include "AHRS.h"
+#include "BlitzPIDSource.hpp"
 
 
 namespace FRC
@@ -17,14 +18,17 @@ namespace FRC
 		WPI_TalonSRX Left_Front, Left_Back, Right_Front, Right_Back;
 		Solenoid Left_Solenoid, Right_Solenoid;
 		AHRS ahrs;
+		BlitzPIDSource Left_Front_Source, Left_Back_Source, Right_Front_Source, Right_Back_Source;
+		PIDController Left_Front_PID, Left_Back_PID, Right_Front_PID, Right_Back_PID;
+		// WPILib PID Method Code
 
 		// Methods
 		float getAngle();
-		//void PIDControlWPIlib(double leftFront, double leftBack, double rightFront, double rightBack);
+		void PIDControlWPIlib(double leftFront, double leftBack, double rightFront, double rightBack);
 		void arcadeDrive(double joyY, double joyZ);
 		void mecanumDrive(double x, double y, double rotate);
 		//double PICorrection(double defaultVal, double encSpeed);
-		double PIDCorrection(double desiredSpeed, double actualSpeed, int motorID);
+		//double PIDCorrection(double desiredSpeed, double actualSpeed, int motorID);
 		void getEncSpeeds();
 		void toArcade();
 		void toMecanum();
@@ -79,6 +83,8 @@ namespace FRC
 
 		//Must be true for PID to function with encoders
 		bool useEnc = true;
+
+
 	};
 }
 

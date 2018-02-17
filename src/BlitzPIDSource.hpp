@@ -13,7 +13,7 @@ namespace frc {
 	public:
 		WPI_TalonSRX *inputTalon;
 
-		BlitzPIDSource(WPI_TalonSRX & talon);
+		BlitzPIDSource(WPI_TalonSRX &talon);
 
 		double PIDGet();
 	};

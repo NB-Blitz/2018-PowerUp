@@ -2,6 +2,7 @@
 #include "Drive_Manager.hpp"
 #include "Math.h"
 #include "iostream"
+#include "BlitzPIDSource.hpp"
 
 FRC::Drive_Manager::Drive_Manager():
 	Left_Front(1),
@@ -11,23 +12,23 @@ FRC::Drive_Manager::Drive_Manager():
 
 	Left_Solenoid(0),
 	Right_Solenoid(1),
-	ahrs {SPI::Port::kMXP},
-
-	Left_Front_Enc(0,1),
-	//What are the final two parameter objects? 4th -> gets PID values, 5th -> what is controlled
-	Left_Front_Controller(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Left_Front_Enc, Left_Front)
-	//Left_Back_Controller(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Left_Back.SpeedController, Left_Back.SpeedController),
-	//Right_Front_Controller(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Right_Front.SpeedController, Right_Front.SpeedController),
-	//Right_Back_Controller(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Right_Back.SpeedController, Right_Back.SpeedController)
-
+	ahrs {SPI::Port::kMXP}
 
 
 {
 
-	maxMagnitude = 0;
-	PIOut = 0;
-	useEnc = true;
-	Left_Front_Controller.Enable();
+
+	/* WPILib PID Method Code
+	BlitzPIDSource Left_Front_Source(Left_Front);
+	BlitzPIDSource Left_Back_Source(Left_Back);
+	BlitzPIDSource Right_Front_Source(Right_Front);
+	BlitzPIDSource Right_Back_Source(Right_Back);
+	PIDController Left_Front_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Left_Front_Source, Left_Front);
+	PIDController Left_Back_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Left_Back_Source, Left_Back);
+	PIDController Right_Front_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Right_Front_Source, Right_Front);
+	PIDController Right_Back_PID(PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT, Right_Back_Source, Right_Back);
+	*/
+
 }
 
 
@@ -41,10 +42,13 @@ void FRC::Drive_Manager::PIDControlWPIlib(double leftFront, double leftBack, dou
 }
 */
 
+//Get robot's current angle
 float FRC::Drive_Manager::getAngle()
 {
 	return ahrs.GetFusedHeading();
 }
+
+//Arcade Drive Function
 void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 {
 	baseSpeed[0] = joyY + joyZ;
@@ -80,14 +84,12 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 	 * PIDControlWPILib(baseSpeed[0], baseSpeed[1], baseSpeed[2], baseSpeed[3]);
 	 *
 	 */
-	// PI Loop (Supposed to make the motors run at the same velocity)
+	//Manual PID Loop (Supposed to make the motors run at the same velocity)
 	getEncSpeeds();
+	numberOfLoops++;
 	finalSpeed[0] = PIDCorrection(baseSpeed[0], encSpeed[0], 0);
-
 	finalSpeed[1] = PIDCorrection(baseSpeed[1], encSpeed[1], 1);
-
 	finalSpeed[2] = PIDCorrection(baseSpeed[2], encSpeed[2], 2);
-
 	finalSpeed[3] = PIDCorrection(baseSpeed[3], encSpeed[3], 3);
 
 
@@ -98,14 +100,18 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 		{
 			finalSpeed[i] = 0;
 		}
+		if (fabs(finalSpeed[i]) > 1) {
+			finalSpeed[i] = fabs(finalSpeed[i]) / finalSpeed[i]; //Keeps motors within -1 to 1
+		}
 	}
 
-	Left_Front.Set(finalSpeed[0]);
-	Left_Back.Set(finalSpeed[1]);
+	Left_Front.Set(-finalSpeed[0]);
+	Left_Back.Set(-finalSpeed[1]);
 	Right_Front.Set(finalSpeed[2]);
 	Right_Back.Set(finalSpeed[3]);
 }
 
+//Mecanum Drive Function
 void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 {
 	baseSpeed[0] = joyX + joyY + joyZ;
@@ -146,23 +152,30 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 
 	//Manual PID Loop (Supposed to make the motors run at the same velocity)
 	getEncSpeeds(); //Update Enc Speeds
+	numberOfLoops++;
 	finalSpeed[0] = PIDCorrection(baseSpeed[0], encSpeed[0], 0);
 	finalSpeed[1] = PIDCorrection(baseSpeed[1], encSpeed[1], 1);
 	finalSpeed[2] = PIDCorrection(baseSpeed[2], encSpeed[2], 2);
 	finalSpeed[3] = PIDCorrection(baseSpeed[3], encSpeed[3], 3);
 /*
-	//CTRE Method
+	//Keven's CTRE Method
 	finalSpeed[0] = PIDLoop(0, baseSpeed[0], true) + baseSpeed[0];
 	finalSpeed[1] = PIDLoop(1, baseSpeed[1], true) + baseSpeed[1];
 	finalSpeed[2] = PIDLoop(2, baseSpeed[2], true) + baseSpeed[2];
 	finalSpeed[3] = PIDLoop(3, baseSpeed[3], true) + baseSpeed[3];
 */
+	/*WPILib PID Method
+		Drive_Man.PIDControlWPIlib(finalSpeed[0], finalSpeed[1], finalSpeed[2], finalSpeed[3]);
+	*/
 	// Deadband
 	for (int i = 0; i < 4; i++)
 	{
 		if (fabs(finalSpeed[i]) < .1)
 		{
 			finalSpeed[i] = 0;
+		}
+		if (fabs(finalSpeed[i]) > 1) {
+			finalSpeed[i] = fabs(finalSpeed[i]) / finalSpeed[i]; //Keeps motors within -1 to 1
 		}
 	}
 
@@ -172,7 +185,7 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 	Right_Front.Set(finalSpeed[2]);
 	Right_Back.Set(finalSpeed[3]);
 }
-
+//Old Motor Correction Method
 /*double FRC::Drive_Manager::PICorrection(double defaultVal, double encSpeed) //Old Version
 {
 	if(useEnc)
@@ -190,43 +203,38 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 	}
 }
 */
-
+//Manual Motor Correction
 double FRC::Drive_Manager::PIDCorrection(double desiredSpeed, double actualSpeed, int motorID) //Manual Version
 {
 	//if(useEnc)
 		//{
-			targetSpeed[motorID] = desiredSpeed * (RATE_FREQUENCY/MAX_HZ);
-			currentSpeed[motorID] = actualSpeed / RATE_FREQUENCY;
-			error[motorID] = targetSpeed[motorID] - currentSpeed[motorID];
-			propOut[motorID] = error[motorID] * -PROPORTIONAL_COEFFICIENT;
-			runningIntegral[motorID] += error[motorID] * 0.005;
+			targetSpeed[motorID] = desiredSpeed * (RATE_FREQUENCY/MAX_HZ); //Speed in terms of encoder
+			currentSpeed[motorID] = actualSpeed / RATE_FREQUENCY; //Speed in terms of encoder
+			error[motorID] = targetSpeed[motorID] - currentSpeed[motorID]; //Error is found
+			propOut[motorID] = error[motorID] * -PROPORTIONAL_COEFFICIENT; //Proportional Gain is proportional to error
+			runningIntegral[motorID] += error[motorID] * 0.005; //Integral of error over time is updated
 			integralOut[motorID] = INTEGRAL_COEFFICIENT * runningIntegral[motorID];
-			double derivative = (error[motorID] - preError[motorID]) / 0.005;
+			double derivative = (error[motorID] - preError[motorID]) / 0.005; //Error Derivative is found
 			derivativeOut[motorID] = DERIVATIVE_COEFFICIENT * derivative;
-			PIDOut[motorID] = targetSpeed[motorID] + propOut[motorID] + integralOut[motorID] + derivativeOut[motorID];
-			numberOfLoops[motorID]++;
-			preError[motorID] = error[motorID];
+			PIDOut[motorID] = targetSpeed[motorID] + propOut[motorID] + integralOut[motorID] + derivativeOut[motorID]; //All components are combined
+			preError[motorID] = error[motorID]; //PreError is updated
 
 
-			SmartDashboard::PutNumber("PID Out Left Front", PIDOut[0]);
-			SmartDashboard::PutNumber("EncSpeed Left Front", encSpeed[0]);
-			SmartDashboard::PutNumber("P-Component Left Front", propOut[0]);
-			SmartDashboard::PutNumber("I-Component Left Front", integralOut[0]);
-			SmartDashboard::PutNumber("D-Component Left Front", derivativeOut[0]);
-			SmartDashboard::PutNumber("Target Speed Left Front", targetSpeed[0]);
 
-
-			if((numberOfLoops[motorID] % INTEGRAL_RESET_LOOPS) == 0) //Resets Integral Component over time
+			if((numberOfLoops % INTEGRAL_RESET_LOOPS) == 0) //Resets Integral Component over time
 			{
 				runningIntegral[motorID] = 0;
 			}
+			/* Smart Dashboard Pass/Receive PID Array (Non-functional)
 			if (motorID == 0)
 			{
-				std::vector<double> PID;
-				PID = SmartDashboard::GetNumberArray("PIDValues", *Default_PID); //Look at *PID later
-				//SmartDashboard::PutNumber("PIDValue", x);
+				std::vector<double> PID(3);
+				std::vector<double> PIDReturn = SmartDashboard::GetNumberArray("PID (Vector)", *PID);
+				SmartDashboard::SetDefaultNumberArray("PID (Vector)", PID);
+
 			}
-			return PIDOut[motorID] / (RATE_FREQUENCY/MAX_HZ);
+			*/
+			return PIDOut[motorID] / (RATE_FREQUENCY/MAX_HZ); //Returns new speed in -1 to 1 range
 		//}
 		//else
 		//{
@@ -234,6 +242,7 @@ double FRC::Drive_Manager::PIDCorrection(double desiredSpeed, double actualSpeed
 		//}
 }
 
+//Update Encoder Speeds for PID Correction
 void FRC::Drive_Manager::getEncSpeeds()
 {
 	useEnc = false;
@@ -243,18 +252,21 @@ void FRC::Drive_Manager::getEncSpeeds()
 	encSpeed[3] = Right_Back.GetSelectedSensorVelocity(0);
 }
 
+//Sets Pneumatics to Arcade Mode
 void FRC::Drive_Manager::toArcade()
 {
 	Left_Solenoid.Set(false);
 	Right_Solenoid.Set(false);
 }
 
+//Sets Pneumatics to Mecanum Mode
 void FRC::Drive_Manager::toMecanum()
 {
 	Left_Solenoid.Set(true);
 	Right_Solenoid.Set(true);
 }
 
+//Motor Port Testing Function
 void FRC::Drive_Manager::testMotorPorts(bool port0, bool port1, bool port2, bool port3)
 {
 	if (port0)
@@ -293,12 +305,12 @@ void FRC::Drive_Manager::testMotorPorts(bool port0, bool port1, bool port2, bool
 		Right_Back.Set(0);
 	}
 }
-
+//Keven's PID Functions
+/*
 void FRC::Drive_Manager::PIDSetup()//Run it once
 {
-
-	Right_Front.Follow(Left_Front);
 	Left_Back.Follow(Left_Front);
+	Right_Front.Follow(Left_Front);
 	Right_Back.Follow(Left_Front);
 
 }
@@ -361,21 +373,23 @@ double FRC::Drive_Manager::PIDLoop(int motorId, double speed, bool straight)
 					return 0;
 				}
 			}
-		 }
-
+}
+*/
+//Straight Drive Function -> Completely functional (but PID would enhance this)
 void FRC::Drive_Manager::straightDrive(double x, double y, double preAngle)
 {
-	delta = preAngle - getAngle();
+	theta = preAngle - getAngle();
 
-	if(delta > 180)
+	//theta is pushed within -180 to 180 range
+	if(theta > 180)
 	{
-		delta = delta - 360;
+		theta = theta - 360;
 	}
-	else if(delta < -180)
+	else if(theta < -180)
 	{
-		delta = 360 + delta;
+		theta = 360 + theta;
 	}
-		rotation = delta;
+		rotation = theta;
 
 	if(fabs(y) > fabs(x))
 	{
@@ -383,18 +397,58 @@ void FRC::Drive_Manager::straightDrive(double x, double y, double preAngle)
 	}
 	else
 	{
-		mecanumDrive(x, 0, rotation * 0.04);
+		mecanumDrive(x, 0, rotation * 0.04); //Coefficient is lower due to a greater tendency to over-compensate
 	}
 }
+//Ryan's CTRE PID Set-up Function
+/*
+void FRC::Drive_Manager::PIDSetupCTRE()
+{
+	Left_Front.SelectProfileSlot(0, 0);
+	Left_Front.Config_kP(0, PROPORTIONAL_COEFFICIENT, 0.005);
+	Left_Front.Config_kI(0, INTEGRAL_COEFFICIENT, 0.005);
+	Left_Front.Config_kD(0, DERIVATIVE_COEFFICIENT, 0.005);
+	Left_Front.ConfigNominalOutputForward(0, 0.005);
+	Left_Front.ConfigNominalOutputReverse(0, 0.005);
+	Left_Front.ConfigPeakOutputForward(1, 0.005);
+	Left_Front.ConfigPeakOutputReverse(-1, 0.005);
 
+	Left_Back.SelectProfileSlot(0, 0);
+	Left_Back.Config_kP(0, PROPORTIONAL_COEFFICIENT, 0.005);
+	Left_Back.Config_kI(0, INTEGRAL_COEFFICIENT, 0.005);
+	Left_Back.Config_kD(0, DERIVATIVE_COEFFICIENT, 0.005);
+	Left_Back.ConfigNominalOutputForward(0, 0.005);
+	Left_Back.ConfigNominalOutputReverse(0, 0.005);
+	Left_Back.ConfigPeakOutputForward(1, 0.005);
+	Left_Back.ConfigPeakOutputReverse(-1, 0.005);
+
+	Right_Front.SelectProfileSlot(0, 0);
+	Right_Front.Config_kP(0, PROPORTIONAL_COEFFICIENT, 0.005);
+	Right_Front.Config_kI(0, INTEGRAL_COEFFICIENT, 0.005);
+	Right_Front.Config_kD(0, DERIVATIVE_COEFFICIENT, 0.005);
+	Right_Front.ConfigNominalOutputForward(0, 0.005);
+	Right_Front.ConfigNominalOutputReverse(0, 0.005);
+	Right_Front.ConfigPeakOutputForward(1, 0.005);
+	Right_Front.ConfigPeakOutputReverse(-1, 0.005);
+
+	Right_Back.SelectProfileSlot(0, 0);
+	Right_Back.Config_kP(0, PROPORTIONAL_COEFFICIENT, 0.005);
+	Right_Back.Config_kI(0, INTEGRAL_COEFFICIENT, 0.005);
+	Right_Back.Config_kD(0, DERIVATIVE_COEFFICIENT, 0.005);
+	Right_Back.ConfigNominalOutputForward(0, 0.005);
+	Right_Back.ConfigNominalOutputReverse(0, 0.005);
+	Right_Back.ConfigPeakOutputForward(1, 0.005);
+	Right_Back.ConfigPeakOutputReverse(-1, 0.005);
+}
+*/
 
 /* Current Methods of PID Control:
  * -Old PI Correction Method
  * 	*Not perfect, but is usable
  * -Manual PID Correction
- * 	*Weird error where all PID contributors are zero, needs work
+ * 	*Proportional Error is having problems
  * -CTRE PID Correction
  * 	*Untested since corrections
  * -WPILib PID Correction
- *	*Not fully implemented, needs PIDController extended class and other code
+ * 	*Untested since corrections
  */

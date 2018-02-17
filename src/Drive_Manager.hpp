@@ -17,23 +17,22 @@ namespace FRC
 		WPI_TalonSRX Left_Front, Left_Back, Right_Front, Right_Back;
 		Solenoid Left_Solenoid, Right_Solenoid;
 		AHRS ahrs;
-		Encoder Left_Front_Enc;
-		PIDController Left_Front_Controller;//, Left_Back_Controller, Right_Front_Controller, Right_Back_Controller;
 
 		// Methods
 		float getAngle();
-		void PIDControlWPIlib(double leftFront, double leftBack, double rightFront, double rightBack);
+		//void PIDControlWPIlib(double leftFront, double leftBack, double rightFront, double rightBack);
 		void arcadeDrive(double joyY, double joyZ);
 		void mecanumDrive(double x, double y, double rotate);
-		double PICorrection(double defaultVal, double encSpeed);
+		//double PICorrection(double defaultVal, double encSpeed);
 		double PIDCorrection(double desiredSpeed, double actualSpeed, int motorID);
 		void getEncSpeeds();
 		void toArcade();
 		void toMecanum();
 		void testMotorPorts(bool port0, bool port1, bool port2, bool port3);
 		void straightDrive(double x, double y, double preAngle);
-		void PIDSetup();
-		double PIDLoop(int motorId, double speed, bool straight);
+		//void PIDSetup();
+		//double PIDLoop(int motorId, double speed, bool straight);
+		//void PIDSetupCTRE();
 
 		// Variables
 		double const RATE_FREQUENCY = 2000; // Target Velocity
@@ -50,10 +49,10 @@ namespace FRC
 		//Arrays holding values in motor control loop
 		double baseSpeed[4]; // Base Speeds
 		double finalSpeed[4]; // Final Speeds
-		double maxMagnitude;
+		double maxMagnitude = 0;
 
 		//Straight Drive variables
-		double delta = 0;
+		double theta = 0;
 		double rotation = 0;
 
 		//Speed holders for motor control
@@ -61,25 +60,25 @@ namespace FRC
 		double currentSpeed[4];
 
 		//PID Variables/Arrays
-		double error[4];
+		double error[4] = {0,0,0,0};
 		double propOut[4] = {0,0,0,0};
 		double integralOut[4] = {0,0,0,0};
 		double derivativeOut[4] = {0,0,0,0};
 		double PIDOut[4] = {0,0,0,0};
-		double encSpeed[4];
+		double encSpeed[4] = {0,0,0,0};
 		double preError[4] = {0,0,0,0};
 		double runningIntegral[4] = {0,0,0,0};
 
 		//Integral management variables
-		int numberOfLoops[4] = {0,0,0,0};
+		int numberOfLoops = 0;
 		int const INTEGRAL_RESET_SECONDS = 1; //Seconds before runningIntegral is reset
 		int const INTEGRAL_RESET_LOOPS = INTEGRAL_RESET_SECONDS * (1/0.005); //0.005 seconds per loop
 
 		//Variable for discontinued PI Loop
-		double PIOut;
+		double PIOut = 0;
 
-		//Must be true for PID
-		bool useEnc;
+		//Must be true for PID to function with encoders
+		bool useEnc = true;
 	};
 }
 

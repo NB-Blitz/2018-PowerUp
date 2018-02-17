@@ -4,10 +4,10 @@
 FRC::Drive_Manager::Drive_Manager():
 	Input_Man(),
 
-	Left_Back(1),
-	Left_Front(0),
-	Right_Back(3),
-	Right_Front(2),
+	Left_Back(2),
+	Left_Front(1),
+	Right_Back(4),
+	Right_Front(3),
 
 	Left_Solenoid(0),
 	Right_Solenoid(1)
@@ -110,8 +110,8 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 		}
 	}
 
-	Left_Front.Set(finalSpeed[0] * .6);
-	Left_Back.Set(finalSpeed[1] * .6);
+	Left_Front.Set(-finalSpeed[0] * .6);
+	Left_Back.Set(-finalSpeed[1] * .6);
 	Right_Front.Set(finalSpeed[2] * .6);
 	Right_Back.Set(finalSpeed[3] * .6);
 }

@@ -55,22 +55,44 @@ public:
 		while(IsAutonomous() && IsEnabled())
 		{
 			camera_Man.grabData();
+			camera_Man.camScan(2);
 
+			SmartDashboard::PutNumber("xPos", camera_Man.xPos);
+			SmartDashboard::PutNumber("yPos", camera_Man.yPos);
 			SmartDashboard::PutNumber("camTilt", camera_Man.camTiltPos);
 			SmartDashboard::PutNumber("actual Tilt", camera_Man.tilt->Get());
 			SmartDashboard::PutNumber("camPan", camera_Man.camPanPos);
 			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
 
-			camera_Man.setPanPos(90);
-			camera_Man.setTiltPos(90);
+			joyX = 0;
+			joyY = .25;
+			joyZ = 0;
+			frontSonicDistance = Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage());
+			rightSonicDistance = Auto_Manager.convertMB1013SonicVoltageToInches(rightSonic.GetVoltage());
+			leftSonicDistance = Auto_Manager.convertMB1010SonicVoltageToInches(leftSonic.GetVoltage());
 
-			camera_Man.camScan(2);
-			//cameraMan.angle = cameraMan.xPos;
+			SmartDashboard::PutNumber("FrontSonicVoltage", frontSonic.GetVoltage());
+			SmartDashboard::PutNumber("FrontSonicDistance", Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage()));
+			SmartDashboard::PutNumber("RightSonicVoltage", rightSonic.GetVoltage());
+			SmartDashboard::PutNumber("RightSonicDistance", Auto_Manager.convertMB1013SonicVoltageToInches(rightSonic.GetVoltage()));
+			SmartDashboard::PutNumber("LeftSonicVoltage", leftSonic.GetVoltage());
+			SmartDashboard::PutNumber("LeftSonicDistance", Auto_Manager.convertMB1010SonicVoltageToInches(leftSonic.GetVoltage()));
 
-			SmartDashboard::PutNumber("xPos", camera_Man.xPos);
-			SmartDashboard::PutNumber("yPos", camera_Man.yPos);
 
-        	Auto_Manager.driveToCam(camera_Man.angle);
+			SmartDashboard::PutNumber("AvoidCollisionOutput",  Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ));
+
+            if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 0)
+			{
+				Auto_Manager.driveToCam(camera_Man.angle);
+			}
+			else if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 1)
+			{
+				Drive_Man.mecanumDrive(RIGHT_STRAFE_SPEED, 0, 0);
+			}
+			else if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 2)
+			{
+				Drive_Man.mecanumDrive(LEFT_STRAFE_SPEED, 0, 0);
+			}
 
 			Wait(0.005);
 		}

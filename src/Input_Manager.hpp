@@ -12,25 +12,29 @@ namespace FRC
 		Input_Manager();
 
 		// Object Declarations
+		Joystick Stick, Controller, Switchboard;
+		AnalogInput Ultrasonic;
 		AHRS Nav;
-		Joystick Stick, Controller;
+		PowerDistributionPanel PDP;
 
 		// Methods
 		double xRamp(double joyX);
 		double yRamp(double joyY);
 		double zRamp(double joyZ);
 
-		double prevXRamp(double joyX);
-		double prevYRamp(double joyY);
-		double prevZRamp(double joyZ);
-
 		double getAxis(int axis);
 		bool getJoyButton(int button);
 		double getControllerAxis(int axis);
 		bool getControllerButton(int button);
 
+		bool getSwitch(int button);
+
+		double get1220Distance();
+
 		double getAngle();
 		void resetNav();
+
+		double getCurrent(int port);
 
 		// Variables
 		const double ACCEL_CAP = .05; // The maximum acceleration. It won't let you go much faster than this... THough this code barely makes sense.

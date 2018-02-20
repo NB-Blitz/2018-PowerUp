@@ -2,10 +2,9 @@
 #include "Manip_Manager.hpp"
 
 FRC::Manip_Manager::Manip_Manager():
-	Manip_Motor(6),
-	Arm_Motor(7),
-	Left_Spike(0),
-	Right_Spike(1)
+	Manip_Motor(7),
+	Arm_In(2),
+	Arm_Out(3)
 
 {
 
@@ -13,29 +12,23 @@ FRC::Manip_Manager::Manip_Manager():
 
 void FRC::Manip_Manager::moveManip(double rightControlY)
 {
-	Manip_Motor.Set(rightControlY * 0.7);
+	Manip_Motor.Set(-rightControlY * 0.8);
 }
 
-void FRC::Manip_Manager::moveArms(double rightControlX)
-{
-	Arm_Motor.Set(rightControlX * 0.25);
-}
-
-void FRC::Manip_Manager::intake(bool leftButton, bool rightButton)
+void FRC::Manip_Manager::moveArms(bool leftButton, bool rightButton)
 {
 	if (leftButton)
 	{
-		Left_Spike.Set(Relay::kForward);
-		Right_Spike.Set(Relay::kForward);
+		Arm_In.Set(true);
+		Arm_Out.Set(false);
 	}
 	else if (rightButton)
 	{
-		Left_Spike.Set(Relay::kReverse);
-		Right_Spike.Set(Relay::kReverse);
+		Arm_In.Set(false);
+		Arm_Out.Set(true);
 	}
 	else
 	{
-		Left_Spike.Set(Relay::kOff);
-		Right_Spike.Set(Relay::kOff);
+		// DON'T CHANGE
 	}
 }

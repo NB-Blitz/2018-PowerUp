@@ -3,22 +3,25 @@
 #include "Input_Manager.hpp"
 #include "Lift_Manager.hpp"
 #include "Manip_Manager.hpp"
+#include "Auto_Manager.hpp"
 
 class Robot: public SampleRobot
 {
 	FRC::Drive_Manager Drive_Man;
 	FRC::Input_Manager Input_Man;
-	//FRC::Lift_Manager Lift_Man;
-	//FRC::Manip_Manager Manip_Man;
-	double joyX, joyY, joyZ, joySlide, leftControlY, rightControlX, rightControlY, currentAngle;
-	bool leftIntake, rightIntake, isArcade;
+	FRC::Lift_Manager Lift_Man;
+	FRC::Manip_Manager Manip_Man;
+	FRC::Auto_Manager Auto_Man;
+	double joyX, joyY, joyZ, joySlide, leftControlY, rightControlY, currentAngle, ultraDistance, autoStage;
+	bool isArcade, leftControlButton, rightControlButton;
 
 public:
 	Robot() :
 		Drive_Man(),
-		Input_Man()
-		//Lift_Man(),
-		//Manip_Man()
+		Input_Man(),
+		Lift_Man(),
+		Manip_Man(),
+		Auto_Man()
 
 	{
 		joyX = 0;
@@ -26,12 +29,13 @@ public:
 		joyZ = 0;
 		joySlide = 0;
 		leftControlY = 0;
-		rightControlX = 0;
 		rightControlY = 0;
 		currentAngle = 0;
-		leftIntake = false;
-		rightIntake = false;
+		ultraDistance = 0;
+		autoStage = 1;
 		isArcade = false;
+		leftControlButton = false;
+		rightControlButton = false;
 	}
 
 /*-----------------------------------------------------------------------------------------------
@@ -51,64 +55,63 @@ public:
 		while (IsOperatorControl() && IsEnabled())
 		{
 			// VARIABLE SETTING
-//			Drive_Man.getEncSpeeds();
+			Drive_Man.getEncSpeeds();
 			joyX = Input_Man.getAxis(0);
 			joyY = -Input_Man.getAxis(1);
 			joyZ = Input_Man.getAxis(2);
 			joySlide = Input_Man.getAxis(3);
 
-			leftControlY = Input_Man.getControllerAxis(1);
-			rightControlX = Input_Man.getControllerAxis(4);
-			rightControlY = Input_Man.getControllerAxis(5);
-
-			leftIntake = Input_Man.getControllerButton(5);
-			rightIntake = Input_Man.getControllerButton(6);
-
-			currentAngle = Input_Man.getAngle();
-
 			isArcade = Input_Man.getJoyButton(1);
 
-//			joyX = Input_Man.prevXRamp(joyX);
-//			joyY = Input_Man.prevYRamp(joyY);
-//			joyZ = Input_Man.prevZRamp(joyZ);
+			leftControlY = Input_Man.getControllerAxis(1);
+			rightControlY = Input_Man.getControllerAxis(5);
+			leftControlButton = Input_Man.getControllerButton(5);
+			rightControlButton = Input_Man.getControllerButton(6);
+
+			currentAngle = Input_Man.getAngle();
 
 			joyX = Input_Man.xRamp(joyX);
 			joyY = Input_Man.yRamp(joyY);
 			joyZ = Input_Man.zRamp(joyZ);
 
+			// SMARTDASHBOARD
+			SmartDashboard::PutNumber("Joy X", joyX);
+			SmartDashboard::PutNumber("Joy Y", joyX);
+			SmartDashboard::PutNumber("Joy Z", joyX);
+
+			SmartDashboard::PutNumber("Lift Current", Input_Man.getCurrent(12));
+
+			SmartDashboard::PutNumber("Left_Front Current", Input_Man.getCurrent(0));
+			SmartDashboard::PutNumber("Left_Back Current", Input_Man.getCurrent(2));
+			SmartDashboard::PutNumber("Right_Front Current", Input_Man.getCurrent(13));
+			SmartDashboard::PutNumber("Right_Back Current", Input_Man.getCurrent(15));
+
+			SmartDashboard::PutNumber("Left_Front Speed", Drive_Man.getEncSpeed(0));
+			SmartDashboard::PutNumber("Left_Back Speed", Drive_Man.getEncSpeed(1));
+			SmartDashboard::PutNumber("Right_Front Speed", Drive_Man.getEncSpeed(2));
+			SmartDashboard::PutNumber("Right_Back Speed", Drive_Man.getEncSpeed(3));
+
 			// DRIVE
+			Drive_Man.startCompressor();
+
 			if (isArcade)
 			{
-//				Drive_Man.toArcade();
+				Drive_Man.toArcade();
 				Drive_Man.arcadeDrive(joyY, joyZ);
 			}
 			else
 			{
-//				Drive_Man.toMecanum();
-				Drive_Man.mecanumDrive(joyX * 0, joyY * .5, joyZ * 0);
+				Drive_Man.toMecanum();
+				Drive_Man.mecanumDrive(joyX, joyY, joyZ);
 			}
 
 			// LIFT
-//			Lift_Man.moveLift(leftControlY);
-//			Lift_Man.moveLiftTo(joySlide);
+			Lift_Man.moveLift(leftControlY);
 
 			// MANIPULATOR
-			//Manip_Man.moveManip(rightControlY);
-			//Manip_Man.moveArms(rightControlX);
-			//Manip_Man.intake(leftIntake, rightIntake);
+			Manip_Man.moveManip(rightControlY);
+			Manip_Man.moveArms(leftControlButton, rightControlButton);
 
-
-			SmartDashboard::PutNumber("Left Front Speed", Drive_Man.Left_Front.Get());
-			SmartDashboard::PutNumber("Left Back Speed", Drive_Man.Left_Front.Get());
-			SmartDashboard::PutNumber("Right Front Speed", Drive_Man.Left_Front.Get());
-			SmartDashboard::PutNumber("Right Back Speed", Drive_Man.Left_Front.Get());
-			SmartDashboard::PutNumber("Current_Value", Drive_Man.Left_Front.Get());
-
-			SmartDashboard::PutNumber("Left Front Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
-			SmartDashboard::PutNumber("Left Back Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
-			SmartDashboard::PutNumber("Right Front Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
-			SmartDashboard::PutNumber("Right Back Speed Enc", Drive_Man.Left_Front.GetSelectedSensorVelocity(0) / Drive_Man.RATE_FREQUENCY);
-			SmartDashboard::PutNumber("PID_Value", Drive_Man.PIDOut);
 			Wait(0.005);
 		}
 	}

@@ -13,6 +13,7 @@ namespace FRC
 
 		// Objects
 		WPI_TalonSRX Lift_Motor;
+		PowerDistributionPanel PDP;
 
 		// Variables
 		int MIN_LIFT_POS = 0;

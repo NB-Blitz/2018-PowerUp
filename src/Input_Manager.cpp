@@ -1,11 +1,13 @@
 #include "WPILib.h"
 #include "Input_Manager.hpp"
-#include "Math.h"
 
 FRC::Input_Manager::Input_Manager():
-	Nav(SPI::Port::kMXP),
 	Stick(0),
-	Controller(1)
+	Controller(1),
+	Switchboard(2),
+	Ultrasonic(0),
+	Nav(SPI::Port::kMXP),
+	PDP(0)
 
 {
 	joyXRaw = 0;
@@ -214,78 +216,6 @@ double FRC::Input_Manager::zRamp(double joyZ)
 	return 0;
 }
 
-double FRC::Input_Manager::prevXRamp(double joyX)
-{
-	joyXRaw = joyX;
-
-	if(fabs(joyXRaw) < DEADBAND)
-	{
-		joyXRaw = 0;
-	}
-	if(joyXRaw + .05 >= joyX && joyXRaw - .05 <= joyX)
-	{
-		// Stop from increasing value
-	}
-	else if(joyXRaw > joyX)
-	{
-		joyX += RAMP_RATE;
-	}
-	else
-	{
-		joyX -= RAMP_RATE;
-	}
-
-	return joyX;
-}
-
-double FRC::Input_Manager::prevYRamp(double joyY)
-{
-	joyYRaw = joyY;
-
-	if(fabs(joyYRaw) < DEADBAND)
-	{
-		joyYRaw = 0;
-	}
-	if(joyYRaw + .05 >= joyY && joyYRaw - .05 <= joyY)
-	{
-		// Stop from increasing value
-	}
-	else if(joyYRaw > joyY)
-	{
-		joyY += RAMP_RATE;
-	}
-	else
-	{
-		joyY -= RAMP_RATE;
-	}
-
-	return joyY;
-}
-
-double FRC::Input_Manager::prevZRamp(double joyZ)
-{
-	joyZRaw = joyZ;
-
-	if(fabs(joyZRaw) < DEADBAND)
-	{
-		joyZRaw = 0;
-	}
-	if(joyZRaw + .02 >= joyZ && joyZRaw - .02 <= joyZ)
-	{
-		// Stop from increasing value
-	}
-	else if(joyZRaw > joyZ)
-	{
-		joyZ += RAMP_RATE;
-	}
-	else
-	{
-		joyZ -= RAMP_RATE;
-	}
-
-	return joyZ;
-}
-
 double FRC::Input_Manager::getAxis(int axis)
 {
 	return Stick.GetRawAxis(axis);
@@ -306,6 +236,16 @@ bool FRC::Input_Manager::getControllerButton(int button)
 	return Controller.GetRawButton(button);
 }
 
+bool FRC::Input_Manager::getSwitch(int button)
+{
+	return Switchboard.GetRawButton(button);
+}
+
+double FRC::Input_Manager::get1220Distance()
+{
+	return (Ultrasonic.GetVoltage() / 0.0049) / 2.54;
+}
+
 double FRC::Input_Manager::getAngle()
 {
 	return Nav.GetFusedHeading();
@@ -314,4 +254,9 @@ double FRC::Input_Manager::getAngle()
 void FRC::Input_Manager::resetNav()
 {
 	Nav.Reset();
+}
+
+double FRC::Input_Manager::getCurrent(int port)
+{
+	return PDP.GetCurrent(port);
 }

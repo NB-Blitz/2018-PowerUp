@@ -17,11 +17,11 @@ void FRC::Lift_Manager::moveLiftTo(double joyPos)
 
 	if(currentHeight < joyPos - .012)
 	{
-		Lift_Motor.Set(.5);
+		Lift_Motor.Set(0.5);
 	}
 	else if(currentHeight > joyPos + .012)
 	{
-		Lift_Motor.Set(-.5);
+		Lift_Motor.Set(-0.5);
 	}
 	else
 	{

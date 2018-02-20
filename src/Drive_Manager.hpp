@@ -18,8 +18,8 @@ namespace FRC
 		WPI_TalonSRX Left_Front, Left_Back, Right_Front, Right_Back;
 		Solenoid Left_Solenoid, Right_Solenoid;
 		AHRS ahrs;
-		BlitzPIDSource Left_Front_Source, Left_Back_Source, Right_Front_Source, Right_Back_Source;
-		PIDController Left_Front_PID, Left_Back_PID, Right_Front_PID, Right_Back_PID;
+		//BlitzPIDSource Left_Front_Source, Left_Back_Source, Right_Front_Source, Right_Back_Source;
+		//PIDController Left_Front_PID, Left_Back_PID, Right_Front_PID, Right_Back_PID;
 		// WPILib PID Method Code
 
 		// Methods
@@ -28,15 +28,16 @@ namespace FRC
 		void arcadeDrive(double joyY, double joyZ);
 		void mecanumDrive(double x, double y, double rotate);
 		//double PICorrection(double defaultVal, double encSpeed);
-		//double PIDCorrection(double desiredSpeed, double actualSpeed, int motorID);
+		double angleCorrection(double actualAngle);
+		double PIDCorrection(double desiredSpeed, double actualSpeed, int motorID);
 		void getEncSpeeds();
 		void toArcade();
 		void toMecanum();
 		void testMotorPorts(bool port0, bool port1, bool port2, bool port3);
 		void straightDrive(double x, double y, double preAngle);
-		//void PIDSetup();
-		//double PIDLoop(int motorId, double speed, bool straight);
-		//void PIDSetupCTRE();
+		void PIDSetup();
+		double PIDLoop(int motorId, double speed, bool straight);
+		void PIDSetupCTRE();
 
 		// Variables
 		double const RATE_FREQUENCY = 2000; // Target Velocity
@@ -46,8 +47,8 @@ namespace FRC
 
 		//P, I, and D values for motor control
 		double PROPORTIONAL_COEFFICIENT = 1;
-		double INTEGRAL_COEFFICIENT = 0.1;
-		double DERIVATIVE_COEFFICIENT = 0.05;
+		double INTEGRAL_COEFFICIENT = 0.3;
+		double DERIVATIVE_COEFFICIENT = 0.001;
 		double Default_PID[3] = {PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT};
 
 		//Arrays holding values in motor control loop
@@ -55,11 +56,20 @@ namespace FRC
 		double finalSpeed[4]; // Final Speeds
 		double maxMagnitude = 0;
 
+
+		double preX = 0;
+		double preY = 0;
+		double preZ = 0;
+		bool disablePID = false;
+		double timeUntilEnablePID = 0;
+
 		//Straight Drive variables
 		double theta = 0;
 		double rotation = 0;
+		double preAngle = 0;
 
 		//Speed holders for motor control
+		double goalSpeed[4];
 		double targetSpeed[4];
 		double currentSpeed[4];
 
@@ -75,7 +85,7 @@ namespace FRC
 
 		//Integral management variables
 		int numberOfLoops = 0;
-		int const INTEGRAL_RESET_SECONDS = 1; //Seconds before runningIntegral is reset
+		int const INTEGRAL_RESET_SECONDS = 3; //Seconds before runningIntegral is reset
 		int const INTEGRAL_RESET_LOOPS = INTEGRAL_RESET_SECONDS * (1/0.005); //0.005 seconds per loop
 
 		//Variable for discontinued PI Loop
@@ -84,7 +94,16 @@ namespace FRC
 		//Must be true for PID to function with encoders
 		bool useEnc = true;
 
+		//Number Tester
+		double y = 0;
 
+		double propTest = 0;
+		double intTest = 0;
+		double derivTest = 0;
+
+		//Angle-enhanced PID
+		double angle = 0;
+		double angleError = 0;
 	};
 }
 

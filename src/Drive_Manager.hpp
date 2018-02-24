@@ -46,10 +46,10 @@ namespace FRC
 
 
 		//P, I, and D values for motor control
-		double PROPORTIONAL_COEFFICIENT = 1;
-		double INTEGRAL_COEFFICIENT = 0.3;
-		double DERIVATIVE_COEFFICIENT = 0.001;
-		double Default_PID[3] = {PROPORTIONAL_COEFFICIENT, INTEGRAL_COEFFICIENT, DERIVATIVE_COEFFICIENT};
+		double PROPORTIONAL_COEFFICIENT[4] = {0.75, 0.8, 0.8, 0.75};
+		double INTEGRAL_COEFFICIENT[4] = {0.05, -0.065, -0.05, 0.05};
+		double DERIVATIVE_COEFFICIENT[4] = {0, 0, 0, 0};
+		double Default_PID[3] = {PROPORTIONAL_COEFFICIENT[1], INTEGRAL_COEFFICIENT[1], DERIVATIVE_COEFFICIENT[1]};
 
 		//Arrays holding values in motor control loop
 		double baseSpeed[4]; // Base Speeds

@@ -421,6 +421,23 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 
 	}
 
+	SmartDashboard::PutNumber("PIDValue", -encSpeed[3]/2000);
+	SmartDashboard::PutNumber("ExpectedValue", baseSpeed[3]);
+
+//	SmartDashboard::PutNumber("Front-Left", encSpeed[0]);
+//	SmartDashboard::PutNumber("Back-Left", encSpeed[1]);
+//	SmartDashboard::PutNumber("Front-Right", encSpeed[2]);
+//	SmartDashboard::PutNumber("Back-Right", encSpeed[3]);
+
+	double encSpeed2[4];
+
+	encSpeed2[0] = encSpeed[0]/2000;
+	encSpeed2[1] = encSpeed[1]/2000;
+	encSpeed2[2] = -encSpeed[2]/2000;
+	encSpeed2[3] = -encSpeed[3]/2000;
+
+	SmartDashboard::PutNumberArray("Encoder Speed Values", encSpeed2);
+
 
 }
 //Old Motor Correction Method
@@ -462,11 +479,11 @@ double FRC::Drive_Manager::PIDCorrection(double desiredSpeed, double actualSpeed
 				currentSpeed[motorID] =  -currentSpeed[motorID];
 			}
 			error[motorID] = goalSpeed[motorID] - currentSpeed[motorID]; //Error is found
-			propOut[motorID] = error[motorID] * PROPORTIONAL_COEFFICIENT; //Proportional Gain is proportional to error
+			propOut[motorID] = error[motorID] * PROPORTIONAL_COEFFICIENT[motorID]; //Proportional Gain is proportional to error
 			runningIntegral[motorID] += error[motorID] * 0.005; //Integral of error over time is updated
-			integralOut[motorID] = INTEGRAL_COEFFICIENT * runningIntegral[motorID];
+			integralOut[motorID] = INTEGRAL_COEFFICIENT[motorID] * runningIntegral[motorID];
 			double derivative = (error[motorID] - preError[motorID]) / 0.005; //Error Derivative is found
-			derivativeOut[motorID] = DERIVATIVE_COEFFICIENT * derivative;
+			derivativeOut[motorID] = DERIVATIVE_COEFFICIENT[motorID] * derivative;
 
 
 			PIDOut[motorID] =  propOut[motorID] + integralOut[motorID] + derivativeOut[motorID]; //All components are combined
@@ -586,59 +603,59 @@ void FRC::Drive_Manager::PIDSetup()//Run it once
 	Right_Back.SetSensorPhase(true);
 
 }
-double FRC::Drive_Manager::PIDLoop(int motorId, double speed, bool straight)
- {
-	if(straight)
-	{
-
-		if(motorId == 0)
-		{
-			return ((PROPORTIONAL_COEFFICIENT * Left_Front.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Left_Front.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Left_Front.GetErrorDerivative(1)));
-		}
-
-		else if(motorId == 1)
-		{
-			return ((PROPORTIONAL_COEFFICIENT * Left_Back.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Left_Back.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Left_Back.GetErrorDerivative(1)));
-		}
-		else if(motorId == 2)
-		{
-			return ((PROPORTIONAL_COEFFICIENT * Right_Front.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Right_Front.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Right_Front.GetErrorDerivative(1)));
-		}
-
-		else if(motorId == 3)
-		{
-			return ((PROPORTIONAL_COEFFICIENT * Right_Back.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Right_Back.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Right_Back.GetErrorDerivative(1)));
-		}
-		else
-		{
-			return 0;
-		}
-	}
-
-	else
-	{
-		if(motorId == 0)
-		{
-			return ((PROPORTIONAL_COEFFICIENT * Left_Front.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Left_Front.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Left_Front.GetErrorDerivative(0)));
-		}
-		else if(motorId == 1)
-		{
-			return ((PROPORTIONAL_COEFFICIENT * Left_Back.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Left_Back.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Left_Back.GetErrorDerivative(0)));
-		}
-		else if(motorId == 2)
-		{
-			return ((PROPORTIONAL_COEFFICIENT * Right_Front.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Right_Front.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Right_Front.GetErrorDerivative(0)));
-		}
-		else if(motorId == 3)
-		{
-			return ((PROPORTIONAL_COEFFICIENT * Right_Back.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Right_Back.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Right_Back.GetErrorDerivative(0)));
-		}
-		else
-		{
-			return 0;
-		}
-	}
-}
+//double FRC::Drive_Manager::PIDLoop(int motorId, double speed, bool straight)
+// {
+//	if(straight)
+//	{
+//
+//		if(motorId == 0)
+//		{
+//			return ((PROPORTIONAL_COEFFICIENT * Left_Front.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Left_Front.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Left_Front.GetErrorDerivative(1)));
+//		}
+//
+//		else if(motorId == 1)
+//		{
+//			return ((PROPORTIONAL_COEFFICIENT * Left_Back.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Left_Back.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Left_Back.GetErrorDerivative(1)));
+//		}
+//		else if(motorId == 2)
+//		{
+//			return ((PROPORTIONAL_COEFFICIENT * Right_Front.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Right_Front.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Right_Front.GetErrorDerivative(1)));
+//		}
+//
+//		else if(motorId == 3)
+//		{
+//			return ((PROPORTIONAL_COEFFICIENT * Right_Back.GetClosedLoopError(1)) + (INTEGRAL_COEFFICIENT * Right_Back.GetIntegralAccumulator(1)) + (DERIVATIVE_COEFFICIENT * Right_Back.GetErrorDerivative(1)));
+//		}
+//		else
+//		{
+//			return 0;
+//		}
+//	}
+//
+//	else
+//	{
+//		if(motorId == 0)
+//		{
+//			return ((PROPORTIONAL_COEFFICIENT * Left_Front.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Left_Front.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Left_Front.GetErrorDerivative(0)));
+//		}
+//		else if(motorId == 1)
+//		{
+//			return ((PROPORTIONAL_COEFFICIENT * Left_Back.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Left_Back.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Left_Back.GetErrorDerivative(0)));
+//		}
+//		else if(motorId == 2)
+//		{
+//			return ((PROPORTIONAL_COEFFICIENT * Right_Front.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Right_Front.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Right_Front.GetErrorDerivative(0)));
+//		}
+//		else if(motorId == 3)
+//		{
+//			return ((PROPORTIONAL_COEFFICIENT * Right_Back.GetClosedLoopError(0)) + (INTEGRAL_COEFFICIENT * Right_Back.GetIntegralAccumulator(0)) + (DERIVATIVE_COEFFICIENT * Right_Back.GetErrorDerivative(0)));
+//		}
+//		else
+//		{
+//			return 0;
+//		}
+//	}
+//}
 
 //Straight Drive Function -> Completely functional (but PID would enhance this)
 void FRC::Drive_Manager::straightDrive(double x, double y, double preAngle)
@@ -666,50 +683,50 @@ void FRC::Drive_Manager::straightDrive(double x, double y, double preAngle)
 	}
 }
 //Ryan's CTRE PID Set-up Function
-
-void FRC::Drive_Manager::PIDSetupCTRE()
-{
-	Left_Front.ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, 5);
-	Left_Front.SetSensorPhase(false);
-	Left_Front.Config_kP(0, PROPORTIONAL_COEFFICIENT, 5);
-	Left_Front.Config_kI(0, INTEGRAL_COEFFICIENT, 5);
-	Left_Front.Config_kD(0, DERIVATIVE_COEFFICIENT, 5);
-	Left_Front.ConfigNominalOutputForward(0, 5);
-	Left_Front.ConfigNominalOutputReverse(0, 5);
-	Left_Front.ConfigPeakOutputForward(1, 5);
-	Left_Front.ConfigPeakOutputReverse(-1, 5);
-
-	Left_Back.ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, 5);
-	Left_Back.SetSensorPhase(true);
-	Left_Back.Config_kP(0, PROPORTIONAL_COEFFICIENT, 5);
-	Left_Back.Config_kI(0, INTEGRAL_COEFFICIENT, 5);
-	Left_Back.Config_kD(0, DERIVATIVE_COEFFICIENT, 5);
-	Left_Back.ConfigNominalOutputForward(0, 5);
-	Left_Back.ConfigNominalOutputReverse(0, 5);
-	Left_Back.ConfigPeakOutputForward(1, 5);
-	Left_Back.ConfigPeakOutputReverse(-1, 5);
-
-	Right_Front.ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, 5);
-	Right_Front.SetSensorPhase(false);
-	Right_Front.Config_kP(0, PROPORTIONAL_COEFFICIENT, 5);
-	Right_Front.Config_kI(0, INTEGRAL_COEFFICIENT, 5);
-	Right_Front.Config_kD(0, DERIVATIVE_COEFFICIENT, 5);
-	Right_Front.ConfigNominalOutputForward(0, 5);
-	Right_Front.ConfigNominalOutputReverse(0, 5);
-	Right_Front.ConfigPeakOutputForward(1, 5);
-	Right_Front.ConfigPeakOutputReverse(-1, 5);
-
-	Right_Back.ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, 5);
-	Right_Back.SetSensorPhase(false);
-	Right_Back.Config_kP(0, PROPORTIONAL_COEFFICIENT, 5);
-	Right_Back.Config_kI(0, INTEGRAL_COEFFICIENT, 5);
-	Right_Back.Config_kD(0, DERIVATIVE_COEFFICIENT, 5);
-	Right_Back.ConfigNominalOutputForward(0, 5);
-	Right_Back.ConfigNominalOutputReverse(0, 5);
-	Right_Back.ConfigPeakOutputForward(1, 5);
-	Right_Back.ConfigPeakOutputReverse(-1, 5);
-
-}
+//
+//void FRC::Drive_Manager::PIDSetupCTRE()
+//{
+//	Left_Front.ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, 5);
+//	Left_Front.SetSensorPhase(false);
+//	Left_Front.Config_kP(0, PROPORTIONAL_COEFFICIENT, 5);
+//	Left_Front.Config_kI(0, INTEGRAL_COEFFICIENT, 5);
+//	Left_Front.Config_kD(0, DERIVATIVE_COEFFICIENT, 5);
+//	Left_Front.ConfigNominalOutputForward(0, 5);
+//	Left_Front.ConfigNominalOutputReverse(0, 5);
+//	Left_Front.ConfigPeakOutputForward(1, 5);
+//	Left_Front.ConfigPeakOutputReverse(-1, 5);
+//
+//	Left_Back.ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, 5);
+//	Left_Back.SetSensorPhase(true);
+//	Left_Back.Config_kP(0, PROPORTIONAL_COEFFICIENT, 5);
+//	Left_Back.Config_kI(0, INTEGRAL_COEFFICIENT, 5);
+//	Left_Back.Config_kD(0, DERIVATIVE_COEFFICIENT, 5);
+//	Left_Back.ConfigNominalOutputForward(0, 5);
+//	Left_Back.ConfigNominalOutputReverse(0, 5);
+//	Left_Back.ConfigPeakOutputForward(1, 5);
+//	Left_Back.ConfigPeakOutputReverse(-1, 5);
+//
+//	Right_Front.ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, 5);
+//	Right_Front.SetSensorPhase(false);
+//	Right_Front.Config_kP(0, PROPORTIONAL_COEFFICIENT, 5);
+//	Right_Front.Config_kI(0, INTEGRAL_COEFFICIENT, 5);
+//	Right_Front.Config_kD(0, DERIVATIVE_COEFFICIENT, 5);
+//	Right_Front.ConfigNominalOutputForward(0, 5);
+//	Right_Front.ConfigNominalOutputReverse(0, 5);
+//	Right_Front.ConfigPeakOutputForward(1, 5);
+//	Right_Front.ConfigPeakOutputReverse(-1, 5);
+//
+//	Right_Back.ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, 5);
+//	Right_Back.SetSensorPhase(false);
+//	Right_Back.Config_kP(0, PROPORTIONAL_COEFFICIENT, 5);
+//	Right_Back.Config_kI(0, INTEGRAL_COEFFICIENT, 5);
+//	Right_Back.Config_kD(0, DERIVATIVE_COEFFICIENT, 5);
+//	Right_Back.ConfigNominalOutputForward(0, 5);
+//	Right_Back.ConfigNominalOutputReverse(0, 5);
+//	Right_Back.ConfigPeakOutputForward(1, 5);
+//	Right_Back.ConfigPeakOutputReverse(-1, 5);
+//
+//}
 
 /* Current Methods of PID Control:
  * -Old PI Correction Method

@@ -59,8 +59,16 @@ public:
 		//Drive_Man.PIDSetup();
 		double x = 0;
 		Blitz_Log.init();
+		std::vector<double> PIDValues;
+		Drive_Man.ahrs.Reset();
 		while (IsOperatorControl() && IsEnabled())
 		{
+			PIDValues = SmartDashboard::GetNumberArray("PID-Values", Drive_Man.Default_PID);
+
+//			Drive_Man.PROPORTIONAL_COEFFICIENT[3] = PIDValues[0];
+//			Drive_Man.INTEGRAL_COEFFICIENT[3] = PIDValues[1];
+//			Drive_Man.DERIVATIVE_COEFFICIENT[3] = PIDValues[2];
+
 			// VARIABLE SETTING
 //			Drive_Man.getEncSpeeds();
 			joyX = Input_Man.getAxis(0);

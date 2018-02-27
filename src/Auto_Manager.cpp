@@ -1,133 +1,111 @@
 #include "Auto_Manager.hpp"
+#include "WPILib.h"
 
 FRC::Auto_Manager::Auto_Manager():
-	Drive_Man(),
-	Camera_Man()
+	drive_Man(),
+	camera_Man()
 {
 
 }
 
-void FRC::Auto_Manager::driveToCam(int angle)
+void FRC::Auto_Manager::autoInit()
 {
-	if(angle != -1)
+	gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+
+	std::string startingPos = SmartDashboard::GetString("Autonomous Starting Position", "Center");
+	std::string autoTarget = SmartDashboard::GetString("Autonomous Destination Selector", "Switch");
+
+	if(startingPos == "Center")
 	{
-		Drive_Man.mecanumDrive(0, .25, -angle * 0.004);
+		fieldPos = 'C';
 	}
-	else
+	else if(startingPos == "Left")
 	{
-		Drive_Man.mecanumDrive(0, 0, 0);
+		fieldPos = 'L';
 	}
+	else if(startingPos == "Right")
+	{
+		fieldPos = 'R';
+	}
+
+	if(autoTarget == "Switch")
+	{
+		autoGoal = 0;
+	}
+	else if(autoTarget == "Scale")
+	{
+		autoGoal = 1;
+	}
+
+	SmartDashboard::PutNumber("Auto Goal: ", autoGoal);
+	SmartDashboard::PutString("Game Specific Data:", gameData);
+
+
+	if(fieldPos == gameData[autoGoal])
+	{
+		camera_Man.setPanPos(90);
+	}
+	else if(fieldPos == 'L')
+	{
+		if(autoGoal == 0)
+		{
+			camera_Man.setPanPos(camera_Man.LEFT_SWITCH_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+		else if(autoGoal == 1)
+		{
+			camera_Man.setPanPos(camera_Man.LEFT_SCALE_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+	}
+	else if(fieldPos == 'C' && gameData[autoGoal] == 'L')
+	{
+		if(autoGoal == 0)
+		{
+			camera_Man.setPanPos(camera_Man.CENTER_SWITCH_LEFT_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+		else if(autoGoal == 1)
+		{
+			camera_Man.setPanPos(camera_Man.CENTER_SCALE_LEFT_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+	}
+	else if(fieldPos == 'C' && gameData[autoGoal] == 'R')
+	{
+		if(autoGoal == 0)
+		{
+			camera_Man.setPanPos(camera_Man.CENTER_SWITCH_RIGHT_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+		else if(autoGoal == 1)
+		{
+			camera_Man.setPanPos(camera_Man.CENTER_SCALE_RIGHT_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+	}
+	else if(fieldPos == 'R')
+	{
+		if(autoGoal == 0)
+		{
+			camera_Man.setPanPos(camera_Man.RIGHT_SWITCH_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+		else if(autoGoal == 1)
+		{
+			camera_Man.setPanPos(camera_Man.RIGHT_SCALE_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+	}
+
+}
+
+void FRC::Auto_Manager::driveToCam(int speed)
+{
+	drive_Man.mecanumDrive(0, speed, -(camera_Man.angle-90) * 0.004);
 }
 
 double FRC::Auto_Manager::convertMB1220SonicVoltageToInches(double voltage)
 {
-	return (((voltage / 0.0049)) / 30.48) * 12;
+	return (((voltage / 0.0049)) / 2.54);
 }
-
-double FRC::Auto_Manager::convertMB1013SonicVoltageToInches(double voltage)
-{
-	return ((((voltage / 0.00488)) * 5) / 304.8) * 12;
-}
-
-double FRC::Auto_Manager::convertMB1010SonicVoltageToInches(double voltage)
-{
-	return ((voltage / 0.0098));
-}
-
-
-
-bool FRC::Auto_Manager::sonicCheckCollision(int distance, double joyStickX, double joyStickY, double joyStickTheta)
-{
-
-	if(joyStickY > 0)
-	{
-		if(distance <= MINIMUM_DISTANCE)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-int FRC::Auto_Manager::sonicAvoidCollision(int frontSonic, int rightSonic, int leftSonic, double joyStickX, double joyStickY, double joyStickTheta)
-{
-	if(!sonicCheckCollision(frontSonic, joyStickX, joyStickY, joyStickTheta))
-	{
-		return 0;
-	}
-	else if((rightSonic > leftSonic) && !sonicCheckCollision(rightSonic, joyStickX, joyStickY, joyStickTheta))
-	{
-		return 1;
-	}
-	else if((rightSonic < leftSonic) && !sonicCheckCollision(leftSonic, joyStickX, joyStickY, joyStickTheta))
-	{
-		return 2;
-	}
-	else
-	{
-		return 3;
-	}
-}
-
-
-/* Checks to see if the robot will collide with an object with a given direction and distance, then returns which direction to go
- * @parameters
- * double sensorTheta = Direction of sensor reading
- * double sensorDistance = Distance reading from sensor
- * double joyStickX = MecanumDrive x-axis command
- * double joyStickY = mecanumDrive y-axis command
- * double joyStickTheta = Direction of turn from mecanumDrive
- *
- * @returns
- * Boolean stating if current path will result in a collision or not
- */
-
-//bool FRC::Auto_Manager::checkCollision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta)
-//{
-//	if(joyStickY < 0 || joyStickY > 0)
-//	{
-//		if(sensorTheta <= 45 && sensorTheta >= -45)
-//		{
-//			if(sensorDistance[sensorTheta] <= MINIMUM_DISTANCE)
-//			{
-//				return true;
-//			}
-//		}
-//		if(sensorTheta <= -45 && sensorTheta >= -135)
-//		{
-//			if(sensorDistance[sensorTheta] <= MINIMUM_DISTANCE)
-//			{
-//				return true;
-//			}
-//		}
-//		if(sensorTheta >= 45 && sensorTheta <= 135)
-//		{
-//			if(sensorDistance[sensorTheta] <= MINIMUM_DISTANCE)
-//			{
-//				return true;
-//			}
-//		}
-//	}
-//	return false;
-//}
-
-
-//int FRC::AutoManager::avoidCollision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta)
-//{
-//	if(!checkCollision(sensorTheta, sensorDistance, joyStickX, joyStickY, joyStickTheta))
-//	{
-//		return 0;
-//	}
-//	else if((sensorDistance[sensorTheta + 90] > sensorDistance[sensorTheta - 90]) && !checkCollision(sensorTheta + 90, sensorDistance, joyStickX, joyStickY, joyStickTheta))
-//	{
-//		return 1;
-//	}
-//	else if((sensorDistance[sensorTheta + 90] < sensorDistance[sensorTheta - 90]) && !checkCollision(sensorTheta - 90, sensorDistance, joyStickX, joyStickY, joyStickTheta))
-//	{
-//		return 2;
-//	}
-//	else
-//	{
-//		return 3;
-//	}
-//}

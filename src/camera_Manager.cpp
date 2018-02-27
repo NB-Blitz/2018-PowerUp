@@ -14,7 +14,7 @@ FRC::camera_Manager::camera_Manager()
 
 }
 
-void FRC::camera_Manager::netSetup()
+void FRC::camera_Manager::camSetup()
 {
 	tilt = new Servo(1);
 	pan = new Servo(0);
@@ -27,8 +27,8 @@ void FRC::camera_Manager::netSetup()
 
 	udpSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-	camTiltPos = defaultTilt;
-
+	camPanPos = pan->Get() * 180;
+	camTiltPos = tilt->Get() * 180;
 }
 
 void FRC::camera_Manager::grabData()
@@ -38,10 +38,11 @@ void FRC::camera_Manager::grabData()
 	const char* msg = "x";
 	sendto(udpSock, msg,sizeof(msg),0,(struct sockaddr *)&server,serverLen);
 	recv(udpSock,xBuffer,256,0);
-	SmartDashboard::PutString("recieved buffer", xBuffer);
+	//SmartDashboard::PutString("recieved buffer", xBuffer);
 	std::string xPosStr(xBuffer);
 
 	xPos = atoi(xPosStr.c_str());
+
 
 	char yBuffer[256];
 
@@ -52,7 +53,6 @@ void FRC::camera_Manager::grabData()
 	std::string yPosStr(yBuffer);
 
 	yPos = atoi(yPosStr.c_str());
-
 
 //	char distBuffer[2];
 
@@ -84,60 +84,53 @@ void FRC::camera_Manager::trackColor(std::string color)
 
 void FRC::camera_Manager::camScan(int autoGoal)
 {
-	if(true)
+	if(xPos > 90 || xPos < -90)
 	{
-		if(camPanPos >= 180)
+		if(camPanPos >= MAX_PAN)
 		{
-			panDir = -2.5;
+			panDir = -1;
+			camPanPos = MAX_PAN;
 		}
-		else if(camPanPos <= 0)
+		else if(camPanPos <= MIN_PAN)
 		{
-			panDir = 2.5;
-		}
-
-		if(autoGoal == 1)
-		{
-			camTiltPos = DEFAULT_SCALE_POS;
-		}
-		else if(autoGoal == 2)
-		{
-			camTiltPos = DEFAULT_SWITCH_POS;
+			panDir = 1;
+			camPanPos = MIN_PAN;
 		}
 
 		angle = 0;
 		dist = -1;
 
 		camPanPos += panDir;
-
-		setTiltPos(camTiltPos);
 	}
 	else
 	{
-		if(xPos > 1 && camPanPos < MIN_PAN)
-		{
-			camPanPos += 1;
-		}
-		else if(xPos < -1 && camPanPos < MAX_PAN)
-		{
-			camPanPos -= 1;
-		}
+		camPanPos += xPos * .01;
+
 		angle = camPanPos;
 
-		if(yPos > 1 && camTiltPos < MIN_TILT)
-		{
-			camTiltPos += 1;
-		}
-		else if(yPos < -1 && camTiltPos < MAX_TILT)
-		{
-			camTiltPos -= 1;
-		}
+//		if(yPos > 1 && camTiltPos < MIN_TILT)
+//		{
+//			camTiltPos -= 1;
+//		}
+//		else if(yPos < -1 && camTiltPos < MAX_TILT)
+//		{
+//			camTiltPos += 1;
+//		}
+//
+//		dist = tan(camTiltPos) * (M_PI/180) * CAM_HEIGHT;
 
-		dist = tan(camTiltPos) * (M_PI/180) * CAM_HEIGHT;
+		if(camPanPos >= MAX_PAN)
+		{
+			camPanPos = MAX_PAN;
+		}
+		else if(camPanPos <= MIN_PAN)
+		{
+			camPanPos = MIN_PAN;
+		}
 	}
 
 	setPanPos(camPanPos);
 
-	setTiltPos(camTiltPos);
 }
 
 

@@ -12,16 +12,9 @@ class Robot: public SampleRobot
 	FRC::Lift_Manager Lift_Man;
 	FRC::Auto_Manager Auto_Manager;
 	FRC::camera_Manager camera_Man;
+	AnalogInput frontSonic;
 	double joyX, joyY, joyZ, joySlide, currentAngle;
 	bool isArcade;
-
-	const double RIGHT_STRAFE_SPEED = -0.5;
-	const double LEFT_STRAFE_SPEED = 0.5;
-	double frontSonicDistance, rightSonicDistance, leftSonicDistance;
-	AnalogInput frontSonic, rightSonic, leftSonic;
-
-	const int SWITCH_CAM_TILT = 45;
-	const int SCALE_CAM_TILT = 90;
 
 public:
 	Robot() :
@@ -30,9 +23,7 @@ public:
 		Lift_Man(),
 		Auto_Manager(),
 		camera_Man(),
-		frontSonic(0),
-		rightSonic(1),
-		leftSonic(2)
+		frontSonic(0)
 
 	{
 		joyX = 0;
@@ -41,50 +32,49 @@ public:
 		joySlide = 0;
 		currentAngle = 0;
 		isArcade = false;
-		frontSonicDistance = 0;
-		rightSonicDistance = 0;
-		leftSonicDistance = 0;
 	}
 
 	void Autonomous()
 	{
-		camera_Man.netSetup();
+
+		camera_Man.pan->Set(.5);
+		camera_Man.tilt->Set(.5);
+
+		SmartDashboard::PutNumber("Starting Pan Pos", camera_Man.pan->Get() * 180);
+		SmartDashboard::PutNumber("Starting Tilt Pos ", camera_Man.tilt->Get()* 180);
+
+		//Auto_Manager.autoInit();
+		camera_Man.camSetup();
+		Input_Man.resetNav();
 
 		while(IsAutonomous() && IsEnabled())
 		{
-			//camera_Man.grabData();
+			camera_Man.grabData();
 			camera_Man.camScan(2);
 
-			SmartDashboard::PutNumber("xPos", camera_Man.angle);
+			SmartDashboard::PutNumber("xPos", camera_Man.xPos);
 			SmartDashboard::PutNumber("yPos", camera_Man.yPos);
-			SmartDashboard::PutNumber("Camera Distance: ", camera_Man.dist);
-
-			SmartDashboard::PutNumber("FrontSonicVoltage", frontSonic.GetVoltage());
-			SmartDashboard::PutNumber("FrontSonicDistance", Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage()));
-			SmartDashboard::PutNumber("RightSonicVoltage", rightSonic.GetVoltage());
-			SmartDashboard::PutNumber("RightSonicDistance", Auto_Manager.convertMB1013SonicVoltageToInches(rightSonic.GetVoltage()));
-			SmartDashboard::PutNumber("LeftSonicVoltage", leftSonic.GetVoltage());
-			SmartDashboard::PutNumber("LeftSonicDistance", Auto_Manager.convertMB1010SonicVoltageToInches(leftSonic.GetVoltage()));
-
-			SmartDashboard::PutNumber("AvoidCollisionOutput",  Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ));
+			SmartDashboard::PutNumber("camTilt", camera_Man.camTiltPos);
+			SmartDashboard::PutNumber("actual Tilt", camera_Man.tilt->Get());
+			SmartDashboard::PutNumber("camPan", camera_Man.camPanPos);
+			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
+			SmartDashboard::PutNumber("Auto Rotation", -(camera_Man.angle-90) * 0.004);
+			SmartDashboard::PutNumber("front Dist", Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage()));
 
 
-
-            if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 0)
+			if(Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage()) > 24)
 			{
-            	Auto_Manager.driveToCam(camera_Man.angle);
+				Auto_Manager.driveToCam(.25);
 			}
-			else if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 1)
+			else
 			{
-				Drive_Man.mecanumDrive(RIGHT_STRAFE_SPEED, 0, 0);
-			}
-			else if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 2)
-			{
-				Drive_Man.mecanumDrive(LEFT_STRAFE_SPEED, 0, 0);
+				Drive_Man.mecanumDrive(0, 0, 0);
 			}
 
 			Wait(0.005);
 		}
+
+		camera_Man.closeNet();
 	}
 
 /*-----------------------------------------------------------------------------------------------
@@ -99,7 +89,6 @@ public:
  *----------------------------------------------------------------------------------------------*/
 	void OperatorControl()
 	{
-		Input_Man.resetNav();
 
 		while (IsOperatorControl() && IsEnabled())
 		{
@@ -133,33 +122,5 @@ public:
 			Wait(0.005);
 		}
 	}
-
-/*-----------------------------------------------------------------------------------------------
- *	  _______        _     __  __           _
- *	 |__   __|      | |   |  \/  |         | |
- *	    | | ___  ___| |_  | \  / | ___   __| | ___
- *	    | |/ _ \/ __| __| | |\/| |/ _ \ / _` |/ _ \
- *	    | |  __/\__ \ |_  | |  | | (_) | (_| |  __/
- *	    |_|\___||___/\__| |_|  |_|\___/ \__,_|\___|
- *
- *----------------------------------------------------------------------------------------------*/
-	void Test()
-	{
-		while (IsTest() && IsEnabled())
-		{
-			bool button9 = Input_Man.getJoyButton(9);
-			bool button10 = Input_Man.getJoyButton(10);
-			bool button11 = Input_Man.getJoyButton(11);
-			bool button12 = Input_Man.getJoyButton(12);
-
-			SmartDashboard::PutBoolean("Button 9", button9);
-			SmartDashboard::PutBoolean("Button 10", button10);
-			SmartDashboard::PutBoolean("Button 11", button11);
-			SmartDashboard::PutBoolean("Button 12", button12);
-
-			Drive_Man.testMotorPorts(button9, button10, button11, button12);
-		}
-	}
 };
-
 START_ROBOT_CLASS(Robot)

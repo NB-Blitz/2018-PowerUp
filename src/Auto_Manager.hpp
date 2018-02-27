@@ -21,49 +21,20 @@ namespace FRC
 	public:
 		Auto_Manager();
 
-		FRC::Drive_Manager Drive_Man;
-		FRC::camera_Manager Camera_Man;
+		FRC::Drive_Manager drive_Man;
+		FRC::camera_Manager camera_Man;
 
-		void driveToCam(int angle);
+		int autoGoal = 0;
+		char fieldPos = 'C';
 
-		/* Checks to see if the robot will colide with an object with a given direction and distance, then returns which direction to go
-		 * @parameters
-		 * double sensorTheta = Direction of sensor reading
-		 * double sensorDistance = Distance reading from sensor
-		 * double joyStickX = MecanumDrive x-axis command
-		 * double joyStickY = mecanumDrive y-axis command
-		 * double joyStickTheta = Direction of turn from mecanumDrive
-		 *
-		 * @returns
-		 * Boolean stating if current path will result in a collision or not
-		 */
-		bool checkCollision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta);
+		void autoInit();
+		void driveToCam(int speed);
 
-		bool sonicCheckCollision(int distance, double joyStickX, double joyStickY, double joyStickTheta);
+		double convertMB1220SonicVoltageToInches(double voltage);
 
-
-		/* Returns Direction for nav-x board to send the robot if it cant go forwards
-		 *
-		 *@returns
-		 *0 - continue forwards
-		 *1 - go to the right
-		 *2 - go to the left
-		 *3 - forwards, left, and right will cause collision
-		 */
-		int avoidCollision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta);
-
-		int sonicAvoidCollision(int frontSonic, int rightSonic, int leftSonic, double joyStickX, double joyStickY, double joyStickTheta);
-
-		//Utility
-		 double convertMB1220SonicVoltageToInches(double voltage);
-
-		 double convertMB1013SonicVoltageToInches(double voltage);
-
-		 double convertMB1010SonicVoltageToInches(double voltage);
+		std::string gameData;
 
 	private:
-
-		 const double MINIMUM_DISTANCE = 24;
 
 	};
 }

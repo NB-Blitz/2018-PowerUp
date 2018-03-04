@@ -34,6 +34,8 @@ namespace FRC
 		double panDir = 1;
 		int tiltDir = 1;
 		int defaultTilt = 90;
+		bool targetFound = false;
+		bool setup = false;
 
 		void camSetup();
 		void grabData();
@@ -44,6 +46,8 @@ namespace FRC
 		void camScan(int autoGoal);
 		void setPanPos(double pos);
 		void setTiltPos(double pos);
+
+		const std::string CAMERA_IP = "10.51.49.36";
 
 		const int CAM_HEIGHT = 50;
 		const int MIN_TILT = 45;

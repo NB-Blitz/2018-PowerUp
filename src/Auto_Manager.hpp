@@ -25,11 +25,13 @@ namespace FRC
 		FRC::camera_Manager camera_Man;
 
 		int autoGoal = 0;
+		int x = 0;
 		char fieldPos = 'C';
 
 		void autoInit();
-		void driveToCam(int speed);
-
+		void driveToCam(double speed, int angle, bool targetFound);
+		double convertMB1013SonicVoltageToInches(double voltage);
+		double convertMB1010SonicVoltageToInches(double voltage);
 		double convertMB1220SonicVoltageToInches(double voltage);
 
 		std::string gameData;

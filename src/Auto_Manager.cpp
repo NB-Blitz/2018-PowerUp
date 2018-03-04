@@ -10,10 +10,15 @@ FRC::Auto_Manager::Auto_Manager():
 
 void FRC::Auto_Manager::autoInit()
 {
-	gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+	gameData = "LLL";//frc::DriverStation::GetInstance().GetGameSpecificMessage();
+	SmartDashboard::PutString("gameData", gameData);
 
-	std::string startingPos = SmartDashboard::GetString("Autonomous Starting Position", "Center");
-	std::string autoTarget = SmartDashboard::GetString("Autonomous Destination Selector", "Switch");
+	std::string startingPos = "Left";//SmartDashboard::GetString("Autonomous Starting Position", "Center");
+	SmartDashboard::PutString("starting Position", startingPos);
+
+	std::string autoTarget = "Switch";//SmartDashboard::GetString("Autonomous Destination Selector", "Switch");
+	SmartDashboard::PutString("auto Target", autoTarget);
+
 
 	if(startingPos == "Center")
 	{
@@ -100,12 +105,40 @@ void FRC::Auto_Manager::autoInit()
 
 }
 
-void FRC::Auto_Manager::driveToCam(int speed)
+void FRC::Auto_Manager::driveToCam(double speed, int angle, bool targetFound)
 {
-	drive_Man.mecanumDrive(0, speed, -(camera_Man.angle-90) * 0.004);
+	double rotation = 0;
+
+	if(angle > 10)
+	{
+		rotation = -.1;
+	}
+	else if(angle < -10)
+	{
+		rotation = .1;
+	}
+
+	if(!targetFound)
+	{
+		rotation = 0;
+		speed = 0;
+	}
+
+	drive_Man.mecanumDrive(0, speed, rotation);
+	SmartDashboard::PutNumber("Auto Rotation", rotation);
 }
 
 double FRC::Auto_Manager::convertMB1220SonicVoltageToInches(double voltage)
 {
 	return (((voltage / 0.0049)) / 2.54);
+}
+
+double FRC::Auto_Manager::convertMB1013SonicVoltageToInches(double voltage)
+{
+	return (voltage / (0.00488 / 5) / 25.4);
+}
+
+double FRC::Auto_Manager::convertMB1010SonicVoltageToInches(double voltage)
+{
+	return voltage / 0.0098;
 }

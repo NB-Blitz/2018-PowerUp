@@ -5,7 +5,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-#include "Auto_Manager.hpp"
 #include "camera_Manager.hpp"
 
 
@@ -21,14 +20,12 @@ void FRC::camera_Manager::camSetup()
 
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
-	server.sin_addr.s_addr = inet_addr("10.51.48.36");
+	server.sin_addr.s_addr = inet_addr(CAMERA_IP.c_str());
 
 	serverLen = sizeof(server);
 
 	udpSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-	camPanPos = pan->Get() * 180;
-	camTiltPos = tilt->Get() * 180;
+	setup = true;
 }
 
 void FRC::camera_Manager::grabData()
@@ -86,6 +83,7 @@ void FRC::camera_Manager::camScan(int autoGoal)
 {
 	if(xPos > 90 || xPos < -90)
 	{
+		targetFound = false;
 		if(camPanPos >= MAX_PAN)
 		{
 			panDir = -1;
@@ -104,9 +102,17 @@ void FRC::camera_Manager::camScan(int autoGoal)
 	}
 	else
 	{
-		camPanPos += xPos * .01;
+		targetFound = true;
+		if(xPos < 0)
+		{
+			camPanPos -= .25;
+		}
+		else if(xPos > 0)
+		{
+			camPanPos += .25;
+		}
 
-		angle = camPanPos;
+		angle = camPanPos - 90;
 
 //		if(yPos > 1 && camTiltPos < MIN_TILT)
 //		{

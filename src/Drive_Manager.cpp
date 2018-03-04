@@ -77,7 +77,11 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 	baseSpeed[1] = -joyX + joyY + joyZ;
 	baseSpeed[2] = -joyX + joyY - joyZ;
 	baseSpeed[3] = joyX + joyY - joyZ;
-	y += 0.002;
+
+	SmartDashboard::PutNumber("LeftFront init command", baseSpeed[0]);
+	SmartDashboard::PutNumber("LeftBack init command", baseSpeed[1]);
+	SmartDashboard::PutNumber("RightFront init command", baseSpeed[2]);
+	SmartDashboard::PutNumber("RightBack init command", baseSpeed[3]);
 
 	// Sets maxMagnitude to the highest speed out of the 4 motors
 	maxMagnitude = 0;
@@ -101,23 +105,28 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 		}
 	}
 
-	//Manual PID Loop (Supposed to make the motors run at the same velocity)
-	if ((joyX/preX < 0) || (joyY/preY < 0) || (joyZ/preZ) < 0)
-	{
-		for(int p = 0; p < 4; p++)
-		{
-			runningIntegral[p] = 0;
-			disablePID = true;
-			timeUntilEnablePID = 0.3;
-		}
-	}
-	getEncSpeeds(); //Update Enc Speeds
-	numberOfLoops++;
+//	//Manual PID Loop (Supposed to make the motors run at the same velocity)
+//	if ((joyX/preX < 0) || (joyY/preY < 0) || (joyZ/preZ) < 0)
+//	{
+//		for(int p = 0; p < 4; p++)
+//		{
+//			runningIntegral[p] = 0;
+//			disablePID = true;
+//			timeUntilEnablePID = 0.3;
+//		}
+//	}
+//	getEncSpeeds(); //Update Enc Speeds
+//	numberOfLoops++;
+//
+//	for (int n = 0; n < 4; n++)
+//	{
+//		finalSpeed[n] = PIDCorrection(baseSpeed[n], encSpeed[n], n);
+//	}
 
-	for (int n = 0; n < 4; n++)
-	{
-		finalSpeed[n] = PIDCorrection(baseSpeed[n], encSpeed[n], n);
-	}
+	finalSpeed[0] = baseSpeed[0];
+	finalSpeed[1] = baseSpeed[1];
+	finalSpeed[2] = baseSpeed[2];
+	finalSpeed[3] = baseSpeed[3];
 
 
 	Left_Front.Set(-finalSpeed[0]);

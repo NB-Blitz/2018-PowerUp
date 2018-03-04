@@ -10,9 +10,9 @@ class Robot: public SampleRobot
 	FRC::Drive_Manager Drive_Man;
 	FRC::Input_Manager Input_Man;
 	FRC::Lift_Manager Lift_Man;
-	FRC::Auto_Manager Auto_Manager;
+	FRC::Auto_Manager Auto_Man;
 	FRC::camera_Manager camera_Man;
-	AnalogInput frontSonic;
+	AnalogInput frontLeftSonic, frontRightSonic;
 	double joyX, joyY, joyZ, joySlide, currentAngle;
 	bool isArcade;
 
@@ -21,9 +21,10 @@ public:
 		Drive_Man(),
 		Input_Man(),
 		Lift_Man(),
-		Auto_Manager(),
+		Auto_Man(),
 		camera_Man(),
-		frontSonic(0)
+		frontLeftSonic(0),
+		frontRightSonic(1)
 
 	{
 		joyX = 0;
@@ -36,6 +37,12 @@ public:
 
 	void Autonomous()
 	{
+		if(!camera_Man.setup)
+		{
+			camera_Man.camSetup();
+		}
+		Input_Man.resetNav();
+		//Auto_Man.autoInit();
 
 		camera_Man.pan->Set(.5);
 		camera_Man.tilt->Set(.5);
@@ -43,9 +50,8 @@ public:
 		SmartDashboard::PutNumber("Starting Pan Pos", camera_Man.pan->Get() * 180);
 		SmartDashboard::PutNumber("Starting Tilt Pos ", camera_Man.tilt->Get()* 180);
 
-		//Auto_Manager.autoInit();
-		camera_Man.camSetup();
-		Input_Man.resetNav();
+		camera_Man.camPanPos = camera_Man.pan->Get() * 180;
+		camera_Man.camTiltPos = camera_Man.tilt->Get() * 180;
 
 		while(IsAutonomous() && IsEnabled())
 		{
@@ -56,25 +62,34 @@ public:
 			SmartDashboard::PutNumber("yPos", camera_Man.yPos);
 			SmartDashboard::PutNumber("camTilt", camera_Man.camTiltPos);
 			SmartDashboard::PutNumber("actual Tilt", camera_Man.tilt->Get());
-			SmartDashboard::PutNumber("camPan", camera_Man.camPanPos);
+			SmartDashboard::PutNumber("camPan", camera_Man.camPanPos - 90);
 			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
-			SmartDashboard::PutNumber("Auto Rotation", -(camera_Man.angle-90) * 0.004);
-			SmartDashboard::PutNumber("front Dist", Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage()));
+			SmartDashboard::PutNumber("front Left", Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()));
+			SmartDashboard::PutNumber("front Right", Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()));
 
 
-			if(Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage()) > 24)
-			{
-				Auto_Manager.driveToCam(.25);
-			}
-			else
-			{
-				Drive_Man.mecanumDrive(0, 0, 0);
-			}
+
+//			if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
+//			{
+//				Auto_Man.driveToCam(.15, camera_Man.angle, camera_Man.targetFound);
+//			}
+//			else if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) < 16)
+//			{
+//				Drive_Man.mecanumDrive(.3, 0, 0);
+//			}
+//			else if(Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()) < 16)
+//			{
+//				Drive_Man.mecanumDrive(-.3, 0, 0);
+//			}
+//			else
+//			{
+//				Drive_Man.mecanumDrive(0, 0, 0);
+//			}
 
 			Wait(0.005);
 		}
 
-		camera_Man.closeNet();
+		//camera_Man.closeNet();
 	}
 
 /*-----------------------------------------------------------------------------------------------

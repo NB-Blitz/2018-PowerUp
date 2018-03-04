@@ -19,7 +19,7 @@ double FRC::AutoManager::convertMB1220SonicVoltageToInches(double voltage)
 
 double FRC::AutoManager::convertMB1013SonicVoltageToInches(double voltage)
 {
-	return ((((voltage / 0.00488)) * 5) / 304.8) * 12;
+	return ((voltage / (0.00488 / 5)) / 25.4);
 }
 
 double FRC::AutoManager::convertMB1010SonicVoltageToInches(double voltage)

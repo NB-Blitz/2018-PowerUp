@@ -3,18 +3,32 @@
 #include "Input_Manager.hpp"
 #include "Lift_Manager.hpp"
 #include "Auto_Manager.hpp"
+#include "BlitzLogger.hpp"
+#include "Lidar_Manager.hpp"
 
 
 class Robot: public SampleRobot
 {
+	//Team Class Declarations
 	FRC::Drive_Manager Drive_Man;
 	FRC::Input_Manager Input_Man;
 	FRC::Lift_Manager Lift_Man;
 	FRC::AutoManager Auto_Manager;
+	FRC::BlitzLogger BlitzLog;
+	FRC::Lidar_Manager LidarManager;
+
+
+	//Sensor Declarations
+	AnalogInput frontLeftSonic, frontRightSonic;
+
+
+	//Variable Declarations
 	double joyX, joyY, joyZ, joySlide, currentAngle;
-	double frontSonicDistance, rightSonicDistance, leftSonicDistance;
-	AnalogInput frontSonic, rightSonic, leftSonic;
 	bool isArcade;
+	double frontRightSonicDistance, frontLeftSonicDistance;
+	int LidarData;
+
+	//Constant Variable Declarations
 	const double RIGHT_STRAFE_SPEED = -0.5;
 	const double LEFT_STRAFE_SPEED = 0.5;
 
@@ -24,9 +38,11 @@ public:
 		Input_Man(),
 		Lift_Man(),
 		Auto_Manager(),
-		frontSonic(0),
-		rightSonic(1),
-		leftSonic(2)
+		BlitzLog(4),
+		LidarManager(),
+
+		frontLeftSonic(0),
+		frontRightSonic(1)
 {
 		joyX = 0;
 		joyY = 0;
@@ -34,41 +50,50 @@ public:
 		joySlide = 0;
 		currentAngle = 0;
 		isArcade = false;
+
+		LidarData = 0;
+		frontLeftSonicDistance = 0;
+		frontRightSonicDistance = 0;
 }
 
 	void Autonomous()
 	{
+		BlitzLog.init();
+		LidarManager.startLidarMotor();
 		while(IsAutonomous() && IsEnabled())
 		{
+
+			LidarData = (int)LidarManager.getLidarValues();
+			BlitzLog.info("Autonomous", std::to_string(LidarData));
+
 			joyX = 0;
-			joyY = .25;
+			joyY = .5;
 			joyZ = 0;
-			frontSonicDistance = Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage());
-			rightSonicDistance = Auto_Manager.convertMB1013SonicVoltageToInches(rightSonic.GetVoltage());
-			leftSonicDistance = Auto_Manager.convertMB1010SonicVoltageToInches(leftSonic.GetVoltage());
+			frontRightSonicDistance = Auto_Manager.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage());
+			frontLeftSonicDistance = Auto_Manager.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage());
 
-			SmartDashboard::PutNumber("FrontSonicVoltage", frontSonic.GetVoltage());
-			SmartDashboard::PutNumber("FrontSonicDistance", Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage()));
-			SmartDashboard::PutNumber("RightSonicVoltage", rightSonic.GetVoltage());
-			SmartDashboard::PutNumber("RightSonicDistance", Auto_Manager.convertMB1013SonicVoltageToInches(rightSonic.GetVoltage()));
-			SmartDashboard::PutNumber("LeftSonicVoltage", leftSonic.GetVoltage());
-			SmartDashboard::PutNumber("LeftSonicDistance", Auto_Manager.convertMB1010SonicVoltageToInches(leftSonic.GetVoltage()));
+			SmartDashboard::PutNumber("FrontRightSonicVoltage", frontRightSonic.GetVoltage());
+			SmartDashboard::PutNumber("FrontRightSonicDistance", Auto_Manager.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()));
+			SmartDashboard::PutNumber("FrontLeftSonicVoltage", frontLeftSonic.GetVoltage());
+			SmartDashboard::PutNumber("FrontLeftSonicDistance", Auto_Manager.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()));
 
-			SmartDashboard::PutNumber("AvoidCollisionOutput",  Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ));
+			SmartDashboard::PutNumber("AvoidCollisionOutput", LidarData);
 
-            if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 0)
+			if(!Auto_Manager.sonicCheckCollision(frontRightSonicDistance, joyX, joyY, joyZ) || !Auto_Manager.sonicCheckCollision(frontLeftSonicDistance, joyX, joyY, joyZ))
 			{
 				Drive_Man.mecanumDrive(joyX, joyY, joyZ);
 			}
-			else if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 1)
+			else if(LidarData == 1)
 			{
 				Drive_Man.mecanumDrive(RIGHT_STRAFE_SPEED, 0, 0);
 			}
-			else if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 2)
+			else if(LidarData == 2)
 			{
 				Drive_Man.mecanumDrive(LEFT_STRAFE_SPEED, 0, 0);
 			}
 		}
+		BlitzLog.close();
+		LidarManager.stopLidarMotor();
 	}
 
 	/*-----------------------------------------------------------------------------------------------

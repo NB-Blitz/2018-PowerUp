@@ -113,7 +113,6 @@ public:
 			Manip_Man.moveManip(rightControlY);
 			Manip_Man.moveArms(leftControlButton, rightControlButton);
 			Manip_Man.eject(undeterminedButton);
-			Manip_Man.tiltManip(leftControlY);
 			Manip_Man.intake(rightControlY);
 			Wait(0.005);
 		}

@@ -5,11 +5,10 @@ FRC::Manip_Manager::Manip_Manager():
 	Manip_Motor(7),
 	Arm_In(2),
 	Arm_Out(3),
-	Push(4),
+	Push(10),
 	Withdraw(9),
 	Left_Intake(5),
-	Right_Intake(6),
-	Tilt_Motor(8)
+	Right_Intake(6)
 
 {
 
@@ -57,14 +56,9 @@ void FRC::Manip_Manager::eject(bool on)
 
 }
 
-void FRC::Manip_Manager::tiltManip(double xBox)
+void FRC::Manip_Manager::intake(double rightControlY)
 {
-	Tilt_Motor.Set(xBox);
-}
-
-void FRC::Manip_Manager::intake(double speed)
-{
-	Left_Intake.Set(speed);
-	Right_Intake.Set(speed);
+	Left_Intake.Set(rightControlY);
+	Right_Intake.Set(rightControlY);
 }
 

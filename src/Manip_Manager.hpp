@@ -13,18 +13,19 @@ namespace FRC
 
 		// Objects
 		WPI_TalonSRX Manip_Motor;
-		Solenoid Arm_In, Arm_Out, Push, Withdraw;
-		Talon Left_Intake, Right_Intake, Tilt_Motor;
+		Solenoid Arm_In, Arm_Out;
+		Talon Left_Intake, Right_Intake;
 		Compressor compressor;
 
 		// Methods
 		void moveManip(double rightControlY);
-		void moveArms(bool leftButton, bool rightButton);
+		void moveArms(double leftButton, double rightButton);
 
 		void eject(bool on);
 
 		void tiltManip(double xBox);
-		void intake(double speed);
+		void intake();
+		void outtake();
 	};
 }
 

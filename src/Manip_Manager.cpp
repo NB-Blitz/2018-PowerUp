@@ -19,14 +19,14 @@ void FRC::Manip_Manager::moveManip(double rightControlY)
 	Manip_Motor.Set(-rightControlY * 0.8);
 }
 
-void FRC::Manip_Manager::moveArms(bool leftButton, bool rightButton)
+void FRC::Manip_Manager::moveArms(double leftButton, double rightButton)
 {
-	if (leftButton)
+	if (leftButton > 0.1)
 	{
 		Arm_In.Set(true);
 		Arm_Out.Set(false);
 	}
-	else if (rightButton)
+	else if (rightButton > 0.1)
 	{
 		Arm_In.Set(false);
 		Arm_Out.Set(true);
@@ -56,9 +56,16 @@ void FRC::Manip_Manager::eject(bool on)
 
 }
 
-void FRC::Manip_Manager::intake(double rightControlY)
+void FRC::Manip_Manager::intake()
 {
-	Left_Intake.Set(rightControlY);
-	Right_Intake.Set(rightControlY);
-}
 
+	Left_Intake.Set(1);
+	Right_Intake.Set(1);
+
+}
+void FRC::Manip_Manager::outtake()
+{
+	Left_Intake.Set(-1);
+	Right_Intake.Set(-1);
+
+}

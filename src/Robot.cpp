@@ -13,7 +13,7 @@ class Robot: public SampleRobot
 	FRC::Manip_Manager Manip_Man;
 	FRC::Auto_Manager Auto_Man;
 	double joyX, joyY, joyZ, joySlide, leftControlY, rightControlY, currentAngle, ultraDistance, autoStage;
-	bool isArcade, leftControlButton, rightControlButton;
+	bool isArcade, leftControlButton, rightControlButton, undeterminedButton;//A button I don't know which yet
 
 public:
 	Robot() :
@@ -36,6 +36,7 @@ public:
 		isArcade = false;
 		leftControlButton = false;
 		rightControlButton = false;
+		undeterminedButton = false;
 	}
 
 /*-----------------------------------------------------------------------------------------------
@@ -111,7 +112,9 @@ public:
 			// MANIPULATOR
 			Manip_Man.moveManip(rightControlY);
 			Manip_Man.moveArms(leftControlButton, rightControlButton);
-
+			Manip_Man.eject(undeterminedButton);
+			Manip_Man.tiltManip(leftControlY);
+			Manip_Man.intake(rightControlY);
 			Wait(0.005);
 		}
 	}

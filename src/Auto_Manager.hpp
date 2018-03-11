@@ -21,14 +21,16 @@ namespace FRC
 	public:
 		Auto_Manager();
 
+		Joystick switch_Box;
+
 		FRC::Drive_Manager drive_Man;
-		FRC::camera_Manager camera_Man;
 
 		int autoGoal = 0;
 		int x = 0;
 		char fieldPos = 'C';
 
-		void autoInit();
+		void autoInit(camera_Manager camera_Man);
+		void navStraighten(double angle);
 		void driveToCam(double speed, int angle, bool targetFound);
 		double convertMB1013SonicVoltageToInches(double voltage);
 		double convertMB1010SonicVoltageToInches(double voltage);

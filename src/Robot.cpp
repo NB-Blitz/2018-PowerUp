@@ -41,11 +41,9 @@ public:
 		{
 			camera_Man.camSetup();
 		}
-		Input_Man.resetNav();
-		//Auto_Man.autoInit();
 
-		camera_Man.pan->Set(.5);
-		camera_Man.tilt->Set(.5);
+		Auto_Man.autoInit(camera_Man);
+		Drive_Man.ahrs.Reset();
 
 		SmartDashboard::PutNumber("Starting Pan Pos", camera_Man.pan->Get() * 180);
 		SmartDashboard::PutNumber("Starting Tilt Pos ", camera_Man.tilt->Get()* 180);
@@ -66,25 +64,33 @@ public:
 			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
 			SmartDashboard::PutNumber("front Left", Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()));
 			SmartDashboard::PutNumber("front Right", Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()));
+			SmartDashboard::PutNumber("nav angle", Drive_Man.ahrs.GetFusedHeading());
 
 
-
-//			if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
-//			{
-//				Auto_Man.driveToCam(.15, camera_Man.angle, camera_Man.targetFound);
-//			}
+			if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) > 16 && fabs(camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
+			{
+				Auto_Man.driveToCam(.2, camera_Man.angle, camera_Man.targetFound);
+			}
 //			else if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) < 16)
-//			{
-//				Drive_Man.mecanumDrive(.3, 0, 0);
-//			}
-//			else if(Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()) < 16)
-//			{
-//				Drive_Man.mecanumDrive(-.3, 0, 0);
-//			}
-//			else
 //			{
 //				Drive_Man.mecanumDrive(0, 0, 0);
 //			}
+//			else if(Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()) < 16)
+//			{
+//				Drive_Man.mecanumDrive(0, 0, 0);
+//			}
+			else
+			{
+
+				if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) < 	16)
+				{
+					Auto_Man.navStraighten(0);
+				}
+				else
+				{
+					Drive_Man.mecanumDrive(0, 0, 0);
+				}
+			}
 
 			Wait(0.005);
 		}
@@ -113,7 +119,7 @@ public:
 			joyY = -Input_Man.getAxis(1);
 			joyZ = Input_Man.getAxis(2);
 			joySlide = Input_Man.getAxis(3);
-			currentAngle = Input_Man.getAngle();
+			currentAngle = Drive_Man.getAngle();
 			isArcade = Input_Man.getJoyButton(1);
 
 			SmartDashboard::PutBoolean("Is Arcade", isArcade);

@@ -3,20 +3,50 @@
 
 FRC::Auto_Manager::Auto_Manager():
 	drive_Man(),
-	camera_Man()
+	switch_Box(2)
 {
 
 }
 
-void FRC::Auto_Manager::autoInit()
+void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 {
-	gameData = "LLL";//frc::DriverStation::GetInstance().GetGameSpecificMessage();
+	x += 1;
+	gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+	SmartDashboard::PutNumber("auto", x);
 	SmartDashboard::PutString("gameData", gameData);
 
-	std::string startingPos = "Left";//SmartDashboard::GetString("Autonomous Starting Position", "Center");
-	SmartDashboard::PutString("starting Position", startingPos);
+	std::string startingPos;
+	//std::string startingPos = SmartDashboard::GetString("Autonomous Starting Position", "Center");
+	if(switch_Box.GetRawButton(1))
+	{
+		startingPos = "Left";
+	}
+	else if(switch_Box.GetRawButton(2))
+	{
+		startingPos = "Center";
+	}
+	else if(switch_Box.GetRawButton(3))
+	{
+		startingPos = "Right";
+	}
+	else
+	{
+		startingPos = "Center";
+	}
 
-	std::string autoTarget = "Switch";//SmartDashboard::GetString("Autonomous Destination Selector", "Switch");
+	SmartDashboard::PutString("starting Position", startingPos);
+	std::string autoTarget;
+
+	//autoTarget = SmartDashboard::GetString("Autonomous Destination Selector", "Switch");
+	if(switch_Box.GetRawButton(4))
+	{
+		autoTarget = "Scale";
+	}
+	else
+	{
+		autoTarget = "Switch";
+	}
+
 	SmartDashboard::PutString("auto Target", autoTarget);
 
 
@@ -60,7 +90,7 @@ void FRC::Auto_Manager::autoInit()
 		else if(autoGoal == 1)
 		{
 			camera_Man.setPanPos(camera_Man.LEFT_SCALE_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 	else if(fieldPos == 'C' && gameData[autoGoal] == 'L')
@@ -73,7 +103,7 @@ void FRC::Auto_Manager::autoInit()
 		else if(autoGoal == 1)
 		{
 			camera_Man.setPanPos(camera_Man.CENTER_SCALE_LEFT_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 	else if(fieldPos == 'C' && gameData[autoGoal] == 'R')
@@ -86,7 +116,7 @@ void FRC::Auto_Manager::autoInit()
 		else if(autoGoal == 1)
 		{
 			camera_Man.setPanPos(camera_Man.CENTER_SCALE_RIGHT_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 	else if(fieldPos == 'R')
@@ -99,7 +129,7 @@ void FRC::Auto_Manager::autoInit()
 		else if(autoGoal == 1)
 		{
 			camera_Man.setPanPos(camera_Man.RIGHT_SCALE_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 
@@ -141,4 +171,16 @@ double FRC::Auto_Manager::convertMB1013SonicVoltageToInches(double voltage)
 double FRC::Auto_Manager::convertMB1010SonicVoltageToInches(double voltage)
 {
 	return voltage / 0.0098;
+}
+
+void FRC::Auto_Manager::navStraighten(double angle)
+{
+	if(drive_Man.ahrs.GetFusedHeading()-180 > angle + 10)
+	{
+		drive_Man.mecanumDrive(0, 0, .15);
+	}
+	else if(drive_Man.ahrs.GetFusedHeading()-180 < angle - 10)
+	{
+		drive_Man.mecanumDrive(0, 0, -.15);
+	}
 }

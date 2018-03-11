@@ -58,15 +58,15 @@ namespace FRC
 		const int DEFAULT_SWITCH_TILT = 110;
 		const int DEFAULT_SCALE_TILT = 90;
 
-		const int RIGHT_SWITCH_PAN = 52;
-		const int LEFT_SWITCH_PAN = 128;
-		const int CENTER_SWITCH_LEFT_PAN = 68;
-		const int CENTER_SWITCH_RIGHT_PAN = 112;
+		const int RIGHT_SWITCH_PAN = 128;
+		const int LEFT_SWITCH_PAN =52;
+		const int CENTER_SWITCH_LEFT_PAN = 112;
+		const int CENTER_SWITCH_RIGHT_PAN = 68;
 
-		const int RIGHT_SCALE_PAN = 67;
-		const int LEFT_SCALE_PAN = 129;
-		const int CENTER_SCALE_LEFT_PAN = 72;
-		const int CENTER_SCALE_RIGHT_PAN = 107;
+		const int RIGHT_SCALE_PAN = 129;
+		const int LEFT_SCALE_PAN = 67;
+		const int CENTER_SCALE_LEFT_PAN = 107;
+		const int CENTER_SCALE_RIGHT_PAN = 72;
 
 	private:
 

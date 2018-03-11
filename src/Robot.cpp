@@ -19,7 +19,6 @@ class Robot: public SampleRobot
 
 
 	//Sensor Declarations
-	AnalogInput frontLeftSonic, frontRightSonic;
 
 
 	//Variable Declarations
@@ -39,10 +38,7 @@ public:
 		Lift_Man(),
 		Auto_Manager(),
 		BlitzLog(4),
-		LidarManager(),
-
-		frontLeftSonic(0),
-		frontRightSonic(1)
+		LidarManager()
 {
 		joyX = 0;
 		joyY = 0;
@@ -63,19 +59,13 @@ public:
 		while(IsAutonomous() && IsEnabled())
 		{
 
-			LidarData = (int)LidarManager.getLidarValues();
-			BlitzLog.info("Autonomous", std::to_string(LidarData));
+			//LidarData = (int)LidarManager.getLidarValues();
+			//BlitzLog.info("Autonomous", std::to_string(LidarData));
 
 			joyX = 0;
 			joyY = .5;
 			joyZ = 0;
-			frontRightSonicDistance = Auto_Manager.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage());
-			frontLeftSonicDistance = Auto_Manager.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage());
 
-			SmartDashboard::PutNumber("FrontRightSonicVoltage", frontRightSonic.GetVoltage());
-			SmartDashboard::PutNumber("FrontRightSonicDistance", Auto_Manager.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()));
-			SmartDashboard::PutNumber("FrontLeftSonicVoltage", frontLeftSonic.GetVoltage());
-			SmartDashboard::PutNumber("FrontLeftSonicDistance", Auto_Manager.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()));
 
 			SmartDashboard::PutNumber("AvoidCollisionOutput", LidarData);
 

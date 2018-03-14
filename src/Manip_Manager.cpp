@@ -3,12 +3,10 @@
 
 FRC::Manip_Manager::Manip_Manager():
 	Manip_Motor(7),
-	Arm_In(2),
-	Arm_Out(3),
-	Push(10),
-	Withdraw(9),
 	Left_Intake(5),
-	Right_Intake(6)
+	Right_Intake(6),
+	Arm_In(2),
+	Arm_Out(3)
 
 {
 
@@ -16,56 +14,28 @@ FRC::Manip_Manager::Manip_Manager():
 
 void FRC::Manip_Manager::moveManip(double rightControlY)
 {
-	Manip_Motor.Set(-rightControlY * 0.8);
+		Manip_Motor.Set(-rightControlY * 0.8);
 }
 
-void FRC::Manip_Manager::moveArms(double leftButton, double rightButton)
+void FRC::Manip_Manager::intake(bool leftButton, bool rightButton)
 {
-	if (leftButton > 0.1)
+	if (leftButton)
 	{
 		Arm_In.Set(true);
 		Arm_Out.Set(false);
+		Left_Intake.Set(1);
+		Right_Intake.Set(1);
 	}
-	else if (rightButton > 0.1)
+	else if (rightButton)
 	{
 		Arm_In.Set(false);
 		Arm_Out.Set(true);
+		Left_Intake.Set(-1);
+		Right_Intake.Set(-1);
 	}
-	else
+	else if (Arm_In.Get())
 	{
-		// DON'T CHANGE
+		Left_Intake.Set(0.05);
+		Right_Intake.Set(0.05);
 	}
-}
-
-void FRC::Manip_Manager::eject(bool on)
-{
-
-	if(on)
-	{
-
-		moveArms(false, true);
-		Withdraw.Set(false);
-		Push.Set(true);
-	}
-
-	else
-	{
-		Push.Set(false);
-		Withdraw.Set(true);
-	}
-
-}
-
-void FRC::Manip_Manager::intake()
-{
-
-	Left_Intake.Set(1);
-	Right_Intake.Set(1);
-
-}
-void FRC::Manip_Manager::outtake()
-{
-	Left_Intake.Set(-1);
-	Right_Intake.Set(-1);
-
 }

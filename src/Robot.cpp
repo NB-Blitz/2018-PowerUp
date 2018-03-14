@@ -12,8 +12,8 @@ class Robot: public SampleRobot
 	FRC::Lift_Manager Lift_Man;
 	FRC::Manip_Manager Manip_Man;
 	FRC::Auto_Manager Auto_Man;
-	double joyX, joyY, joyZ, joySlide, leftControlY, rightControlY, rightControlX, currentAngle, ultraDistance, autoStage, leftControlButton, rightControlButton;
-	bool isArcade, undeterminedButton;//A button I don't know which yet
+	double joyX, joyY, joyZ, joySlide, leftControlY, rightControlY, currentAngle, ultraDistance, autoStage;
+	bool isArcade, leftControlButton, rightControlButton;
 
 public:
 	Robot() :
@@ -33,11 +33,9 @@ public:
 		currentAngle = 0;
 		ultraDistance = 0;
 		autoStage = 1;
-		rightControlX = 0;
 		isArcade = false;
 		leftControlButton = false;
 		rightControlButton = false;
-		undeterminedButton = false;
 	}
 
 /*-----------------------------------------------------------------------------------------------
@@ -67,10 +65,8 @@ public:
 
 			leftControlY = Input_Man.getControllerAxis(1);
 			rightControlY = Input_Man.getControllerAxis(5);
-			rightControlX = Input_Man.getControllerAxis(4);
 			leftControlButton = Input_Man.getControllerButton(5);
 			rightControlButton = Input_Man.getControllerButton(6);
-			undeterminedButton = Input_Man.getControllerButton(7);
 
 			currentAngle = Input_Man.getAngle();
 
@@ -114,15 +110,8 @@ public:
 
 			// MANIPULATOR
 			Manip_Man.moveManip(rightControlY);
-			Manip_Man.moveArms(leftControlButton, rightControlButton);
-			if(leftControlButton)
-			{
-				Manip_Man.intake();
-			}
-			else if(rightControlButton)
-			{
-				Manip_Man.outtake();
-			}
+			Manip_Man.intake(leftControlButton, rightControlButton);
+
 			Wait(0.005);
 		}
 	}

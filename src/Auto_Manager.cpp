@@ -2,8 +2,8 @@
 #include "WPILib.h"
 
 FRC::Auto_Manager::Auto_Manager():
-	drive_Man(),
-	switch_Box(2)
+	switch_Box(2),
+	drive_Man()
 {
 
 }
@@ -182,5 +182,9 @@ void FRC::Auto_Manager::navStraighten(double angle)
 	else if(drive_Man.ahrs.GetFusedHeading()-180 < angle - 10)
 	{
 		drive_Man.mecanumDrive(0, 0, -.15);
+	}
+	else
+	{
+		drive_Man.mecanumDrive(0, 0 ,0);
 	}
 }

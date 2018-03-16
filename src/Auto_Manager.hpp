@@ -36,6 +36,11 @@ namespace FRC
 		double convertMB1010SonicVoltageToInches(double voltage);
 		double convertMB1220SonicVoltageToInches(double voltage);
 
+		const int left[2] = {-90, -45};
+		const int frontLeft[2] = {-45, 0};
+		const int frontRight[2] = {0, 45};
+		const int right[2] = {45, 90};
+
 		std::string gameData;
 
 	private:

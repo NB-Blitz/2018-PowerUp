@@ -64,7 +64,35 @@ public:
 			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
 			SmartDashboard::PutNumber("front Left", Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()));
 			SmartDashboard::PutNumber("front Right", Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()));
-			SmartDashboard::PutNumber("nav angle", Drive_Man.ahrs.GetFusedHeading());
+
+			double forwardDist;
+
+			double botAngle = Drive_Man.getAngle();
+
+			if(botAngle > 180)
+			{
+				botAngle = (360 - botAngle) * -1;
+			}
+
+			if(botAngle > Auto_Man.left[0] && botAngle < Auto_Man.left[1])
+			{
+				forwardDist = 1;
+			}
+			else if(botAngle > Auto_Man.frontLeft[0] && botAngle < Auto_Man.frontLeft[1])
+			{
+				forwardDist = 2;
+			}
+			else if(botAngle > Auto_Man.frontRight[0] && botAngle < Auto_Man.frontRight[1])
+			{
+				forwardDist = 3;
+			}
+			else if(botAngle + 90 > Auto_Man.right[0] && botAngle < Auto_Man.right[1])
+			{
+				forwardDist = 4;
+			}
+
+			SmartDashboard::PutNumber("Switch Dist: ", forwardDist);
+			SmartDashboard::PutNumber("nav angle", botAngle);
 
 
 			if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) > 16 && fabs(camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))

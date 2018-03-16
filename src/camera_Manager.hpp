@@ -68,6 +68,7 @@ namespace FRC
 		const int CENTER_SCALE_LEFT_PAN = 107;
 		const int CENTER_SCALE_RIGHT_PAN = 72;
 
+
 	private:
 
 	};

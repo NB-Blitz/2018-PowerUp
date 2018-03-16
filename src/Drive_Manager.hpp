@@ -18,6 +18,7 @@ namespace FRC
 		Solenoid Left_Solenoid, Right_Solenoid;
 		AHRS ahrs;
 
+
 		// Methods
 		float getAngle();
 		void arcadeDrive(double joyY, double joyZ);

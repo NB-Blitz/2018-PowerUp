@@ -63,6 +63,7 @@ void FRC::camera_Manager::grabData()
 //	dist = atoi(distBuffer);
 }
 
+
 void FRC::camera_Manager::closeNet()
 {
 	close(udpSock);

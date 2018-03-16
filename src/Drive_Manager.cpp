@@ -12,6 +12,7 @@ FRC::Drive_Manager::Drive_Manager():
 	Left_Solenoid(0),
 	Right_Solenoid(1),
 	ahrs {SPI::Port::kMXP}
+
 {
 
 

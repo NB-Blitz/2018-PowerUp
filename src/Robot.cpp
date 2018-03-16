@@ -95,6 +95,7 @@ public:
 			SmartDashboard::PutNumber("nav angle", botAngle);
 
 
+
 			if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) > 16 && fabs(camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
 			{
 				Auto_Man.driveToCam(.2, camera_Man.angle, camera_Man.targetFound);

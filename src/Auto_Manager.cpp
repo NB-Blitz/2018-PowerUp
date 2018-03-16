@@ -188,3 +188,4 @@ void FRC::Auto_Manager::navStraighten(double angle)
 		drive_Man.mecanumDrive(0, 0 ,0);
 	}
 }
+

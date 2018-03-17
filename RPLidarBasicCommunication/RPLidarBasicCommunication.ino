@@ -40,9 +40,6 @@
 #include <Wire.h>
 
 
-//Inclusions Made By Me
-#include "LidarUtility.hpp"
-
 
 //Object Declarations
 RPLidar lidar;         //You need to create an driver instance
@@ -171,7 +168,7 @@ void loop()
   }
   if (lidarMotorOn)
   {
-    analogWrite(RPLIDAR_MOTOR, 100); //stop the rplidar motor
+    analogWrite(RPLIDAR_MOTOR, 255); //stop the rplidar motor
   }
   if (!lidarMotorOn)
   {

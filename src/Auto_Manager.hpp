@@ -21,50 +21,34 @@ namespace FRC
 	public:
 		Auto_Manager();
 
-		FRC::Drive_Manager Drive_Man;
-		FRC::camera_Manager Camera_Man;
 
-		void driveToCam(int angle);
+		Joystick switch_Box;
 
+		FRC::Drive_Manager drive_Man;
 
-		/* Checks to see if the robot will colide with an object with a given direction and distance, then returns which direction to go
-		 * @parameters
-		 * double sensorTheta = Direction of sensor reading
-		 * double sensorDistance = Distance reading from sensor
-		 * double joyStickX = MecanumDrive x-axis command
-		 * double joyStickY = mecanumDrive y-axis command
-		 * double joyStickTheta = Direction of turn from mecanumDrive
-		 *
-		 * @returns
-		 * Boolean stating if current path will result in a collision or not
-		 */
-		bool checkCollision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta);
+		void autoInit(camera_Manager camera_Man);
+		void navStraighten(double angle);
+		void driveToCam(double speed, int angle, bool targetFound);
+		double convertMB1013SonicVoltageToInches(double voltage);
+		double convertMB1010SonicVoltageToInches(double voltage);
+		double convertMB1220SonicVoltageToInches(double voltage);
 
-		bool sonicCheckCollision(int distance, double joyStickX, double joyStickY, double joyStickTheta);
+		//lidar's seperated sections
+		const int left[2] = {-90, -45};
+		const int frontLeft[2] = {-45, 0};
+		const int frontRight[2] = {0, 45};
+		const int right[2] = {45, 90};
 
+		int prefferedDogeDir = 0;
+		int autoGoal = 0;
+		int x = 0;
+		char fieldPos = 'C';
 
-		/* Returns Direction for nav-x board to send the robot if it cant go forwards
-		 *
-		 *@returns
-		 *0 - continue forwards
-		 *1 - go to the right
-		 *2 - go to the left
-		 *3 - forwards, left, and right will cause collision
-		 */
-		int avoidCollision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta);
-
-		int sonicAvoidCollision(int frontSonic, int rightSonic, int leftSonic, double joyStickX, double joyStickY, double joyStickTheta);
-
-		//Utility
-		 double convertMB1220SonicVoltageToInches(double voltage);
-
-		 double convertMB1013SonicVoltageToInches(double voltage);
-
-		 double convertMB1010SonicVoltageToInches(double voltage);
+		std::string gameData;
 
 	private:
 
-		const double MINIMUM_DISTANCE = 24; //The Distance in meters that is the closest the robot can go to an obstacle without override
+
 
 	};
 }

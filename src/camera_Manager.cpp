@@ -5,7 +5,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-#include "Auto_Manager.hpp"
 #include "camera_Manager.hpp"
 
 
@@ -14,21 +13,22 @@ FRC::camera_Manager::camera_Manager()
 
 }
 
-void FRC::camera_Manager::netSetup()
+
+void FRC::camera_Manager::camSetup()
+
 {
 	tilt = new Servo(1);
 	pan = new Servo(0);
 
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
-	server.sin_addr.s_addr = inet_addr("10.51.48.36");
+	server.sin_addr.s_addr = inet_addr(CAMERA_IP.c_str());
+
 
 	serverLen = sizeof(server);
 
 	udpSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-	tilt->Set(camTiltPos);
-	pan->Set(camPanPos);
+	setup = true;
 
 }
 
@@ -85,24 +85,20 @@ void FRC::camera_Manager::trackColor(std::string color)
 
 void FRC::camera_Manager::camScan(int autoGoal)
 {
-	if(false)
+
+	if(xPos > 90 || xPos < -90)
 	{
+		targetFound = false;
 		if(camPanPos >= MAX_PAN)
 		{
-			panDir = -1.5;
+			panDir = -1;
+			camPanPos = MAX_PAN;
 		}
 		else if(camPanPos <= MIN_PAN)
 		{
-			panDir = 1.5;
-		}
+			panDir = 1;
+			camPanPos = MIN_PAN;
 
-		if(autoGoal == 1)
-		{
-			camTiltPos = DEFAULT_SCALE_POS;
-		}
-		else if(autoGoal == 2)
-		{
-			camTiltPos = DEFAULT_SWITCH_POS;
 		}
 
 		angle = 0;
@@ -110,31 +106,44 @@ void FRC::camera_Manager::camScan(int autoGoal)
 
 		camPanPos += panDir;
 
-		setTiltPos(camTiltPos);
 	}
 	else
 	{
-		if(xPos > 1 && camPanPos < MIN_PAN)
+		targetFound = true;
+		if(xPos < 0)
 		{
-			camPanPos += 1;
+			camPanPos -= .25;
 		}
-		else if(xPos < -1 && camPanPos < MAX_PAN)
+		else if(xPos > 0)
 		{
-			camPanPos -= 1;
+			camPanPos += .25;
 		}
-		angle = camPanPos;
+
+		angle = camPanPos - 90;
 
 		if(yPos > 1 && camTiltPos < MIN_TILT)
 		{
-			camTiltPos -= 1;
+			camTiltPos -= .25;
 		}
 		else if(yPos < -1 && camTiltPos < MAX_TILT)
 		{
-			camTiltPos += 1;
+			camTiltPos += .25;
 		}
 
-		dist = tan(camTiltPos) * (M_PI/180) * CAM_HEIGHT;
+//		dist = tan(camTiltPos) * (M_PI/180) * CAM_HEIGHT;
+
+		if(camPanPos >= MAX_PAN)
+		{
+			camPanPos = MAX_PAN;
+		}
+		else if(camPanPos <= MIN_PAN)
+		{
+			camPanPos = MIN_PAN;
+		}
 	}
+
+	setPanPos(camPanPos);
+
 
 }
 

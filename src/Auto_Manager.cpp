@@ -1,23 +1,201 @@
 #include "Auto_Manager.hpp"
 
+#include "WPILib.h"
+
 FRC::Auto_Manager::Auto_Manager():
-	Drive_Man(),
-	Camera_Man()
+	switch_Box(2),
+	drive_Man()
+
 {
 
 }
 
-void FRC::Auto_Manager::driveToCam(int angle)
+
+
+//initializes all the autonomous variables
+void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 {
-	if(angle != -1)
+	x += 1;
+	gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+	SmartDashboard::PutNumber("auto", x);
+	SmartDashboard::PutString("gameData", gameData);
+
+	std::string startingPos;
+	//std::string startingPos = SmartDashboard::GetString("Autonomous Starting Position", "Center");
+	if(switch_Box.GetRawButton(1))
 	{
-		Drive_Man.mecanumDrive(0, .25, -angle * 0.004);
+		startingPos = "Left";
+	}
+	else if(switch_Box.GetRawButton(2))
+	{
+		startingPos = "Center";
+	}
+	else if(switch_Box.GetRawButton(3))
+	{
+		startingPos = "Right";
 	}
 	else
 	{
-		Drive_Man.mecanumDrive(0, 0, 0);
+		startingPos = "Center";
 	}
+
+	SmartDashboard::PutString("starting Position", startingPos);
+	std::string autoTarget;
+
+	//autoTarget = SmartDashboard::GetString("Autonomous Destination Selector", "Switch");
+	if(switch_Box.GetRawButton(4))
+	{
+		autoTarget = "Scale";
+	}
+	else
+	{
+		autoTarget = "Switch";
+	}
+
+	SmartDashboard::PutString("auto Target", autoTarget);
+
+
+	if(startingPos == "Center")
+	{
+		fieldPos = 'C';
+	}
+	else if(startingPos == "Left")
+	{
+		fieldPos = 'L';
+	}
+	else if(startingPos == "Right")
+	{
+		fieldPos = 'R';
+	}
+
+	if(autoTarget == "Switch")
+	{
+		autoGoal = 0;
+	}
+	else if(autoTarget == "Scale")
+	{
+		autoGoal = 1;
+	}
+
+	SmartDashboard::PutNumber("Auto Goal: ", autoGoal);
+	SmartDashboard::PutString("Game Specific Data:", gameData);
+
+
+	if(fieldPos == gameData[autoGoal])
+	{
+		camera_Man.setPanPos(90);
+	}
+	else if(fieldPos == 'L')
+	{
+		if(autoGoal == 0)
+		{
+			camera_Man.setPanPos(camera_Man.LEFT_SWITCH_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+		else if(autoGoal == 1)
+		{
+			camera_Man.setPanPos(camera_Man.LEFT_SCALE_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+		}
+	}
+	else if(fieldPos == 'C' && gameData[autoGoal] == 'L')
+	{
+		if(autoGoal == 0)
+		{
+			camera_Man.setPanPos(camera_Man.CENTER_SWITCH_LEFT_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+		else if(autoGoal == 1)
+		{
+			camera_Man.setPanPos(camera_Man.CENTER_SCALE_LEFT_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+		}
+	}
+	else if(fieldPos == 'C' && gameData[autoGoal] == 'R')
+	{
+		if(autoGoal == 0)
+		{
+			camera_Man.setPanPos(camera_Man.CENTER_SWITCH_RIGHT_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+		else if(autoGoal == 1)
+		{
+			camera_Man.setPanPos(camera_Man.CENTER_SCALE_RIGHT_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+		}
+	}
+	else if(fieldPos == 'R')
+	{
+		if(autoGoal == 0)
+		{
+			camera_Man.setPanPos(camera_Man.RIGHT_SWITCH_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+		}
+		else if(autoGoal == 1)
+		{
+			camera_Man.setPanPos(camera_Man.RIGHT_SCALE_PAN);
+			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+		}
+	}
+
+	if(autoGoal == 1)
+	{
+		if(fieldPos == 'R')
+		{
+			prefferedDogeDir = 1;
+		}
+		else if(fieldPos == 'L')
+		{
+			prefferedDogeDir = 2;
+		}
+		else
+		{
+			prefferedDogeDir = 0;
+		}
+	}
+	else
+	{
+		if(gameData[0] == 'R')
+		{
+			prefferedDogeDir = 1;
+		}
+		else if(gameData[0] == 'L')
+		{
+			prefferedDogeDir = 2;
+		}
+		else
+		{
+			prefferedDogeDir = 0;
+		}
+	}
+
 }
+
+//dive to the blob at the center of the camera's view
+void FRC::Auto_Manager::driveToCam(double speed, int angle, bool targetFound)
+{
+	double rotation = 0;
+
+	if(angle > 10)
+	{
+		rotation = -.1;
+	}
+	else if(angle < -10)
+	{
+		rotation = .1;
+	}
+
+	if(!targetFound)
+	{
+		rotation = 0;
+		speed = 0;
+	}
+
+	drive_Man.mecanumDrive(0, speed, rotation);
+	SmartDashboard::PutNumber("Auto Rotation", rotation);
+}
+
+//ultrasonic conversions
 
 double FRC::Auto_Manager::convertMB1220SonicVoltageToInches(double voltage)
 {
@@ -34,101 +212,20 @@ double FRC::Auto_Manager::convertMB1010SonicVoltageToInches(double voltage)
 	return voltage / 0.0098;
 }
 
-
-
-bool FRC::Auto_Manager::sonicCheckCollision(int distance, double joyStickX, double joyStickY, double joyStickTheta)
+//straightens the robot to and angle
+void FRC::Auto_Manager::navStraighten(double angle)
 {
-
-	if(joyStickY > 0)
+	if(drive_Man.ahrs.GetFusedHeading()-180 > angle + 10)
 	{
-		if(distance <= MINIMUM_DISTANCE)
-		{
-			return true;
-		}
+		drive_Man.mecanumDrive(0, 0, .15);
 	}
-	return false;
-}
-
-int FRC::Auto_Manager::sonicAvoidCollision(int frontSonic, int rightSonic, int leftSonic, double joyStickX, double joyStickY, double joyStickTheta)
-{
-	if(!sonicCheckCollision(frontSonic, joyStickX, joyStickY, joyStickTheta))
+	else if(drive_Man.ahrs.GetFusedHeading()-180 < angle - 10)
 	{
-		return 0;
-	}
-	else if((rightSonic > leftSonic) && !sonicCheckCollision(rightSonic, joyStickX, joyStickY, joyStickTheta))
-	{
-		return 1;
-	}
-	else if((rightSonic < leftSonic) && !sonicCheckCollision(leftSonic, joyStickX, joyStickY, joyStickTheta))
-	{
-		return 2;
+		drive_Man.mecanumDrive(0, 0, -.15);
 	}
 	else
 	{
-		return 3;
+		drive_Man.mecanumDrive(0, 0 ,0);
 	}
 }
-
-
-/* Checks to see if the robot will collide with an object with a given direction and distance, then returns which direction to go
- * @parameters
- * double sensorTheta = Direction of sensor reading
- * double sensorDistance = Distance reading from sensor
- * double joyStickX = MecanumDrive x-axis command
- * double joyStickY = mecanumDrive y-axis command
- * double joyStickTheta = Direction of turn from mecanumDrive
- *
- * @returns
- * Boolean stating if current path will result in a collision or not
- */
-
-//bool FRC::Auto_Manager::checkCollision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta)
-//{
-//	if(joyStickY < 0 || joyStickY > 0)
-//	{
-//		if(sensorTheta <= 45 && sensorTheta >= -45)
-//		{
-//			if(sensorDistance[sensorTheta] <= MINIMUM_DISTANCE)
-//			{
-//				return true;
-//			}
-//		}
-//		if(sensorTheta <= -45 && sensorTheta >= -135)
-//		{
-//			if(sensorDistance[sensorTheta] <= MINIMUM_DISTANCE)
-//			{
-//				return true;
-//			}
-//		}
-//		if(sensorTheta >= 45 && sensorTheta <= 135)
-//		{
-//			if(sensorDistance[sensorTheta] <= MINIMUM_DISTANCE)
-//			{
-//				return true;
-//			}
-//		}
-//	}
-//	return false;
-//}
-
-
-//int FRC::Auto_Manager::avoidCollision(double sensorTheta, double sensorDistance[], double joyStickX, double joyStickY, double joyStickTheta)
-//{
-//	if(!checkCollision(sensorTheta, sensorDistance, joyStickX, joyStickY, joyStickTheta))
-//	{
-//		return 0;
-//	}
-//	else if((sensorDistance[sensorTheta + 90] > sensorDistance[sensorTheta - 90]) && !checkCollision(sensorTheta + 90, sensorDistance, joyStickX, joyStickY, joyStickTheta))
-//	{
-//		return 1;
-//	}
-//	else if((sensorDistance[sensorTheta + 90] < sensorDistance[sensorTheta - 90]) && !checkCollision(sensorTheta - 90, sensorDistance, joyStickX, joyStickY, joyStickTheta))
-//	{
-//		return 2;
-//	}
-//	else
-//	{
-//		return 3;
-//	}
-//}
 

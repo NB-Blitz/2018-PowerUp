@@ -39,34 +39,30 @@ public:
 
 	void Autonomous()
 	{
+		//sets up camera stuff once
 		if(!camera_Man.setup)
 		{
 			camera_Man.camSetup();
 		}
 
+		//grabs data from field and smashboard and determines servo default positioning
 		Auto_Man.autoInit(camera_Man);
+
 		Drive_Man.ahrs.Reset();
 
+		//grabs servo positions for the camera manager
 		SmartDashboard::PutNumber("Starting Pan Pos", camera_Man.pan->Get() * 180);
 		SmartDashboard::PutNumber("Starting Tilt Pos ", camera_Man.tilt->Get()* 180);
-
 		camera_Man.camPanPos = camera_Man.pan->Get() * 180;
 		camera_Man.camTiltPos = camera_Man.tilt->Get() * 180;
 
 		while(IsAutonomous() && IsEnabled())
 		{
+			//recieves data from pi and moves the camera to the correct position
 			camera_Man.grabData();
 			camera_Man.camScan(2);
 
-			SmartDashboard::PutNumber("xPos", camera_Man.xPos);
-			SmartDashboard::PutNumber("yPos", camera_Man.yPos);
-			SmartDashboard::PutNumber("camTilt", camera_Man.camTiltPos);
-			SmartDashboard::PutNumber("actual Tilt", camera_Man.tilt->Get());
-			SmartDashboard::PutNumber("camPan", camera_Man.camPanPos - 90);
-			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
-			SmartDashboard::PutNumber("front Left", Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()));
-			SmartDashboard::PutNumber("front Right", Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()));
-
+			//gets distance from switch and angle of the bot
 			double forwardDist;
 
 			double botAngle = Drive_Man.getAngle();
@@ -93,11 +89,7 @@ public:
 				forwardDist = 4;
 			}
 
-			SmartDashboard::PutNumber("Switch Dist: ", forwardDist);
-			SmartDashboard::PutNumber("nav angle", botAngle);
-
-
-
+			// drive to the switch and position facing it
 			if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) > 16 && fabs(camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
 			{
 				Auto_Man.driveToCam(.2, camera_Man.angle, camera_Man.targetFound);
@@ -124,15 +116,30 @@ public:
 				}
 			}
 
+			//starts the path toward the scale
 			if(driveToScale)
 			{
 
 			}
 
+			//outtakes cube when in position
 			if(inPosition)
 			{
 				//outTake Code Here!!!!!!!!!!!!!
 			}
+
+			//smartdashboard stuff
+			SmartDashboard::PutNumber("xPos", camera_Man.xPos);
+			SmartDashboard::PutNumber("yPos", camera_Man.yPos);
+			SmartDashboard::PutNumber("camTilt", camera_Man.camTiltPos);
+			SmartDashboard::PutNumber("actual Tilt", camera_Man.tilt->Get());
+			SmartDashboard::PutNumber("camPan", camera_Man.camPanPos - 90);
+			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
+			SmartDashboard::PutNumber("front Right", Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()));
+			SmartDashboard::PutNumber("Switch Dist: ", forwardDist);
+			SmartDashboard::PutNumber("nav angle", botAngle);
+
+
 
 			Wait(0.005);
 		}

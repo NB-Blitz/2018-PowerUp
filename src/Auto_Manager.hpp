@@ -25,10 +25,6 @@ namespace FRC
 
 		FRC::Drive_Manager drive_Man;
 
-		int autoGoal = 0;
-		int x = 0;
-		char fieldPos = 'C';
-
 		void autoInit(camera_Manager camera_Man);
 		void navStraighten(double angle);
 		void driveToCam(double speed, int angle, bool targetFound);
@@ -36,12 +32,16 @@ namespace FRC
 		double convertMB1010SonicVoltageToInches(double voltage);
 		double convertMB1220SonicVoltageToInches(double voltage);
 
+		//lidar's seperated sections
 		const int left[2] = {-90, -45};
 		const int frontLeft[2] = {-45, 0};
 		const int frontRight[2] = {0, 45};
 		const int right[2] = {45, 90};
 
 		int prefferedDogeDir = 0;
+		int autoGoal = 0;
+		int x = 0;
+		char fieldPos = 'C';
 
 		std::string gameData;
 

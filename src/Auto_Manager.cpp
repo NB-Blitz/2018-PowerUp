@@ -8,6 +8,8 @@ FRC::Auto_Manager::Auto_Manager():
 
 }
 
+
+//initializes all the autonomous variables
 void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 {
 	x += 1;
@@ -166,6 +168,7 @@ void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 
 }
 
+//dive to the blob at the center of the camera's view
 void FRC::Auto_Manager::driveToCam(double speed, int angle, bool targetFound)
 {
 	double rotation = 0;
@@ -189,6 +192,7 @@ void FRC::Auto_Manager::driveToCam(double speed, int angle, bool targetFound)
 	SmartDashboard::PutNumber("Auto Rotation", rotation);
 }
 
+//ultrasonic conversions
 double FRC::Auto_Manager::convertMB1220SonicVoltageToInches(double voltage)
 {
 	return (((voltage / 0.0049)) / 2.54);
@@ -204,6 +208,7 @@ double FRC::Auto_Manager::convertMB1010SonicVoltageToInches(double voltage)
 	return voltage / 0.0098;
 }
 
+//straightens the robot to and angle
 void FRC::Auto_Manager::navStraighten(double angle)
 {
 	if(drive_Man.ahrs.GetFusedHeading()-180 > angle + 10)

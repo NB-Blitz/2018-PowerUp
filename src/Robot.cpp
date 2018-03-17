@@ -4,6 +4,8 @@
 #include "Lift_Manager.hpp"
 #include "Auto_Manager.hpp"
 #include "camera_Manager.hpp"
+#include "BlitzLogger.hpp"
+#include "Lidar_Manager.hpp"
 
 class Robot: public SampleRobot
 {
@@ -12,11 +14,19 @@ class Robot: public SampleRobot
 	FRC::Lift_Manager Lift_Man;
 	FRC::Auto_Manager Auto_Man;
 	FRC::camera_Manager camera_Man;
-	AnalogInput frontLeftSonic, frontRightSonic;
+	FRC::BlitzLogger BlitzLog;
+	FRC::Lidar_Manager LidarManager;
+
+
 	double joyX, joyY, joyZ, joySlide, currentAngle;
 	bool isArcade;
 	bool inPosition = false;
 	bool driveToScale = false;
+	uint8_t LidarData[4];
+
+	//Constant Variable Declarations
+	const double RIGHT_STRAFE_SPEED = -0.5;
+	const double LEFT_STRAFE_SPEED = 0.5;
 
 public:
 	Robot() :
@@ -25,8 +35,8 @@ public:
 		Lift_Man(),
 		Auto_Man(),
 		camera_Man(),
-		frontLeftSonic(0),
-		frontRightSonic(1)
+		BlitzLog(4),
+		LidarManager()
 
 	{
 		joyX = 0;
@@ -49,6 +59,9 @@ public:
 		Auto_Man.autoInit(camera_Man);
 
 		Drive_Man.ahrs.Reset();
+		BlitzLog.init();
+		LidarManager.startLidarMotor();
+
 
 		//grabs servo positions for the camera manager
 		SmartDashboard::PutNumber("Starting Pan Pos", camera_Man.pan->Get() * 180);
@@ -61,6 +74,9 @@ public:
 			//recieves data from pi and moves the camera to the correct position
 			camera_Man.grabData();
 			camera_Man.camScan(2);
+
+			//receives data from lidar
+			LidarManager.getLidarValues(LidarData);
 
 			//gets distance from switch and angle of the bot
 			double forwardDist;
@@ -90,14 +106,14 @@ public:
 			}
 
 			// drive to the switch and position facing it
-			if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) > 16 && fabs(camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
+			if(forwardDist > 16 && fabs(camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
 			{
 				Auto_Man.driveToCam(.2, camera_Man.angle, camera_Man.targetFound);
 			}
 			else
 			{
 
-				if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) < 	16 && Auto_Man.autoGoal == 0)
+				if(forwardDist < 16 && Auto_Man.autoGoal == 0)
 				{
 					Auto_Man.navStraighten(0);
 				}
@@ -135,16 +151,19 @@ public:
 			SmartDashboard::PutNumber("actual Tilt", camera_Man.tilt->Get());
 			SmartDashboard::PutNumber("camPan", camera_Man.camPanPos - 90);
 			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
-			SmartDashboard::PutNumber("front Right", Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()));
 			SmartDashboard::PutNumber("Switch Dist: ", forwardDist);
 			SmartDashboard::PutNumber("nav angle", botAngle);
+			SmartDashboard::PutNumber("LidarDataValue1", LidarData[0]);
+			SmartDashboard::PutNumber("LIdarDataValue2", LidarData[1]);
+			SmartDashboard::PutNumber("LidarDataValue3", LidarData[2]);
+			SmartDashboard::PutNumber("LIdarDataValue4", LidarData[3]);
 
 
 
 			Wait(0.005);
 		}
-
-		//camera_Man.closeNet();
+		BlitzLog.close();
+		LidarManager.stopLidarMotor();
 	}
 
 /*-----------------------------------------------------------------------------------------------

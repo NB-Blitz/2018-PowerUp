@@ -1,12 +1,15 @@
 #include "Auto_Manager.hpp"
+
 #include "WPILib.h"
 
 FRC::Auto_Manager::Auto_Manager():
 	switch_Box(2),
 	drive_Man()
+
 {
 
 }
+
 
 
 //initializes all the autonomous variables
@@ -193,6 +196,7 @@ void FRC::Auto_Manager::driveToCam(double speed, int angle, bool targetFound)
 }
 
 //ultrasonic conversions
+
 double FRC::Auto_Manager::convertMB1220SonicVoltageToInches(double voltage)
 {
 	return (((voltage / 0.0049)) / 2.54);

@@ -31,6 +31,7 @@ namespace FRC
 
 		double camPanPos = 90;
 		double camTiltPos = 90;
+
 		double panDir = 1;
 		int tiltDir = 1;
 		int defaultTilt = 90;
@@ -38,6 +39,7 @@ namespace FRC
 		bool setup = false;
 
 		void camSetup();
+
 		void grabData();
 		void trackColor(std::string color);
 		void sendData(std::string data);
@@ -54,6 +56,7 @@ namespace FRC
 		const int MAX_TILT = 180;
 		const int MIN_PAN = 45;
 		const int MAX_PAN = 135;
+
 
 		const int DEFAULT_SWITCH_TILT = 110;
 		const int DEFAULT_SCALE_TILT = 90;

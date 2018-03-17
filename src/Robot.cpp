@@ -4,18 +4,22 @@
 #include "Lift_Manager.hpp"
 #include "Auto_Manager.hpp"
 #include "camera_Manager.hpp"
+
 #include "BlitzLogger.hpp"
 #include "Lidar_Manager.hpp"
+
 
 class Robot: public SampleRobot
 {
 	FRC::Drive_Manager Drive_Man;
 	FRC::Input_Manager Input_Man;
 	FRC::Lift_Manager Lift_Man;
+
 	FRC::Auto_Manager Auto_Man;
 	FRC::camera_Manager camera_Man;
 	FRC::BlitzLogger BlitzLog;
 	FRC::Lidar_Manager LidarManager;
+
 
 
 	double joyX, joyY, joyZ, joySlide, currentAngle;
@@ -28,15 +32,25 @@ class Robot: public SampleRobot
 	const double RIGHT_STRAFE_SPEED = -0.5;
 	const double LEFT_STRAFE_SPEED = 0.5;
 
+	const double RIGHT_STRAFE_SPEED = -0.5;
+	const double LEFT_STRAFE_SPEED = 0.5;
+	double frontSonicDistance, rightSonicDistance, leftSonicDistance;
+	AnalogInput frontSonic, rightSonic, leftSonic;
+
+	const int SWITCH_CAM_TILT = 45;
+	const int SCALE_CAM_TILT = 90;
+
 public:
 	Robot() :
 		Drive_Man(),
 		Input_Man(),
 		Lift_Man(),
+
 		Auto_Man(),
 		camera_Man(),
 		BlitzLog(4),
 		LidarManager()
+
 
 	{
 		joyX = 0;
@@ -45,6 +59,61 @@ public:
 		joySlide = 0;
 		currentAngle = 0;
 		isArcade = false;
+		frontSonicDistance = 0;
+		rightSonicDistance = 0;
+		leftSonicDistance = 0;
+	}
+
+	void Autonomous()
+	{
+
+		camera_Man.netSetup();
+
+
+		while(IsAutonomous() && IsEnabled())
+		{
+			camera_Man.grabData();
+			camera_Man.camScan(2);
+
+			SmartDashboard::PutNumber("xPos", camera_Man.xPos);
+			SmartDashboard::PutNumber("yPos", camera_Man.yPos);
+			SmartDashboard::PutNumber("camTilt", camera_Man.camTiltPos);
+			SmartDashboard::PutNumber("actual Tilt", camera_Man.tilt->Get());
+			SmartDashboard::PutNumber("camPan", camera_Man.camPanPos);
+			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
+
+			joyX = 0;
+			joyY = .25;
+			joyZ = 0;
+			frontSonicDistance = Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage());
+			rightSonicDistance = Auto_Manager.convertMB1013SonicVoltageToInches(rightSonic.GetVoltage());
+			leftSonicDistance = Auto_Manager.convertMB1010SonicVoltageToInches(leftSonic.GetVoltage());
+
+			SmartDashboard::PutNumber("FrontSonicVoltage", frontSonic.GetVoltage());
+			SmartDashboard::PutNumber("FrontSonicDistance", Auto_Manager.convertMB1220SonicVoltageToInches(frontSonic.GetVoltage()));
+			SmartDashboard::PutNumber("RightSonicVoltage", rightSonic.GetVoltage());
+			SmartDashboard::PutNumber("RightSonicDistance", Auto_Manager.convertMB1013SonicVoltageToInches(rightSonic.GetVoltage()));
+			SmartDashboard::PutNumber("LeftSonicVoltage", leftSonic.GetVoltage());
+			SmartDashboard::PutNumber("LeftSonicDistance", Auto_Manager.convertMB1010SonicVoltageToInches(leftSonic.GetVoltage()));
+
+
+			SmartDashboard::PutNumber("AvoidCollisionOutput",  Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ));
+
+            if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 0)
+			{
+				Auto_Manager.driveToCam(camera_Man.angle);
+			}
+			else if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 1)
+			{
+				Drive_Man.mecanumDrive(RIGHT_STRAFE_SPEED, 0, 0);
+			}
+			else if(Auto_Manager.sonicAvoidCollision(frontSonicDistance, rightSonicDistance, leftSonicDistance, joyX, joyY, joyZ) == 2)
+			{
+				Drive_Man.mecanumDrive(LEFT_STRAFE_SPEED, 0, 0);
+			}
+
+			Wait(0.005);
+		}
 	}
 
 	void Autonomous()

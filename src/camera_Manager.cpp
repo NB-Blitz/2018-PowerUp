@@ -13,7 +13,9 @@ FRC::camera_Manager::camera_Manager()
 
 }
 
+
 void FRC::camera_Manager::camSetup()
+
 {
 	tilt = new Servo(1);
 	pan = new Servo(0);
@@ -21,6 +23,7 @@ void FRC::camera_Manager::camSetup()
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
 	server.sin_addr.s_addr = inet_addr(CAMERA_IP.c_str());
+
 
 	serverLen = sizeof(server);
 
@@ -82,6 +85,7 @@ void FRC::camera_Manager::trackColor(std::string color)
 
 void FRC::camera_Manager::camScan(int autoGoal)
 {
+
 	if(xPos > 90 || xPos < -90)
 	{
 		targetFound = false;
@@ -94,12 +98,14 @@ void FRC::camera_Manager::camScan(int autoGoal)
 		{
 			panDir = 1;
 			camPanPos = MIN_PAN;
+
 		}
 
 		angle = 0;
 		dist = -1;
 
 		camPanPos += panDir;
+
 	}
 	else
 	{
@@ -137,6 +143,7 @@ void FRC::camera_Manager::camScan(int autoGoal)
 	}
 
 	setPanPos(camPanPos);
+
 
 }
 

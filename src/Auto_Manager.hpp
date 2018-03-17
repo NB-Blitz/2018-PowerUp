@@ -21,6 +21,7 @@ namespace FRC
 	public:
 		Auto_Manager();
 
+
 		Joystick switch_Box;
 
 		FRC::Drive_Manager drive_Man;
@@ -46,6 +47,7 @@ namespace FRC
 		std::string gameData;
 
 	private:
+
 
 
 	};

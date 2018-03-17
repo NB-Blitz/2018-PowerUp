@@ -17,21 +17,22 @@ namespace FRC
 		Solenoid Left_Solenoid, Right_Solenoid;
 
 		// Methods
+		void startCompressor();
+		void switchDriveMode(bool isMecanum);
+		void mecanumDrive(double joyX, double joyY, double joyZ);
 		void arcadeDrive(double joyY, double joyZ);
-		void mecanumDrive(double x, double y, double z);
-		void straightDrive(double x, double y, double z, double angle);
+		void straightDrive(double joyX, double joyY, double joyZ, double angle);
+		void fieldControl(double joyX, double joyY, double joyZ, double joyDegrees, double angle);
 		double PICorrection(double defaultVal, double encSpeed);
 		void getEncSpeeds();
 		double getEncSpeed(int motor);
-		void startCompressor();
-		void toArcade();
-		void toMecanum();
 		void testMotorPorts(bool port0, bool port1, bool port2, bool port3);
 
 		// Variables
 		double const RATE_FREQUENCY = 2000; // Target Velocity
 		double const PROPORTIONAL_GAIN = 1.0; // Proportional multiplier
 		double const MAX_HZ = 2600.0; // Max Hz
+		double const PI = 3.14159265;
 
 		double baseSpeed[4]; // Base Speeds
 		double finalSpeed[4]; // Final Speeds

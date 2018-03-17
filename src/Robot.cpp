@@ -12,8 +12,11 @@ class Robot: public SampleRobot
 	FRC::Lift_Manager Lift_Man;
 	FRC::Manip_Manager Manip_Man;
 	FRC::Auto_Manager Auto_Man;
-	double joyX, joyY, joyZ, joySlide, leftControlY, rightControlY, currentAngle, ultraDistance, autoStage;
-	bool isArcade, leftControlButton, rightControlButton;
+	double joyX, joyY, joyZ, joyDegrees, joySlide;
+	double leftControlY, rightControlY, leftTrigger, rightTrigger;
+	double currentAngle, ultraDistance, autoStage;
+	bool isMecanum, isStraightDrive, isFieldControl;
+	bool leftControlButton, rightControlButton;
 
 public:
 	Robot() :
@@ -27,15 +30,87 @@ public:
 		joyX = 0;
 		joyY = 0;
 		joyZ = 0;
+		joyDegrees = 0;
 		joySlide = 0;
+
 		leftControlY = 0;
 		rightControlY = 0;
+		leftTrigger = 0;
+		rightTrigger = 0;
+
 		currentAngle = 0;
 		ultraDistance = 0;
 		autoStage = 1;
-		isArcade = false;
+
+		isMecanum = true;
+		isStraightDrive = false;
+		isFieldControl = false;
+
 		leftControlButton = false;
 		rightControlButton = false;
+	}
+
+/*-----------------------------------------------------------------------------------------------
+ *                     _
+ *		    /\        | |
+ *		   /  \  _   _| |_ ___  _ __   ___  _ __ ___   ___  _   _ ___
+ *		  / /\ \| | | | __/ _ \| '_ \ / _ \| '_ ` _ \ / _ \| | | / __|
+ *		 / ____ \ |_| | || (_) | | | | (_) | | | | | | (_) | |_| \__ \
+ *		/_/    \_\__,_|\__\___/|_| |_|\___/|_| |_| |_|\___/ \__,_|___/
+ *
+ *----------------------------------------------------------------------------------------------*/
+	void Autonomous()
+	{
+		Input_Man.resetNav();
+
+		while (IsAutonomous() && IsEnabled())
+		{
+			currentAngle = Input_Man.getAngle();
+			ultraDistance = Input_Man.get1220Distance();
+
+			if (Input_Man.getSwitch(1))
+			{
+				if (autoStage == 1)
+				{
+					if (Auto_Man.moveForward(5, currentAngle))
+					{
+						autoStage = 2;
+					}
+				}
+			}
+
+			else if (Input_Man.getSwitch(2))
+			{
+				if (autoStage == 1)
+				{
+					if (Auto_Man.moveMiddle(ultraDistance, 18, currentAngle))
+					{
+						autoStage = 2;
+					}
+				}
+			}
+
+			else if (Input_Man.getSwitch(3))
+			{
+				if (autoStage == 1)
+				{
+					if (Auto_Man.moveForward(5, currentAngle))
+					{
+						autoStage = 2;
+					}
+				}
+			}
+
+			if (Input_Man.getSwitch(4))
+			{
+
+			}
+
+			if (Input_Man.getSwitch(5))
+			{
+
+			}
+		}
 	}
 
 /*-----------------------------------------------------------------------------------------------
@@ -55,31 +130,39 @@ public:
 		while (IsOperatorControl() && IsEnabled())
 		{
 			// VARIABLE SETTING
-			Drive_Man.getEncSpeeds();
+
+			// Joystick Values
 			joyX = Input_Man.getAxis(0);
 			joyY = -Input_Man.getAxis(1);
 			joyZ = Input_Man.getAxis(2);
+			joyDegrees = Input_Man.Stick.GetDirectionDegrees();
+
 			joySlide = Input_Man.getAxis(3);
-
-			isArcade = Input_Man.getJoyButton(1);
-
-			leftControlY = Input_Man.getControllerAxis(1);
-			rightControlY = Input_Man.getControllerAxis(5);
-			leftControlButton = Input_Man.getControllerButton(5);
-			rightControlButton = Input_Man.getControllerButton(6);
-
-			currentAngle = Input_Man.getAngle();
 
 			joyX = Input_Man.xRamp(joyX);
 			joyY = Input_Man.yRamp(joyY);
 			joyZ = Input_Man.zRamp(joyZ);
 
+			isMecanum = !Input_Man.getJoyButton(1);
+			isStraightDrive = Input_Man.getJoyButton(2);
+			isFieldControl = Input_Man.getJoyButton(3);
+
+			// Controller Values
+			leftControlY = Input_Man.getControllerAxis(1);
+			rightControlY = Input_Man.getControllerAxis(5);
+			leftControlButton = Input_Man.getControllerButton(5);
+			rightControlButton = Input_Man.getControllerButton(6);
+			leftTrigger = Input_Man.getControllerAxis(2);
+			rightTrigger = Input_Man.getControllerAxis(3);
+
+			// Other Sensor Values
+			Drive_Man.getEncSpeeds();
+			currentAngle = Input_Man.getAngle();
+
 			// SMARTDASHBOARD
 			SmartDashboard::PutNumber("Joy X", joyX);
 			SmartDashboard::PutNumber("Joy Y", joyX);
 			SmartDashboard::PutNumber("Joy Z", joyX);
-
-			SmartDashboard::PutNumber("Lift Current", Input_Man.getCurrent(12));
 
 			SmartDashboard::PutNumber("Left_Front Current", Input_Man.getCurrent(0));
 			SmartDashboard::PutNumber("Left_Back Current", Input_Man.getCurrent(2));
@@ -94,15 +177,26 @@ public:
 			// DRIVE
 			Drive_Man.startCompressor();
 
-			if (isArcade)
+			if (isMecanum)
 			{
-				Drive_Man.toArcade();
-				Drive_Man.arcadeDrive(joyY, joyZ);
+				Drive_Man.switchDriveMode(isMecanum);
+				if (isStraightDrive)
+				{
+					Drive_Man.straightDrive(joyX, joyY, joyZ, currentAngle);
+				}
+				else if (isFieldControl)
+				{
+					Drive_Man.fieldControl(joyX, joyY, joyZ, joyDegrees, currentAngle);
+				}
+				else
+				{
+					Drive_Man.mecanumDrive(joyX, joyY, joyZ);
+				}
 			}
 			else
 			{
-				Drive_Man.toMecanum();
-				Drive_Man.mecanumDrive(joyX, joyY, joyZ);
+				Drive_Man.switchDriveMode(isMecanum);
+				Drive_Man.arcadeDrive(joyY, joyZ);
 			}
 
 			// LIFT
@@ -111,6 +205,7 @@ public:
 			// MANIPULATOR
 			Manip_Man.moveManip(rightControlY);
 			Manip_Man.moveArms(leftControlButton, rightControlButton);
+			Manip_Man.intake(leftTrigger, rightTrigger);
 
 			Wait(0.005);
 		}

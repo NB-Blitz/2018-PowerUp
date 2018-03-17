@@ -24,58 +24,47 @@ FRC::Drive_Manager::Drive_Manager():
 	useEnc = false;
 }
 
-void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
+void FRC::Drive_Manager::startCompressor()
 {
-	baseSpeed[0] = joyY + joyZ;
-	baseSpeed[1] = joyY + joyZ;
-	baseSpeed[2] = joyY - joyZ;
-	baseSpeed[3] = joyY - joyZ;
+	Comp.SetClosedLoopControl(true);
+}
 
-	for (int i = 0; i < 4; i++)
+void FRC::Drive_Manager::switchDriveMode(bool isMecanum)
+{
+	if (isMecanum)
 	{
-		double speed = fabs(baseSpeed[i]);
-
-		if (maxMagnitude < speed)
-		{
-			maxMagnitude = speed;
-		}
+		Left_Solenoid.Set(true);
+		Right_Solenoid.Set(false);
 	}
-
-	if (maxMagnitude > 1)
+	else
 	{
-		for (int i = 0; i < 4; i++)
-		{
-			baseSpeed[i] /= maxMagnitude;
-		}
+		Left_Solenoid.Set(false);
+		Right_Solenoid.Set(true);
 	}
-
-	// PI Loop (Supposed to make the motors run at the same velocity)
-	finalSpeed[0] = PICorrection(baseSpeed[0], encSpeed[0]);
-	finalSpeed[1] = PICorrection(baseSpeed[1], encSpeed[1]);
-	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
-	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
-
-	// Deadband
-	for (int i = 0; i < 4; i++)
-	{
-		if (fabs(finalSpeed[i]) < .1)
-		{
-			finalSpeed[i] = 0;
-		}
-	}
-
-	Left_Front.Set(-finalSpeed[0]);
-	Left_Back.Set(-finalSpeed[1]);
-	Right_Front.Set(finalSpeed[2]);
-	Right_Back.Set(finalSpeed[3]);
 }
 
 void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 {
+	// Deadband
+	if (fabs(joyX) < 0.2)
+	{
+		joyX = 0;
+	}
+	if (fabs(joyY) < 0.2)
+	{
+		joyY = 0;
+	}
+	if (fabs(joyZ) < 0.2)
+	{
+		joyZ = 0;
+	}
+
 	baseSpeed[0] = joyX + joyY + joyZ;
 	baseSpeed[1] = -joyX + joyY + joyZ;
 	baseSpeed[2] = -joyX + joyY - joyZ;
 	baseSpeed[3] = joyX + joyY - joyZ;
+
+	maxMagnitude = baseSpeed[0];
 
 	// Sets maxMagnitude to the highest speed out of the 4 motors
 	for (int i = 0; i < 4; i++)
@@ -103,14 +92,57 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
 	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
 
+	Left_Front.Set(-finalSpeed[0]);
+	Left_Back.Set(-finalSpeed[1]);
+	Right_Front.Set(finalSpeed[2]);
+	Right_Back.Set(finalSpeed[3]);
+}
+
+void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
+{
 	// Deadband
+	if (fabs(joyY) < 0.2)
+	{
+		joyY = 0;
+	}
+	if (fabs(joyZ) < 0.2)
+	{
+		joyZ = 0;
+	}
+
+	baseSpeed[0] = joyY + joyZ;
+	baseSpeed[1] = joyY + joyZ;
+	baseSpeed[2] = joyY - joyZ;
+	baseSpeed[3] = joyY - joyZ;
+
+	maxMagnitude = baseSpeed[0];
+
+	// Sets maxMagnitude to the highest speed out of the 4 motors
 	for (int i = 0; i < 4; i++)
 	{
-		if (fabs(finalSpeed[i]) < .1)
+		double speed = fabs(baseSpeed[i]);
+
+		if (maxMagnitude < speed)
 		{
-			finalSpeed[i] = 0;
+			maxMagnitude = speed;
 		}
 	}
+
+	// If maxMagnitude is over 1, divide all 4 motors by maxMagnitude
+	// Ensures that the motor speeds are set within -1 and 1
+	if (maxMagnitude > 1)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			baseSpeed[i] /= maxMagnitude;
+		}
+	}
+
+	// PI Loop (Supposed to make the motors run at the same velocity)
+	finalSpeed[0] = PICorrection(baseSpeed[0], encSpeed[0]);
+	finalSpeed[1] = PICorrection(baseSpeed[1], encSpeed[1]);
+	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
+	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
 
 	Left_Front.Set(-finalSpeed[0]);
 	Left_Back.Set(-finalSpeed[1]);
@@ -119,9 +151,9 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 }
 
 //Straight Drive Function -> Completely functional (but PID would enhance this)
-void FRC::Drive_Manager::straightDrive(double x, double y, double z, double angle)
+void FRC::Drive_Manager::straightDrive(double joyX, double joyY, double joyZ, double angle)
 {
-	theta = z - angle;
+	theta = joyZ - angle;
 
 	if(theta > 180)
 	{
@@ -134,14 +166,35 @@ void FRC::Drive_Manager::straightDrive(double x, double y, double z, double angl
 
 	rotation = theta;
 
-	if(fabs(y) > fabs(x))
+	if(fabs(joyY) > fabs(joyX))
 	{
-		mecanumDrive(0, y, rotation * 0.08);
+		mecanumDrive(0, joyY, rotation);
 	}
 	else
 	{
-		mecanumDrive(x, 0, rotation * 0.04); //Coefficient is lower due to a greater tendency to over-compensate
+		mecanumDrive(joyX, 0, rotation); //Coefficient is lower due to a greater tendency to over-compensate
 	}
+}
+
+void FRC::Drive_Manager::fieldControl(double joyX, double joyY, double joyZ, double joyDegrees, double angle)
+{
+	double magnitude = sqrt(pow(joyX, 2) + pow(joyY, 2));
+
+	if(joyDegrees < 0)
+	{
+		theta = 360 + joyDegrees;
+	}
+	else
+	{
+		theta = joyDegrees;
+	}
+
+	theta -= angle;
+
+	joyX = magnitude * cos(theta * (PI/180));
+	joyY = magnitude * sin(theta * (PI/180));
+
+	mecanumDrive(-joyX, -joyY, joyZ);
 }
 
 double FRC::Drive_Manager::PICorrection(double defaultVal, double encSpeed)
@@ -173,23 +226,6 @@ void FRC::Drive_Manager::getEncSpeeds()
 double FRC::Drive_Manager::getEncSpeed(int motor)
 {
 	return encSpeed[motor];
-}
-
-void FRC::Drive_Manager::startCompressor()
-{
-	Comp.SetClosedLoopControl(true);
-}
-
-void FRC::Drive_Manager::toArcade()
-{
-	Left_Solenoid.Set(false);
-	Right_Solenoid.Set(true);
-}
-
-void FRC::Drive_Manager::toMecanum()
-{
-	Left_Solenoid.Set(true);
-	Right_Solenoid.Set(false);
 }
 
 void FRC::Drive_Manager::testMotorPorts(bool port0, bool port1, bool port2, bool port3)

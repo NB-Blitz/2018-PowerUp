@@ -3,10 +3,10 @@
 
 FRC::Manip_Manager::Manip_Manager():
 	Manip_Motor(7),
-	Arm_In(2),
-	Arm_Out(3),
 	Left_Intake(5),
-	Right_Intake(6)
+	Right_Intake(6),
+	Arm_In(2),
+	Arm_Out(3)
 
 {
 

@@ -4,7 +4,7 @@
 
 FRC::Lift_Manager::Lift_Manager() :
 	Lift_Motor(5),
-	Encoder(0,1),
+	Enc(0,1),
 	Top_Switch(0),
 	Bottom_Switch(1)
 
@@ -14,7 +14,7 @@ FRC::Lift_Manager::Lift_Manager() :
 
 void FRC::Lift_Manager::moveLiftTo(double joyPos)
 {
-	double height = Encoder.Get();
+	double height = Enc.Get();
 	double convHeight = height - (MAX_LIFT_POS/2);
 	convHeight /= (MAX_LIFT_POS/2);
 
@@ -39,7 +39,7 @@ void FRC::Lift_Manager::moveLiftTo(double joyPos)
 void FRC::Lift_Manager::moveLift(double stickY)
 {
 	SmartDashboard::PutNumber("Joystick Y", stickY);
-	SmartDashboard::PutNumber("Encoder", Encoder.Get());
+	SmartDashboard::PutNumber("Encoder", Enc.Get());
 
 	if (Top_Switch.Get() && stickY > 0)
 	{
@@ -57,7 +57,7 @@ void FRC::Lift_Manager::moveLift(double stickY)
 
 void FRC::Lift_Manager::resetLift()
 {
-	SmartDashboard::PutNumber("Encoder", Encoder.Get());
+	SmartDashboard::PutNumber("Encoder", Enc.Get());
 
 	if (!Bottom_Switch.Get())
 	{
@@ -72,5 +72,5 @@ void FRC::Lift_Manager::resetLift()
 
 void FRC::Lift_Manager::resetEnc()
 {
-	Encoder.Reset();
+	Enc.Reset();
 }

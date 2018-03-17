@@ -13,7 +13,7 @@ namespace FRC
 
 		// Objects
 		WPI_TalonSRX Lift_Motor;
-		Encoder Encoder;
+		Encoder Enc;
 		DigitalInput Top_Switch, Bottom_Switch;
 
 		// Variables

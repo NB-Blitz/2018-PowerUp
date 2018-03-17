@@ -41,6 +41,8 @@ namespace FRC
 		const int frontRight[2] = {0, 45};
 		const int right[2] = {45, 90};
 
+		int prefferedDogeDir = 0;
+
 		std::string gameData;
 
 	private:

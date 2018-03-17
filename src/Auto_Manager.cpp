@@ -133,6 +133,37 @@ void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 		}
 	}
 
+	if(autoGoal == 1)
+	{
+		if(fieldPos == 'R')
+		{
+			prefferedDogeDir = 1;
+		}
+		else if(fieldPos == 'L')
+		{
+			prefferedDogeDir = 2;
+		}
+		else
+		{
+			prefferedDogeDir = 0;
+		}
+	}
+	else
+	{
+		if(gameData[0] == 'R')
+		{
+			prefferedDogeDir = 1;
+		}
+		else if(gameData[0] == 'L')
+		{
+			prefferedDogeDir = 2;
+		}
+		else
+		{
+			prefferedDogeDir = 0;
+		}
+	}
+
 }
 
 void FRC::Auto_Manager::driveToCam(double speed, int angle, bool targetFound)

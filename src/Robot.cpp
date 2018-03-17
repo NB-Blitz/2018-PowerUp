@@ -15,6 +15,8 @@ class Robot: public SampleRobot
 	AnalogInput frontLeftSonic, frontRightSonic;
 	double joyX, joyY, joyZ, joySlide, currentAngle;
 	bool isArcade;
+	bool inPosition = false;
+	bool driveToScale = false;
 
 public:
 	Robot() :
@@ -100,25 +102,36 @@ public:
 			{
 				Auto_Man.driveToCam(.2, camera_Man.angle, camera_Man.targetFound);
 			}
-//			else if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) < 16)
-//			{
-//				Drive_Man.mecanumDrive(0, 0, 0);
-//			}
-//			else if(Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()) < 16)
-//			{
-//				Drive_Man.mecanumDrive(0, 0, 0);
-//			}
 			else
 			{
 
-				if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) < 	16)
+				if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) < 	16 && Auto_Man.autoGoal == 0)
 				{
 					Auto_Man.navStraighten(0);
 				}
 				else
 				{
 					Drive_Man.mecanumDrive(0, 0, 0);
+
+					if(Auto_Man.autoGoal == 0)
+					{
+						inPosition = true;
+					}
+					else
+					{
+						driveToScale = true;
+					}
 				}
+			}
+
+			if(driveToScale)
+			{
+
+			}
+
+			if(inPosition)
+			{
+				//outTake Code Here!!!!!!!!!!!!!
 			}
 
 			Wait(0.005);

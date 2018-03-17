@@ -29,7 +29,6 @@ void FRC::camera_Manager::camSetup()
 
 	udpSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	setup = true;
-
 }
 
 void FRC::camera_Manager::grabData()
@@ -66,6 +65,7 @@ void FRC::camera_Manager::grabData()
 //
 //	dist = atoi(distBuffer);
 }
+
 
 void FRC::camera_Manager::closeNet()
 {

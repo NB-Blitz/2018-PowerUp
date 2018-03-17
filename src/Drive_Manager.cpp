@@ -13,9 +13,8 @@ FRC::Drive_Manager::Drive_Manager():
 	Right_Solenoid(1),
 	ahrs {SPI::Port::kMXP}
 
+
 {
-
-
 
 
 }
@@ -157,6 +156,7 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 	SmartDashboard::PutNumber("LeftBack command", finalSpeed[1]);
 	SmartDashboard::PutNumber("RightFront command", finalSpeed[2]);
 	SmartDashboard::PutNumber("RightBack command", finalSpeed[3]);
+
 }
 
 double FRC::Drive_Manager::PIDCorrection(double desiredSpeed, double actualSpeed, int motorID) //Manual Version

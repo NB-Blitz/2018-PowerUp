@@ -14,13 +14,10 @@ class Robot: public SampleRobot
 	FRC::Drive_Manager Drive_Man;
 	FRC::Input_Manager Input_Man;
 	FRC::Lift_Manager Lift_Man;
-
 	FRC::Auto_Manager Auto_Man;
 	FRC::camera_Manager camera_Man;
 	FRC::BlitzLogger BlitzLog;
 	FRC::Lidar_Manager LidarManager;
-
-
 
 	double joyX, joyY, joyZ, joySlide, currentAngle;
 	bool isArcade;
@@ -31,14 +28,6 @@ class Robot: public SampleRobot
 	//Constant Variable Declarations
 	const double RIGHT_STRAFE_SPEED = -0.5;
 	const double LEFT_STRAFE_SPEED = 0.5;
-
-	const double RIGHT_STRAFE_SPEED = -0.5;
-	const double LEFT_STRAFE_SPEED = 0.5;
-	double frontSonicDistance, rightSonicDistance, leftSonicDistance;
-	AnalogInput frontSonic, rightSonic, leftSonic;
-
-	const int SWITCH_CAM_TILT = 45;
-	const int SCALE_CAM_TILT = 90;
 
 public:
 	Robot() :
@@ -114,6 +103,125 @@ public:
 
 			Wait(0.005);
 		}
+	}
+
+	void Autonomous()
+	{
+		//sets up camera stuff once
+		if(!camera_Man.setup)
+		{
+			camera_Man.camSetup();
+		}
+
+		//grabs data from field and smashboard and determines servo default positioning
+		Auto_Man.autoInit(camera_Man);
+
+		Drive_Man.ahrs.Reset();
+		BlitzLog.init();
+		LidarManager.startLidarMotor();
+
+
+		//grabs servo positions for the camera manager
+		SmartDashboard::PutNumber("Starting Pan Pos", camera_Man.pan->Get() * 180);
+		SmartDashboard::PutNumber("Starting Tilt Pos ", camera_Man.tilt->Get()* 180);
+		camera_Man.camPanPos = camera_Man.pan->Get() * 180;
+		camera_Man.camTiltPos = camera_Man.tilt->Get() * 180;
+
+		while(IsAutonomous() && IsEnabled())
+		{
+			//recieves data from pi and moves the camera to the correct position
+			camera_Man.grabData();
+			camera_Man.camScan(2);
+
+			//receives data from lidar
+			LidarManager.getLidarValues(LidarData);
+
+			//gets distance from switch and angle of the bot
+			double forwardDist;
+
+			double botAngle = Drive_Man.getAngle();
+
+			if(botAngle > 180)
+			{
+				botAngle = (360 - botAngle) * -1;
+			}
+
+			if(botAngle > Auto_Man.left[0] && botAngle < Auto_Man.left[1])
+			{
+				forwardDist = 1;
+			}
+			else if(botAngle > Auto_Man.frontLeft[0] && botAngle < Auto_Man.frontLeft[1])
+			{
+				forwardDist = 2;
+			}
+			else if(botAngle > Auto_Man.frontRight[0] && botAngle < Auto_Man.frontRight[1])
+			{
+				forwardDist = 3;
+			}
+			else if(botAngle + 90 > Auto_Man.right[0] && botAngle < Auto_Man.right[1])
+			{
+				forwardDist = 4;
+			}
+
+			// drive to the switch and position facing it
+			if(forwardDist > 16 && fabs(camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
+			{
+				Auto_Man.driveToCam(.2, camera_Man.angle, camera_Man.targetFound);
+			}
+			else
+			{
+
+				if(forwardDist < 16 && Auto_Man.autoGoal == 0)
+				{
+					Auto_Man.navStraighten(0);
+				}
+				else
+				{
+					Drive_Man.mecanumDrive(0, 0, 0);
+
+					if(Auto_Man.autoGoal == 0)
+					{
+						inPosition = true;
+					}
+					else
+					{
+						driveToScale = true;
+					}
+				}
+			}
+
+			//starts the path toward the scale
+			if(driveToScale)
+			{
+
+			}
+
+			//outtakes cube when in position
+			if(inPosition)
+			{
+				//outTake Code Here!!!!!!!!!!!!!
+			}
+
+			//smartdashboard stuff
+			SmartDashboard::PutNumber("xPos", camera_Man.xPos);
+			SmartDashboard::PutNumber("yPos", camera_Man.yPos);
+			SmartDashboard::PutNumber("camTilt", camera_Man.camTiltPos);
+			SmartDashboard::PutNumber("actual Tilt", camera_Man.tilt->Get());
+			SmartDashboard::PutNumber("camPan", camera_Man.camPanPos - 90);
+			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
+			SmartDashboard::PutNumber("Switch Dist: ", forwardDist);
+			SmartDashboard::PutNumber("nav angle", botAngle);
+			SmartDashboard::PutNumber("LidarDataValue1", LidarData[0]);
+			SmartDashboard::PutNumber("LIdarDataValue2", LidarData[1]);
+			SmartDashboard::PutNumber("LidarDataValue3", LidarData[2]);
+			SmartDashboard::PutNumber("LIdarDataValue4", LidarData[3]);
+
+
+
+			Wait(0.005);
+		}
+		BlitzLog.close();
+		LidarManager.stopLidarMotor();
 	}
 
 	void Autonomous()

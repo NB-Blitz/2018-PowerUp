@@ -12,14 +12,12 @@ namespace FRC
 		Input_Manager();
 
 		// Object Declarations
-		AHRS nav;
 		Joystick stick;
 
 		// Methods
 		double getAngle();
 		double getAxis(int axis);
 		bool getJoyButton(int button);
-		void resetNav();
 	};
 }
 

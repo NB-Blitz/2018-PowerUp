@@ -31,10 +31,10 @@ namespace FRC
 			uint8_t LIDAR_STOP_MOTOR[2] = {0x20, 0x22};
 
 			//Read Buffer Declarations
-			uint8_t Lidar_Read_Buffer[14];
+			uint8_t Lidar_Read_Buffer[4];
 
 			//Function Declarations
-			uint8_t getLidarValues();
+			void getLidarValues(uint8_t inputArray[]);
 
 			void startLidarMotor();
 			void stopLidarMotor();

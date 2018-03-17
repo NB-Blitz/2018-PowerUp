@@ -25,7 +25,7 @@ class Robot: public SampleRobot
 	double joyX, joyY, joyZ, joySlide, currentAngle;
 	bool isArcade;
 	double frontRightSonicDistance, frontLeftSonicDistance;
-	int LidarData;
+	uint8_t LidarData[4];
 
 	//Constant Variable Declarations
 	const double RIGHT_STRAFE_SPEED = -0.5;
@@ -47,7 +47,6 @@ public:
 		currentAngle = 0;
 		isArcade = false;
 
-		LidarData = 0;
 		frontLeftSonicDistance = 0;
 		frontRightSonicDistance = 0;
 }
@@ -59,28 +58,32 @@ public:
 		while(IsAutonomous() && IsEnabled())
 		{
 
-			//LidarData = (int)LidarManager.getLidarValues();
+			LidarManager.getLidarValues(LidarData);
 			//BlitzLog.info("Autonomous", std::to_string(LidarData));
+
 
 			joyX = 0;
 			joyY = .5;
 			joyZ = 0;
 
 
-			SmartDashboard::PutNumber("AvoidCollisionOutput", LidarData);
+			SmartDashboard::PutNumber("LidarDataValue1", LidarData[0]);
+			SmartDashboard::PutNumber("LIdarDataValue2", LidarData[1]);
+			SmartDashboard::PutNumber("LidarDataValue3", LidarData[2]);
+			SmartDashboard::PutNumber("LIdarDataValue4", LidarData[3]);
 
-			if(!Auto_Manager.sonicCheckCollision(frontRightSonicDistance, joyX, joyY, joyZ) || !Auto_Manager.sonicCheckCollision(frontLeftSonicDistance, joyX, joyY, joyZ))
-			{
-				Drive_Man.mecanumDrive(joyX, joyY, joyZ);
-			}
-			else if(LidarData == 1)
-			{
-				Drive_Man.mecanumDrive(RIGHT_STRAFE_SPEED, 0, 0);
-			}
-			else if(LidarData == 2)
-			{
-				Drive_Man.mecanumDrive(LEFT_STRAFE_SPEED, 0, 0);
-			}
+//			if(!Auto_Manager.sonicCheckCollision(frontRightSonicDistance, joyX, joyY, joyZ) || !Auto_Manager.sonicCheckCollision(frontLeftSonicDistance, joyX, joyY, joyZ))
+//			{
+//				Drive_Man.mecanumDrive(joyX, joyY, joyZ);
+//			}
+//			else if(LidarData == 1)
+//			{
+//				Drive_Man.mecanumDrive(RIGHT_STRAFE_SPEED, 0, 0);
+//			}
+//			else if(LidarData == 2)
+//			{
+//				Drive_Man.mecanumDrive(LEFT_STRAFE_SPEED, 0, 0);
+//			}
 		}
 		BlitzLog.close();
 		LidarManager.stopLidarMotor();

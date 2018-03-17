@@ -13,6 +13,7 @@ namespace FRC
 
 		// Objects
 		WPI_TalonSRX Lift_Motor;
+		Encoder Encoder;
 		DigitalInput Top_Switch, Bottom_Switch;
 
 		// Variables
@@ -24,6 +25,7 @@ namespace FRC
 		void moveLiftTo(double pos);
 		void moveLift(double stickY);
 		void resetLift();
+		void resetEnc();
 	};
 }
 

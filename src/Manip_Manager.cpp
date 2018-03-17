@@ -14,7 +14,16 @@ FRC::Manip_Manager::Manip_Manager():
 
 void FRC::Manip_Manager::moveManip(double rightControlY)
 {
-	Manip_Motor.Set(rightControlY);
+	double motorCurrent = Manip_Motor.GetOutputCurrent();
+
+	if (motorCurrent > 40)
+	{
+		Manip_Motor.Set(0);
+	}
+	else
+	{
+		Manip_Motor.Set(rightControlY);
+	}
 }
 
 void FRC::Manip_Manager::moveArms(bool leftButton, bool rightButton)

@@ -41,11 +41,15 @@ void FRC::Lift_Manager::moveLift(double stickY)
 	SmartDashboard::PutNumber("Joystick Y", stickY);
 	SmartDashboard::PutNumber("Encoder", Enc.Get());
 
-	if (Top_Switch.Get() && stickY > 0)
+	double motorCurrent = Lift_Motor.GetOutputCurrent();
+	bool topSwitch = Top_Switch.Get();
+	bool bottomSwitch = Bottom_Switch.Get();
+
+	if ((topSwitch || motorCurrent > 40) && stickY > 0)
 	{
 		Lift_Motor.Set(0);
 	}
-	else if (Bottom_Switch.Get() && stickY < 0)
+	else if ((bottomSwitch || motorCurrent > 40) && stickY < 0)
 	{
 		Lift_Motor.Set(0);
 	}

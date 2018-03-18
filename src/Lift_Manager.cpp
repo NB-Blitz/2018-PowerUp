@@ -3,7 +3,7 @@
 #include "ctre/Phoenix.h"
 
 FRC::Lift_Manager::Lift_Manager() :
-	Lift_Motor(5),
+	Lift_Motor(8),
 	Enc(0,1),
 	Top_Switch(0),
 	Bottom_Switch(1)
@@ -45,11 +45,11 @@ void FRC::Lift_Manager::moveLift(double stickY)
 	bool topSwitch = Top_Switch.Get();
 	bool bottomSwitch = Bottom_Switch.Get();
 
-	if ((topSwitch || motorCurrent > 40) && stickY > 0)
+	if ((topSwitch || motorCurrent > 70) && stickY > 0)
 	{
 		Lift_Motor.Set(0);
 	}
-	else if ((bottomSwitch || motorCurrent > 40) && stickY < 0)
+	else if ((bottomSwitch || motorCurrent > 70) && stickY < 0)
 	{
 		Lift_Motor.Set(0);
 	}

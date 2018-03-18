@@ -33,13 +33,13 @@ void FRC::Drive_Manager::switchDriveMode(bool isMecanum)
 {
 	if (isMecanum)
 	{
-		Left_Solenoid.Set(true);
-		Right_Solenoid.Set(false);
+		Left_Solenoid.Set(false);
+		Right_Solenoid.Set(true);
 	}
 	else
 	{
-		Left_Solenoid.Set(false);
-		Right_Solenoid.Set(true);
+		Left_Solenoid.Set(true);
+		Right_Solenoid.Set(false);
 	}
 }
 
@@ -92,10 +92,10 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
 	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
 
-	Left_Front.Set(-finalSpeed[0]);
-	Left_Back.Set(-finalSpeed[1]);
-	Right_Front.Set(finalSpeed[2]);
-	Right_Back.Set(finalSpeed[3]);
+	Left_Front.Set(finalSpeed[0]);
+	Left_Back.Set(finalSpeed[1]);
+	Right_Front.Set(-finalSpeed[2]);
+	Right_Back.Set(-finalSpeed[3]);
 }
 
 void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
@@ -144,10 +144,10 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
 	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
 
-	Left_Front.Set(-finalSpeed[0]);
-	Left_Back.Set(-finalSpeed[1]);
-	Right_Front.Set(finalSpeed[2]);
-	Right_Back.Set(finalSpeed[3]);
+	Left_Front.Set(finalSpeed[0]);
+	Left_Back.Set(finalSpeed[1]);
+	Right_Front.Set(-finalSpeed[2]);
+	Right_Back.Set(-finalSpeed[3]);
 }
 
 //Straight Drive Function -> Completely functional (but PID would enhance this)

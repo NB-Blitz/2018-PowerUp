@@ -13,6 +13,7 @@
 #include "math.h"
 #include "Drive_Manager.hpp"
 #include "camera_Manager.hpp"
+#include "Input_Manager.hpp"
 
 namespace FRC
 {
@@ -25,6 +26,7 @@ namespace FRC
 		Joystick switch_Box;
 
 		FRC::Drive_Manager drive_Man;
+		FRC::Input_Manager input_Man;
 
 		void autoInit(camera_Manager camera_Man);
 		void navStraighten(double angle);

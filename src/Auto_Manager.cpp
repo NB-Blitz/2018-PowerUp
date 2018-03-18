@@ -4,7 +4,8 @@
 
 FRC::Auto_Manager::Auto_Manager():
 	switch_Box(2),
-	drive_Man()
+	drive_Man(),
+	input_Man()
 
 {
 
@@ -90,12 +91,12 @@ void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 		if(autoGoal == 0)
 		{
 			camera_Man.setPanPos(camera_Man.LEFT_SWITCH_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			//camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
 		}
 		else if(autoGoal == 1)
 		{
 			camera_Man.setPanPos(camera_Man.LEFT_SCALE_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+			//camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 	else if(fieldPos == 'C' && gameData[autoGoal] == 'L')
@@ -103,12 +104,12 @@ void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 		if(autoGoal == 0)
 		{
 			camera_Man.setPanPos(camera_Man.CENTER_SWITCH_LEFT_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			//camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
 		}
 		else if(autoGoal == 1)
 		{
 			camera_Man.setPanPos(camera_Man.CENTER_SCALE_LEFT_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+			//camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 	else if(fieldPos == 'C' && gameData[autoGoal] == 'R')
@@ -116,12 +117,12 @@ void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 		if(autoGoal == 0)
 		{
 			camera_Man.setPanPos(camera_Man.CENTER_SWITCH_RIGHT_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			//camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
 		}
 		else if(autoGoal == 1)
 		{
 			camera_Man.setPanPos(camera_Man.CENTER_SCALE_RIGHT_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+			//camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 	else if(fieldPos == 'R')
@@ -129,12 +130,12 @@ void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 		if(autoGoal == 0)
 		{
 			camera_Man.setPanPos(camera_Man.RIGHT_SWITCH_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			//camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
 		}
 		else if(autoGoal == 1)
 		{
 			camera_Man.setPanPos(camera_Man.RIGHT_SCALE_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+			//camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 
@@ -215,11 +216,11 @@ double FRC::Auto_Manager::convertMB1010SonicVoltageToInches(double voltage)
 //straightens the robot to and angle
 void FRC::Auto_Manager::navStraighten(double angle)
 {
-	if(drive_Man.ahrs.GetFusedHeading()-180 > angle + 10)
+	if(input_Man.getAngle()-180 > angle + 10)
 	{
 		drive_Man.mecanumDrive(0, 0, .15);
 	}
-	else if(drive_Man.ahrs.GetFusedHeading()-180 < angle - 10)
+	else if(input_Man.getAngle()-180 < angle - 10)
 	{
 		drive_Man.mecanumDrive(0, 0, -.15);
 	}

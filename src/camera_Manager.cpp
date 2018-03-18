@@ -121,14 +121,14 @@ void FRC::camera_Manager::camScan(int autoGoal)
 
 		angle = camPanPos - 90;
 
-		if(yPos > 1 && camTiltPos < MIN_TILT)
-		{
-			camTiltPos -= .25;
-		}
-		else if(yPos < -1 && camTiltPos < MAX_TILT)
-		{
-			camTiltPos += .25;
-		}
+//		if(yPos > 1 && camTiltPos < MIN_TILT)
+//		{
+//			camTiltPos -= .25;
+//		}
+//		else if(yPos < -1 && camTiltPos < MAX_TILT)
+//		{
+//			camTiltPos += .25;
+//		}
 
 //		dist = tan(camTiltPos) * (M_PI/180) * CAM_HEIGHT;
 

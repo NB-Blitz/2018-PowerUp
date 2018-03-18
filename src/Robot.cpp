@@ -21,19 +21,20 @@ class Robot: public SampleRobot
 	FRC::Lidar_Manager LidarManager;
 	FRC::Manip_Manager Manip_Man;
 
-	double joyX, joyY, joyZ, joySlide, currentAngle;
+	double joyX, joyY, joyZ, joySlide, currentAngle, joyDegrees;
 	bool isArcade;
 	bool inPosition = false;
 	bool driveToScale = false;
 	uint8_t LidarData[4];
-	double joyX, joyY, joyZ, joyDegrees, joySlide;
 	double leftControlY, rightControlY, leftTrigger, rightTrigger;
 	bool isMecanum, isStraightDrive, isFieldControl;
 	bool leftControlButton, rightControlButton;
+	int autoStep = 0;
 
 	//Constant Variable Declarations
 	const double RIGHT_STRAFE_SPEED = -0.5;
 	const double LEFT_STRAFE_SPEED = 0.5;
+	const int AVOID_DISTANCE = 16;
 
 public:
 	Robot() :
@@ -65,7 +66,7 @@ public:
 		}
 
 		//grabs data from field and smashboard and determines servo default positioning
-		Auto_Man.autoInit(camera_Man);
+		//Auto_Man.autoInit(camera_Man);
 
 		Input_Man.resetNav();
 		BlitzLog.init();
@@ -77,6 +78,7 @@ public:
 		SmartDashboard::PutNumber("Starting Tilt Pos ", camera_Man.tilt->Get()* 180);
 		camera_Man.camPanPos = camera_Man.pan->Get() * 180;
 		camera_Man.camTiltPos = camera_Man.tilt->Get() * 180;
+		int cycles = 0;
 
 		while(IsAutonomous() && IsEnabled())
 		{
@@ -85,7 +87,11 @@ public:
 			camera_Man.camScan(2);
 
 			//receives data from lidar
-			LidarManager.getLidarValues(LidarData);
+			if(cycles > 20)
+			{
+				//LidarManager.getLidarValues(LidarData);
+				cycles = 0;
+			}
 
 			//gets distance from switch and angle of the bot
 			double forwardDist;
@@ -99,36 +105,65 @@ public:
 
 			if(botAngle > Auto_Man.left[0] && botAngle < Auto_Man.left[1])
 			{
-				forwardDist = 1;
+				forwardDist = LidarData[0];
 			}
 			else if(botAngle > Auto_Man.frontLeft[0] && botAngle < Auto_Man.frontLeft[1])
 			{
-				forwardDist = 2;
+				forwardDist = LidarData[1];
 			}
 			else if(botAngle > Auto_Man.frontRight[0] && botAngle < Auto_Man.frontRight[1])
 			{
-				forwardDist = 3;
+				forwardDist = LidarData[2];
 			}
 			else if(botAngle + 90 > Auto_Man.right[0] && botAngle < Auto_Man.right[1])
 			{
-				forwardDist = 4;
+				forwardDist = LidarData[3];
 			}
 
 			// drive to the switch and position facing it
-			if(forwardDist > 16 && fabs(camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
+			if((forwardDist > 16 && (LidarData[1] > AVOID_DISTANCE && LidarData[2] > AVOID_DISTANCE)) && fabs(camera_Man.xPos) < 8)
 			{
-				Auto_Man.driveToCam(.2, camera_Man.angle, camera_Man.targetFound);
+				//Auto_Man.driveToCam(.2, camera_Man.angle, camera_Man.targetFound);
+				autoStep = 1;
+			}
+			else if((LidarData[1] < AVOID_DISTANCE || LidarData[2] < AVOID_DISTANCE) && forwardDist > 16)
+			{
+				/*if(Auto_Man.prefferedDogeDir == 1)
+				{
+					Drive_Man.mecanumDrive(LEFT_STRAFE_SPEED, 0 ,0);
+				}
+				else if(Auto_Man.prefferedDogeDir == 2)
+				{
+					Drive_Man.mecanumDrive(RIGHT_STRAFE_SPEED, 0 ,0);
+				}
+				else if(LidarData[0] > LidarData[3])
+				{
+					Drive_Man.mecanumDrive(LEFT_STRAFE_SPEED, 0 ,0);
+				}
+				else if(LidarData[3] >= LidarData[0])
+				{
+					Drive_Man.mecanumDrive(RIGHT_STRAFE_SPEED, 0 ,0);
+				}*/
+				autoStep = 2;
+
+			}
+			else if(fabs(camera_Man.xPos) >= 8)
+			{
+				Drive_Man.mecanumDrive(0, 0, 0);
+				autoStep = 3;
 			}
 			else
 			{
-
 				if(forwardDist < 16 && Auto_Man.autoGoal == 0)
 				{
 					Auto_Man.navStraighten(0);
+					autoStep = 4;
 				}
 				else
 				{
 					Drive_Man.mecanumDrive(0, 0, 0);
+
+					autoStep = 5;
 
 					if(Auto_Man.autoGoal == 0)
 					{
@@ -161,15 +196,18 @@ public:
 			SmartDashboard::PutNumber("camPan", camera_Man.camPanPos - 90);
 			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
 			SmartDashboard::PutNumber("Switch Dist: ", forwardDist);
+			SmartDashboard::PutBoolean("is at switch", driveToScale);
 			SmartDashboard::PutNumber("nav angle", botAngle);
-			SmartDashboard::PutNumber("LidarDataValue1", LidarData[0]);
-			SmartDashboard::PutNumber("LIdarDataValue2", LidarData[1]);
-			SmartDashboard::PutNumber("LidarDataValue3", LidarData[2]);
-			SmartDashboard::PutNumber("LIdarDataValue4", LidarData[3]);
+			SmartDashboard::PutNumber("LidarDataValue - Left", LidarData[0]);
+			SmartDashboard::PutNumber("LIdarDataValue - Front Left", LidarData[1]);
+			SmartDashboard::PutNumber("LidarDataValue3 - Front Right", LidarData[2]);
+			SmartDashboard::PutNumber("LIdarDataValue4 - Right", LidarData[3]);
+			SmartDashboard::PutNumber("auto step", autoStep);
 
 
 
 			Wait(0.005);
+			cycles += 1;
 		}
 		BlitzLog.close();
 		LidarManager.stopLidarMotor();

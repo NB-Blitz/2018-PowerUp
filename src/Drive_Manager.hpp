@@ -18,16 +18,11 @@ namespace FRC
 		WPI_TalonSRX Left_Front, Left_Back, Right_Front, Right_Back;
 		Solenoid Left_Solenoid, Right_Solenoid;
 		AHRS ahrs;
-		//BlitzPIDSource Left_Front_Source, Left_Back_Source, Right_Front_Source, Right_Back_Source;
-		//PIDController Left_Front_PID, Left_Back_PID, Right_Front_PID, Right_Back_PID;
-		// WPILib PID Method Code
-
 		// Methods
 		float getAngle();
 		void PIDControlWPIlib(double leftFront, double leftBack, double rightFront, double rightBack);
 		void arcadeDrive(double joyY, double joyZ);
 		void mecanumDrive(double x, double y, double rotate);
-		//double PICorrection(double defaultVal, double encSpeed);
 		double angleCorrection(double actualAngle);
 		double PIDCorrection(double desiredSpeed, double actualSpeed, int motorID);
 		void getEncSpeeds();
@@ -83,27 +78,11 @@ namespace FRC
 		double preError[4] = {0,0,0,0};
 		double runningIntegral[4] = {0,0,0,0};
 
-		//Integral management variables
-		int numberOfLoops = 0;
-		int const INTEGRAL_RESET_SECONDS = 3; //Seconds before runningIntegral is reset
-		int const INTEGRAL_RESET_LOOPS = INTEGRAL_RESET_SECONDS * (1/0.005); //0.005 seconds per loop
-
-		//Variable for discontinued PI Loop
-		double PIOut = 0;
-
 		//Must be true for PID to function with encoders
 		bool useEnc = true;
 
-		//Number Tester
-		double y = 0;
-
-		double propTest = 0;
-		double intTest = 0;
-		double derivTest = 0;
-
 		//Angle-enhanced PID
 		double angle = 0;
-		double angleError = 0;
 	};
 }
 

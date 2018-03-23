@@ -4,6 +4,7 @@
 #include "Lift_Manager.hpp"
 #include "Manip_Manager.hpp"
 #include "Auto_Manager.hpp"
+#include "camera_Manager.hpp"
 
 class Robot: public SampleRobot
 {
@@ -12,11 +13,17 @@ class Robot: public SampleRobot
 	FRC::Lift_Manager Lift_Man;
 	FRC::Manip_Manager Manip_Man;
 	FRC::Auto_Manager Auto_Man;
+	FRC::camera_Manager camera_Man;
+	AnalogInput frontLeftSonic;
 	double joyX, joyY, joyZ, joyDegrees, joySlide;
 	double leftControlY, rightControlY, leftTrigger, rightTrigger;
 	double currentAngle, ultraDistance, autoStage;
 	bool isMecanum, isStraightDrive, isFieldControl;
 	bool leftControlButton, rightControlButton;
+	bool inPosition = true;
+	bool driveToScale = false;
+	bool isStraight = false;
+	double timer = 0;
 
 public:
 	Robot() :
@@ -24,7 +31,9 @@ public:
 		Input_Man(),
 		Lift_Man(),
 		Manip_Man(),
-		Auto_Man()
+		Auto_Man(),
+		camera_Man(),
+		frontLeftSonic(0)
 
 	{
 		joyX = 0;
@@ -59,59 +68,131 @@ public:
  *		/_/    \_\__,_|\__\___/|_| |_|\___/|_| |_| |_|\___/ \__,_|___/
  *
  *----------------------------------------------------------------------------------------------*/
+
 	void Autonomous()
 	{
-		Input_Man.resetNav();
-
-		while (IsAutonomous() && IsEnabled())
+		SmartDashboard::PutNumber("run", 1);
+		//sets up camera stuff once
+		if(!camera_Man.setup)
 		{
-			currentAngle = Input_Man.getAngle();
-			ultraDistance = Input_Man.get1220Distance();
-
-			if (Input_Man.getSwitch(1))
-			{
-				if (autoStage == 1)
-				{
-					if (Auto_Man.moveForward(5, currentAngle))
-					{
-						autoStage = 2;
-					}
-				}
-			}
-
-			else if (Input_Man.getSwitch(2))
-			{
-				if (autoStage == 1)
-				{
-					if (Auto_Man.moveMiddle(ultraDistance, 18, currentAngle))
-					{
-						autoStage = 2;
-					}
-				}
-			}
-
-			else if (Input_Man.getSwitch(3))
-			{
-				if (autoStage == 1)
-				{
-					if (Auto_Man.moveForward(5, currentAngle))
-					{
-						autoStage = 2;
-					}
-				}
-			}
-
-			if (Input_Man.getSwitch(4))
-			{
-
-			}
-
-			if (Input_Man.getSwitch(5))
-			{
-
-			}
+			camera_Man.camSetup();
 		}
+
+		//grabs data from field and smashboard and determines servo default positioning
+		Auto_Man.autoInit(camera_Man);
+
+		Input_Man.Nav.Reset();
+
+		//grabs servo positions for the camera manager
+		SmartDashboard::PutNumber("Starting Pan Pos", camera_Man.pan->Get() * 180);
+		SmartDashboard::PutNumber("Starting Tilt Pos ", camera_Man.tilt->Get()* 180);
+		camera_Man.camPanPos = camera_Man.pan->Get() * 180;
+		camera_Man.camTiltPos = camera_Man.tilt->Get() * 180;
+
+		timer = 0;
+
+		SmartDashboard::PutNumber("run", 2);
+
+
+		while(IsAutonomous() && IsEnabled())
+		{
+			//recieves data from pi and moves the camera to the correct position
+			camera_Man.grabData();
+			camera_Man.camScan(2);
+
+			SmartDashboard::PutNumber("run", 3);
+
+			//gets distance from switch and angle of the bot
+			double forwardDist = 0;
+
+			double botAngle = Input_Man.getAngle();
+
+			if(botAngle > 180)
+			{
+				botAngle = (360 - botAngle) * -1;
+			}
+
+			// drive to the switch and position facing it
+			if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) > 16 && fabs(camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
+			{
+				Auto_Man.driveToCam(.2, camera_Man.angle, camera_Man.targetFound);
+			}
+			else
+			{
+
+				if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) < 	16 && Auto_Man.autoGoal == 0 && isStraight)
+				{
+					isStraight = Auto_Man.navStraighten(0);
+				}
+				else
+				{
+					Drive_Man.mecanumDrive(0, 0, 0);
+
+					if(Auto_Man.autoGoal == 0)
+					{
+						inPosition = true;
+
+					}
+					else
+					{
+						driveToScale = true;
+					}
+				}
+			}
+
+			//starts the path toward the scale
+			if(driveToScale)
+			{
+
+			}
+
+			//outtakes cube when in position
+			if(inPosition)
+			{
+				if(timer < .5)
+				{
+					Lift_Man.moveLift(1);
+				}
+				else
+				{
+					Lift_Man.moveLift(0);
+				}
+
+				if(timer > .5 && timer < .7)
+				{
+					Manip_Man.moveManip(.2);
+				}
+				else
+				{
+					Manip_Man.moveManip(0);
+				}
+
+				if(timer > .7)
+				{
+					Manip_Man.intake(1, 0);
+				}
+
+				timer += 0.005;
+			}
+
+			//smartdashboard stuff
+			SmartDashboard::PutNumber("xPos", camera_Man.xPos);
+			SmartDashboard::PutNumber("yPos", camera_Man.yPos);
+			SmartDashboard::PutNumber("camTilt", camera_Man.camTiltPos);
+			SmartDashboard::PutNumber("actual Tilt", camera_Man.tilt->Get());
+			SmartDashboard::PutNumber("camPan", camera_Man.camPanPos - 90);
+			SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
+			SmartDashboard::PutNumber("Switch Dist: ", forwardDist);
+			SmartDashboard::PutNumber("nav angle", botAngle);
+
+
+
+			Wait(0.005);
+		}
+
+		//camera_Man.closeNet();
 	}
+
 
 /*-----------------------------------------------------------------------------------------------
  * 	  _______   _              ____          __  __           _

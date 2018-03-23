@@ -47,11 +47,11 @@ void FRC::Manip_Manager::moveArms(bool leftButton, bool rightButton)
 void FRC::Manip_Manager::intake(double leftTrigger, double rightTrigger)
 {
 	if (leftTrigger > 0.5) {
-		Left_Intake.Set(-leftTrigger);
+		Left_Intake.Set(leftTrigger);
 		Right_Intake.Set(leftTrigger);
 	}
 	else if (rightTrigger > 0.5) {
-		Left_Intake.Set(rightTrigger);
+		Left_Intake.Set(-rightTrigger);
 		Right_Intake.Set(-rightTrigger);
 	}
 	else {

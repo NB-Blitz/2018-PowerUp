@@ -8,12 +8,12 @@
 #ifndef SRC_AUTO_MANAGER_HPP_
 #define SRC_AUTO_MANAGER_HPP_
 
+#include "Camera_Manager.hpp"
 #include "WPILib.h"
 #include "AHRS.h"
 #include "math.h"
 #include "Drive_Manager.hpp"
-#include "camera_Manager.hpp"
-#include "input_Manager.hpp"
+#include "Input_Manager.hpp"
 
 namespace FRC
 {
@@ -22,12 +22,10 @@ namespace FRC
 	public:
 		Auto_Manager();
 
-		Joystick switch_Box;
+		FRC::Drive_Manager Drive_Man;
+		FRC::Input_Manager Input_Man;
 
-		FRC::Drive_Manager drive_Man;
-		FRC::Input_Manager input_Man;
-
-		void autoInit(camera_Manager camera_Man);
+		void autoInit(Camera_Manager Camera_Man);
 		bool navStraighten(double angle);
 		void driveToCam(double speed, int angle, bool targetFound);
 		double convertMB1013SonicVoltageToInches(double voltage);
@@ -46,13 +44,7 @@ namespace FRC
 		char fieldPos = 'C';
 
 		std::string gameData;
-
-	private:
-
-
 	};
 }
-
-
 
 #endif /* SRC_AUTO_MANAGER_HPP_ */

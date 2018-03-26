@@ -1,22 +1,17 @@
-#include <WPILib.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <iostream>
-#include <stdlib.h>
-#include <string.h>
-#include "camera_Manager.hpp"
+#include "WPILib.h"
+#include "Camera_Manager.hpp"
+#include "iostream"
 
-
-FRC::camera_Manager::camera_Manager()
+FRC::Camera_Manager::Camera_Manager()
 {
-
+	Tilt = new Servo(1);
+	Pan = new Servo(0);
 }
 
-void FRC::camera_Manager::camSetup()
+void FRC::Camera_Manager::camSetup()
 {
-	tilt = new Servo(1);
-	pan = new Servo(0);
+	Tilt = new Servo(1);
+	Pan = new Servo(0);
 
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
@@ -28,24 +23,25 @@ void FRC::camera_Manager::camSetup()
 	setup = true;
 }
 
-void FRC::camera_Manager::grabData()
+void FRC::Camera_Manager::grabData()
 {
 	char xBuffer[256];
 
 	const char* msg = "x";
 	sendto(udpSock, msg,sizeof(msg),0,(struct sockaddr *)&server,serverLen);
 	recv(udpSock,xBuffer,256,0);
+
 	//SmartDashboard::PutString("recieved buffer", xBuffer);
 	std::string xPosStr(xBuffer);
 
 	xPos = atoi(xPosStr.c_str());
-
 
 	char yBuffer[256];
 
 	msg = "y";
 	sendto(udpSock, msg,sizeof(msg),0,(struct sockaddr *)&server,serverLen);
 	recv(udpSock,yBuffer,256,0);
+
 	SmartDashboard::PutString("recieved buffer", yBuffer);
 	std::string yPosStr(yBuffer);
 
@@ -57,30 +53,30 @@ void FRC::camera_Manager::grabData()
 //	SmartDashboard::PutNumber("step: ", 1);
 //	sendto(udpSock, msg,sizeof(msg),0,(struct sockaddr *)&server,serverLen);
 //	recv(udpSock,distBuffer,256,0);
+
 //	//std::string distStr(buffer);
 //	SmartDashboard::PutString("dist: ", distBuffer);
-//
+
 //	dist = atoi(distBuffer);
 }
 
-
-void FRC::camera_Manager::closeNet()
+void FRC::Camera_Manager::closeNet()
 {
 	close(udpSock);
 }
 
-void FRC::camera_Manager::sendData(std::string data)
+void FRC::Camera_Manager::sendData(std::string data)
 {
 	const char* msg = data.c_str();
 	sendto(udpSock, msg,sizeof(msg),0,(struct sockaddr *)&server,serverLen);
 }
 
-void FRC::camera_Manager::trackColor(std::string color)
+void FRC::Camera_Manager::trackColor(std::string color)
 {
 	sendData(color.substr(0,1));
 }
 
-void FRC::camera_Manager::camScan(int autoGoal)
+void FRC::Camera_Manager::camScan(int autoGoal)
 {
 	if(xPos > 90 || xPos < -90)
 	{
@@ -137,16 +133,14 @@ void FRC::camera_Manager::camScan(int autoGoal)
 	}
 
 	setPanPos(camPanPos);
-
 }
 
-
-void FRC::camera_Manager::setPanPos(double pos)
+void FRC::Camera_Manager::setPanPos(double pos)
 {
-	pan->Set(pos/180);
+	Pan->Set(pos/180);
 }
 
-void FRC::camera_Manager::setTiltPos(double pos)
+void FRC::Camera_Manager::setTiltPos(double pos)
 {
-	tilt->Set(pos/180);
+	Tilt->Set(pos/180);
 }

@@ -4,7 +4,7 @@
 #include "Lift_Manager.hpp"
 #include "Manip_Manager.hpp"
 #include "Auto_Manager.hpp"
-#include "camera_Manager.hpp"
+#include "Camera_Manager.hpp"
 
 class Robot: public SampleRobot
 {
@@ -13,7 +13,7 @@ class Robot: public SampleRobot
 	FRC::Lift_Manager Lift_Man;
 	FRC::Manip_Manager Manip_Man;
 	FRC::Auto_Manager Auto_Man;
-	FRC::camera_Manager camera_Man;
+	FRC::Camera_Manager Camera_Man;
 	AnalogInput frontLeftSonic;
 	double joyX, joyY, joyZ, joyDegrees, joySlide;
 	double leftControlY, rightControlY, leftTrigger, rightTrigger;
@@ -32,7 +32,7 @@ public:
 		Lift_Man(),
 		Manip_Man(),
 		Auto_Man(),
-		camera_Man(),
+		Camera_Man(),
 		frontLeftSonic(0)
 
 	{
@@ -68,43 +68,38 @@ public:
  *		/_/    \_\__,_|\__\___/|_| |_|\___/|_| |_| |_|\___/ \__,_|___/
  *
  *----------------------------------------------------------------------------------------------*/
-
 	void Autonomous()
 	{
-		SmartDashboard::PutNumber("run", 1);
 		//sets up camera stuff once
-		if(!camera_Man.setup)
+		if(!Camera_Man.setup)
 		{
-			camera_Man.camSetup();
+			Camera_Man.camSetup();
 		}
 
-		//grabs data from field and smashboard and determines servo default positioning
-		Auto_Man.autoInit(camera_Man);
+		//Grabs data from field and Smashboard and determines servo default positioning
+		Auto_Man.autoInit(Camera_Man);
 
 		Input_Man.Nav.Reset();
 
-		//grabs servo positions for the camera manager
-		SmartDashboard::PutNumber("Starting Pan Pos", camera_Man.pan->Get() * 180);
-		SmartDashboard::PutNumber("Starting Tilt Pos ", camera_Man.tilt->Get()* 180);
-		camera_Man.camPanPos = camera_Man.pan->Get() * 180;
-		camera_Man.camTiltPos = camera_Man.tilt->Get() * 180;
+		//Grabs servo positions for the camera manager
+		SmartDashboard::PutNumber("Starting Pan Pos", Camera_Man.Pan->Get() * 180);
+		SmartDashboard::PutNumber("Starting Tilt Pos ", Camera_Man.Tilt->Get()* 180);
+		Camera_Man.camPanPos = Camera_Man.Pan->Get() * 180;
+		Camera_Man.camTiltPos = Camera_Man.Tilt->Get() * 180;
 
 		timer = 0;
 
-		SmartDashboard::PutNumber("run", 2);
-
-
 		while(IsAutonomous() && IsEnabled())
 		{
-			if(Auto_Man.switch_Box.GetRawButton(5))
+			if(Input_Man.getSwitch(5))
 			{
-				//recieves data from pi and moves the camera to the correct position
-				camera_Man.grabData();
-				camera_Man.camScan(2);
+				//Receives data from pi and moves the camera to the correct position
+				Camera_Man.grabData();
+				Camera_Man.camScan(2);
 
 				SmartDashboard::PutNumber("run", 3);
 
-				//gets distance from switch and angle of the bot
+				//Gets distance from switch and angle of the bot
 				double forwardDist = 0;
 
 				double botAngle = Input_Man.getAngle();
@@ -114,14 +109,13 @@ public:
 					botAngle = (360 - botAngle) * -1;
 				}
 
-				// drive to the switch and position facing it
-				if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) > 16 && fabs(camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
+				// Drive to the switch and face it
+				if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) > 16 && fabs(Camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
 				{
-					Auto_Man.driveToCam(.2, camera_Man.angle, camera_Man.targetFound);
+					Auto_Man.driveToCam(.2, Camera_Man.angle, Camera_Man.targetFound);
 				}
 				else
 				{
-
 					if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) < 	16 && Auto_Man.autoGoal == 0 && isStraight)
 					{
 						isStraight = Auto_Man.navStraighten(0);
@@ -177,13 +171,13 @@ public:
 					timer += 0.005;
 				}
 
-				//smartdashboard stuff
-				SmartDashboard::PutNumber("xPos", camera_Man.xPos);
-				SmartDashboard::PutNumber("yPos", camera_Man.yPos);
-				SmartDashboard::PutNumber("camTilt", camera_Man.camTiltPos);
-				SmartDashboard::PutNumber("actual Tilt", camera_Man.tilt->Get());
-				SmartDashboard::PutNumber("camPan", camera_Man.camPanPos - 90);
-				SmartDashboard::PutNumber("actual Pan", camera_Man.pan->Get());
+				//SmartDashboard
+				SmartDashboard::PutNumber("xPos", Camera_Man.xPos);
+				SmartDashboard::PutNumber("yPos", Camera_Man.yPos);
+				SmartDashboard::PutNumber("camTilt", Camera_Man.camTiltPos);
+				SmartDashboard::PutNumber("actual Tilt", Camera_Man.Tilt->Get());
+				SmartDashboard::PutNumber("camPan", Camera_Man.camPanPos - 90);
+				SmartDashboard::PutNumber("actual Pan", Camera_Man.Pan->Get());
 				SmartDashboard::PutNumber("Switch Dist: ", forwardDist);
 				SmartDashboard::PutNumber("nav angle", botAngle);
 			}
@@ -201,13 +195,11 @@ public:
 				}
 			}
 
-
 			Wait(0.005);
 		}
 
-		//camera_Man.closeNet();
+		//Camera_Man.closeNet();
 	}
-
 
 /*-----------------------------------------------------------------------------------------------
  * 	  _______   _              ____          __  __           _

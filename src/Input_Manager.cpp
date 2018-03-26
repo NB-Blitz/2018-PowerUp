@@ -4,7 +4,7 @@
 FRC::Input_Manager::Input_Manager():
 	Stick(0),
 	Controller(1),
-	Switchboard(2),
+	Switchbox(2),
 	Ultrasonic(0),
 	Nav(SPI::Port::kMXP),
 	PDP(0)
@@ -238,7 +238,7 @@ bool FRC::Input_Manager::getControllerButton(int button)
 
 bool FRC::Input_Manager::getSwitch(int button)
 {
-	return Switchboard.GetRawButton(button);
+	return Switchbox.GetRawButton(button);
 }
 
 double FRC::Input_Manager::get1220Distance()

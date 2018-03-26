@@ -2,16 +2,14 @@
 #include "WPILib.h"
 
 FRC::Auto_Manager::Auto_Manager():
-	switch_Box(2),
-	drive_Man(),
-	input_Man()
+	Drive_Man(),
+	Input_Man()
 {
 
 }
 
-
 //initializes all the autonomous variables
-void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
+void FRC::Auto_Manager::autoInit(Camera_Manager Camera_Man)
 {
 	x += 1;
 	gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
@@ -20,15 +18,15 @@ void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 
 	std::string startingPos;
 	//std::string startingPos = SmartDashboard::GetString("Autonomous Starting Position", "Center");
-	if(switch_Box.GetRawButton(1))
+	if(Input_Man.getSwitch(1))
 	{
 		startingPos = "Left";
 	}
-	else if(switch_Box.GetRawButton(2))
+	else if(Input_Man.getSwitch(2))
 	{
 		startingPos = "Center";
 	}
-	else if(switch_Box.GetRawButton(3))
+	else if(Input_Man.getSwitch(3))
 	{
 		startingPos = "Right";
 	}
@@ -41,7 +39,7 @@ void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 	std::string autoTarget;
 
 	//autoTarget = SmartDashboard::GetString("Autonomous Destination Selector", "Switch");
-	if(switch_Box.GetRawButton(4))
+	if(Input_Man.getSwitch(4))
 	{
 		autoTarget = "Scale";
 	}
@@ -51,7 +49,6 @@ void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 	}
 
 	SmartDashboard::PutString("auto Target", autoTarget);
-
 
 	if(startingPos == "Center")
 	{
@@ -81,58 +78,58 @@ void FRC::Auto_Manager::autoInit(camera_Manager camera_Man)
 
 	if(fieldPos == gameData[autoGoal])
 	{
-		camera_Man.setPanPos(90);
+		Camera_Man.setPanPos(90);
 	}
 	else if(fieldPos == 'L')
 	{
 		if(autoGoal == 0)
 		{
-			camera_Man.setPanPos(camera_Man.LEFT_SWITCH_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			Camera_Man.setPanPos(Camera_Man.LEFT_SWITCH_PAN);
+			Camera_Man.setTiltPos(Camera_Man.DEFAULT_SWITCH_TILT);
 		}
 		else if(autoGoal == 1)
 		{
-			camera_Man.setPanPos(camera_Man.LEFT_SCALE_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+			Camera_Man.setPanPos(Camera_Man.LEFT_SCALE_PAN);
+			Camera_Man.setTiltPos(Camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 	else if(fieldPos == 'C' && gameData[autoGoal] == 'L')
 	{
 		if(autoGoal == 0)
 		{
-			camera_Man.setPanPos(camera_Man.CENTER_SWITCH_LEFT_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			Camera_Man.setPanPos(Camera_Man.CENTER_SWITCH_LEFT_PAN);
+			Camera_Man.setTiltPos(Camera_Man.DEFAULT_SWITCH_TILT);
 		}
 		else if(autoGoal == 1)
 		{
-			camera_Man.setPanPos(camera_Man.CENTER_SCALE_LEFT_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+			Camera_Man.setPanPos(Camera_Man.CENTER_SCALE_LEFT_PAN);
+			Camera_Man.setTiltPos(Camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 	else if(fieldPos == 'C' && gameData[autoGoal] == 'R')
 	{
 		if(autoGoal == 0)
 		{
-			camera_Man.setPanPos(camera_Man.CENTER_SWITCH_RIGHT_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			Camera_Man.setPanPos(Camera_Man.CENTER_SWITCH_RIGHT_PAN);
+			Camera_Man.setTiltPos(Camera_Man.DEFAULT_SWITCH_TILT);
 		}
 		else if(autoGoal == 1)
 		{
-			camera_Man.setPanPos(camera_Man.CENTER_SCALE_RIGHT_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+			Camera_Man.setPanPos(Camera_Man.CENTER_SCALE_RIGHT_PAN);
+			Camera_Man.setTiltPos(Camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 	else if(fieldPos == 'R')
 	{
 		if(autoGoal == 0)
 		{
-			camera_Man.setPanPos(camera_Man.RIGHT_SWITCH_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SWITCH_TILT);
+			Camera_Man.setPanPos(Camera_Man.RIGHT_SWITCH_PAN);
+			Camera_Man.setTiltPos(Camera_Man.DEFAULT_SWITCH_TILT);
 		}
 		else if(autoGoal == 1)
 		{
-			camera_Man.setPanPos(camera_Man.RIGHT_SCALE_PAN);
-			camera_Man.setTiltPos(camera_Man.DEFAULT_SCALE_TILT);
+			Camera_Man.setPanPos(Camera_Man.RIGHT_SCALE_PAN);
+			Camera_Man.setTiltPos(Camera_Man.DEFAULT_SCALE_TILT);
 		}
 	}
 
@@ -189,7 +186,7 @@ void FRC::Auto_Manager::driveToCam(double speed, int angle, bool targetFound)
 		speed = 0;
 	}
 
-	drive_Man.mecanumDrive(0, speed, rotation);
+	Drive_Man.mecanumDrive(0, speed, rotation);
 	SmartDashboard::PutNumber("Auto Rotation", rotation);
 }
 
@@ -212,20 +209,19 @@ double FRC::Auto_Manager::convertMB1010SonicVoltageToInches(double voltage)
 //straightens the robot to and angle
 bool FRC::Auto_Manager::navStraighten(double angle)
 {
-	if(input_Man.getAngle()-180 > angle + 10)
+	if(Input_Man.getAngle()-180 > angle + 10)
 	{
-		drive_Man.mecanumDrive(0, 0, .15);
+		Drive_Man.mecanumDrive(0, 0, .15);
 		return false;
 	}
-	else if(input_Man.getAngle()-180 < angle - 10)
+	else if(Input_Man.getAngle()-180 < angle - 10)
 	{
-		drive_Man.mecanumDrive(0, 0, -.15);
+		Drive_Man.mecanumDrive(0, 0, -.15);
 		return false;
 	}
 	else
 	{
-		drive_Man.mecanumDrive(0, 0 ,0);
+		Drive_Man.mecanumDrive(0, 0 ,0);
 		return true;
 	}
 }
-

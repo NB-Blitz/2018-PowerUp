@@ -12,7 +12,7 @@ namespace FRC
 		Input_Manager();
 
 		// Object Declarations
-		Joystick Stick, Controller, Switchboard;
+		Joystick Stick, Controller, Switchbox;
 		AnalogInput Ultrasonic;
 		AHRS Nav;
 		PowerDistributionPanel PDP;

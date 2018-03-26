@@ -1,23 +1,20 @@
 #ifndef SRC_CAMERA_MANAGER_HPP_
 #define SRC_CAMERA_MANAGER_HPP_
 
-#include <WPILib.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <iostream>
-#include <stdlib.h>
-#include <string.h>
+#include "WPILib.h"
+#include "arpa/inet.h"
+#include "unistd.h"
+#include "iostream"
 
 namespace FRC
 {
-	class camera_Manager
+	class Camera_Manager
 	{
 	public:
-		camera_Manager();
+		Camera_Manager();
 
-		Servo *tilt;
-		Servo *pan;
+		Servo *Tilt;
+		Servo *Pan;
 
 		sockaddr_in server;
 		unsigned short port = 5800;
@@ -67,13 +64,7 @@ namespace FRC
 		const int LEFT_SCALE_PAN = 67;
 		const int CENTER_SCALE_LEFT_PAN = 107;
 		const int CENTER_SCALE_RIGHT_PAN = 72;
-
-
-	private:
-
 	};
 }
-
-
 
 #endif /* SRC_CAMERAMANAGER_HPP_ */

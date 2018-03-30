@@ -13,15 +13,10 @@ FRC::Drive_Manager::Drive_Manager():
 	Right_Solenoid(1)
 
 {
-	maxMagnitude = 0;
 	theta = 0;
 	rotation = 0;
-	targetSpeed = 0;
-	currentSpeed = 0;
-	error = 0;
-	propOut = 0;
-	PIOut = 0;
-	useEnc = false;
+	startAngle = 0;
+	firstTime = true;
 }
 
 void FRC::Drive_Manager::startCompressor()
@@ -87,10 +82,10 @@ void FRC::Drive_Manager::mecanumDrive(double joyX, double joyY, double joyZ)
 	}
 
 	// PI Loop (Supposed to make the motors run at the same velocity)
-	finalSpeed[0] = PICorrection(baseSpeed[0], encSpeed[0]);
-	finalSpeed[1] = PICorrection(baseSpeed[1], encSpeed[1]);
-	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
-	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
+	finalSpeed[0] = PIDCorrection(baseSpeed[0], encSpeed[0], 0);
+	finalSpeed[1] = PIDCorrection(baseSpeed[1], encSpeed[1], 1);
+	finalSpeed[2] = PIDCorrection(baseSpeed[2], encSpeed[2], 2);
+	finalSpeed[3] = PIDCorrection(baseSpeed[3], encSpeed[3], 3);
 
 	Left_Front.Set(finalSpeed[0]);
 	Left_Back.Set(-finalSpeed[1]);
@@ -139,10 +134,10 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 	}
 
 	// PI Loop (Supposed to make the motors run at the same velocity)
-	finalSpeed[0] = PICorrection(baseSpeed[0], encSpeed[0]);
-	finalSpeed[1] = PICorrection(baseSpeed[1], encSpeed[1]);
-	finalSpeed[2] = PICorrection(baseSpeed[2], encSpeed[2]);
-	finalSpeed[3] = PICorrection(baseSpeed[3], encSpeed[3]);
+	finalSpeed[0] = PIDCorrection(baseSpeed[0], encSpeed[0], 0);
+	finalSpeed[1] = PIDCorrection(baseSpeed[1], encSpeed[1], 1);
+	finalSpeed[2] = PIDCorrection(baseSpeed[2], encSpeed[2], 2);
+	finalSpeed[3] = PIDCorrection(baseSpeed[3], encSpeed[3], 3);
 
 	Left_Front.Set(finalSpeed[0]);
 	Left_Back.Set(-finalSpeed[1]);
@@ -153,7 +148,13 @@ void FRC::Drive_Manager::arcadeDrive(double joyY, double joyZ)
 //Straight Drive Function -> Completely functional (but PID would enhance this)
 void FRC::Drive_Manager::straightDrive(double joyX, double joyY, double joyZ, double angle)
 {
-	theta = joyZ - angle;
+	if (firstTime)
+	{
+		firstTime = false;
+		startAngle = angle;
+	}
+
+	theta = angle;
 
 	if(theta > 180)
 	{
@@ -164,7 +165,7 @@ void FRC::Drive_Manager::straightDrive(double joyX, double joyY, double joyZ, do
 		theta = 360 + theta;
 	}
 
-	rotation = theta;
+	rotation = (startAngle - theta)/180;
 
 	if(fabs(joyY) > fabs(joyX))
 	{
@@ -174,6 +175,8 @@ void FRC::Drive_Manager::straightDrive(double joyX, double joyY, double joyZ, do
 	{
 		mecanumDrive(joyX, 0, rotation); //Coefficient is lower due to a greater tendency to over-compensate
 	}
+
+
 }
 
 void FRC::Drive_Manager::fieldControl(double joyX, double joyY, double joyZ, double joyDegrees, double angle)
@@ -197,21 +200,24 @@ void FRC::Drive_Manager::fieldControl(double joyX, double joyY, double joyZ, dou
 	mecanumDrive(-joyX, -joyY, joyZ);
 }
 
-double FRC::Drive_Manager::PICorrection(double defaultVal, double encSpeed)
+double FRC::Drive_Manager::PIDCorrection(double desiredSpeed, double actualSpeed, int motorID) //Manual Version
 {
-	if(useEnc)
+	goalSpeed[motorID] = desiredSpeed * (RATE_FREQUENCY/MAX_HZ); //Speed in terms of encoder
+	currentSpeed[motorID] = actualSpeed / RATE_FREQUENCY; //Speed in terms of encoder
+	if(motorID > 1)
 	{
-		targetSpeed = defaultVal * (RATE_FREQUENCY/MAX_HZ);
-		currentSpeed = encSpeed / RATE_FREQUENCY;
-		error = targetSpeed - currentSpeed;
-		propOut = error * PROPORTIONAL_GAIN;
-		PIOut = targetSpeed + propOut;
-		return PIOut;
+		currentSpeed[motorID] =  -currentSpeed[motorID];
 	}
-	else
-	{
-		return defaultVal;
-	}
+	error[motorID] = goalSpeed[motorID] - currentSpeed[motorID]; //Error is found
+	propOut[motorID] = error[motorID] * PROPORTIONAL_COEFFICIENT[motorID]; //Proportional Gain is proportional to error
+	runningIntegral[motorID] += error[motorID] * 0.005; //Integral of error over time is updated
+	integralOut[motorID] = INTEGRAL_COEFFICIENT[motorID] * runningIntegral[motorID];
+	double derivative = (error[motorID] - preError[motorID]) / 0.005; //Error Derivative is found
+	derivativeOut[motorID] = DERIVATIVE_COEFFICIENT[motorID] * derivative;
+	PIDOut[motorID] =  propOut[motorID] + integralOut[motorID] + derivativeOut[motorID]; //All components are combined
+	targetSpeed[motorID] = goalSpeed[motorID] + PIDOut[motorID];
+	preError[motorID] = error[motorID]; //PreError is updated
+	return targetSpeed[motorID] / (RATE_FREQUENCY/MAX_HZ); //Returns new speed in -1 to 1 range
 }
 
 void FRC::Drive_Manager::getEncSpeeds()

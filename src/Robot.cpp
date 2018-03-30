@@ -272,6 +272,10 @@ public:
 				{
 					Drive_Man.straightDrive(joyX, joyY, joyZ, currentAngle);
 				}
+				else if (!isStraightDrive && !Drive_Man.firstTime)
+				{
+					Drive_Man.firstTime = true;
+				}
 				else if (isFieldControl)
 				{
 					Drive_Man.fieldControl(joyX, joyY, joyZ, joyDegrees, currentAngle);

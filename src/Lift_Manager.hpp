@@ -23,9 +23,10 @@ namespace FRC
 
 		// Methods
 		void moveLiftTo(double pos);
-		void moveLift(double stickY);
+		void moveLift(double stickY, double encPos);
 		void resetLift();
 		void resetEnc();
+		double getEncPos();
 	};
 }
 

@@ -6,7 +6,7 @@ FRC::Input_Manager::Input_Manager():
 	Controller(1),
 	Switchbox(2),
 	Ultrasonic(0),
-	Nav(SPI::Port::kMXP),
+	Nav{SPI::Port::kMXP},
 	PDP(0)
 
 {

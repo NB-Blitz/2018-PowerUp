@@ -36,26 +36,22 @@ void FRC::Lift_Manager::moveLiftTo(double joyPos)
 	}
 }
 
-void FRC::Lift_Manager::moveLift(double stickY)
+void FRC::Lift_Manager::moveLift(double stickY, double encPos)
 {
-	SmartDashboard::PutNumber("Joystick Y", stickY);
-	SmartDashboard::PutNumber("Encoder", Enc.Get());
-
-	double motorCurrent = Lift_Motor.GetOutputCurrent();
-	bool topSwitch = Top_Switch.Get();
-	bool bottomSwitch = Bottom_Switch.Get();
-
-	if ((topSwitch || motorCurrent > 70) && stickY > 0)
+	if (fabs(stickY) > 0.1)
 	{
-		Lift_Motor.Set(0);
-	}
-	else if ((bottomSwitch || motorCurrent > 70) && stickY < 0)
-	{
-		Lift_Motor.Set(0);
+		if (fabs(encPos) > 11600 && stickY < 0)
+		{
+			Lift_Motor.Set(0);
+		}
+		else
+		{
+			Lift_Motor.Set(stickY);
+		}
 	}
 	else
 	{
-		Lift_Motor.Set(stickY);
+		Lift_Motor.Set(0);
 	}
 }
 
@@ -76,5 +72,10 @@ void FRC::Lift_Manager::resetLift()
 
 void FRC::Lift_Manager::resetEnc()
 {
-	Enc.Reset();
+	Lift_Motor.SetSelectedSensorPosition(0, 0, 0);
+}
+
+double FRC::Lift_Manager::getEncPos()
+{
+	return Lift_Motor.GetSelectedSensorPosition(0);
 }

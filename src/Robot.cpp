@@ -14,10 +14,10 @@ class Robot: public SampleRobot
 	FRC::Manip_Manager Manip_Man;
 	FRC::Auto_Manager Auto_Man;
 	FRC::Camera_Manager Camera_Man;
-	AnalogInput frontLeftSonic;
+	AnalogInput Front_Left_Sonic;
 	double joyX, joyY, joyZ, joyDegrees, joySlide;
 	double leftControlY, rightControlY, leftTrigger, rightTrigger;
-	double currentAngle, ultraDistance, autoStage;
+	double currentAngle, ultraDistance, autoStage, liftEncPos;
 	bool isMecanum, isStraightDrive, isFieldControl;
 	bool leftControlButton, rightControlButton;
 	bool inPosition = true;
@@ -33,7 +33,7 @@ public:
 		Manip_Man(),
 		Auto_Man(),
 		Camera_Man(),
-		frontLeftSonic(0)
+		Front_Left_Sonic(0)
 
 	{
 		joyX = 0;
@@ -50,6 +50,7 @@ public:
 		currentAngle = 0;
 		ultraDistance = 0;
 		autoStage = 1;
+		liftEncPos = 0;
 
 		isMecanum = true;
 		isStraightDrive = false;
@@ -91,6 +92,8 @@ public:
 
 		while(IsAutonomous() && IsEnabled())
 		{
+			liftEncPos = Lift_Man.getEncPos();
+
 			if(Input_Man.getSwitch(5))
 			{
 				//Receives data from pi and moves the camera to the correct position
@@ -110,13 +113,13 @@ public:
 				}
 
 				// Drive to the switch and face it
-				if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) > 16 && fabs(Camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
+				if(Auto_Man.convertMB1220SonicVoltageToInches(Front_Left_Sonic.GetVoltage()) > 16 && fabs(Camera_Man.xPos) < 8)// > 16 && Auto_Man.convertMB1010SonicVoltageToInches(frontRightSonic.GetVoltage()))
 				{
 					Auto_Man.driveToCam(.2, Camera_Man.angle, Camera_Man.targetFound);
 				}
 				else
 				{
-					if(Auto_Man.convertMB1220SonicVoltageToInches(frontLeftSonic.GetVoltage()) < 	16 && Auto_Man.autoGoal == 0 && isStraight)
+					if(Auto_Man.convertMB1220SonicVoltageToInches(Front_Left_Sonic.GetVoltage()) < 	16 && Auto_Man.autoGoal == 0 && isStraight)
 					{
 						isStraight = Auto_Man.navStraighten(0);
 					}
@@ -147,11 +150,11 @@ public:
 				{
 					if(timer < .5)
 					{
-						Lift_Man.moveLift(1);
+						Lift_Man.moveLift(1, liftEncPos);
 					}
 					else
 					{
-						Lift_Man.moveLift(0);
+						Lift_Man.moveLift(0, liftEncPos);
 					}
 
 					if(timer > .5 && timer < .7)
@@ -214,6 +217,7 @@ public:
 	void OperatorControl()
 	{
 		Input_Man.resetNav();
+		Lift_Man.resetEnc();
 
 		while (IsOperatorControl() && IsEnabled())
 		{
@@ -225,7 +229,7 @@ public:
 			joyZ = Input_Man.getAxis(2);
 			joyDegrees = Input_Man.Stick.GetDirectionDegrees();
 
-			joySlide = Input_Man.getAxis(3);
+			//joySlide = Input_Man.getAxis(3);
 
 			joyX = Input_Man.xRamp(joyX);
 			joyY = Input_Man.yRamp(joyY);
@@ -245,12 +249,16 @@ public:
 
 			// Other Sensor Values
 			Drive_Man.getEncSpeeds();
+			Input_Man.resetNav();
 			currentAngle = Input_Man.getAngle();
+			liftEncPos = Lift_Man.getEncPos();
 
 			// SMARTDASHBOARD
 			SmartDashboard::PutNumber("Joy X", joyX);
 			SmartDashboard::PutNumber("Joy Y", joyX);
 			SmartDashboard::PutNumber("Joy Z", joyX);
+
+			SmartDashboard::PutNumber("Right Controller Value", rightControlY);
 
 			SmartDashboard::PutNumber("Left_Front Current", Input_Man.getCurrent(0));
 			SmartDashboard::PutNumber("Left_Back Current", Input_Man.getCurrent(2));
@@ -262,14 +270,19 @@ public:
 			SmartDashboard::PutNumber("Right_Front Speed", Drive_Man.getEncSpeed(2));
 			SmartDashboard::PutNumber("Right_Back Speed", Drive_Man.getEncSpeed(3));
 
+			SmartDashboard::PutNumber("Lift Pos", liftEncPos);
+
+			SmartDashboard::PutNumber("Angle", currentAngle);
+
 			// DRIVE
-			Drive_Man.startCompressor();
+			//Drive_Man.startCompressor();
 
 			if (isMecanum)
 			{
 				Drive_Man.switchDriveMode(isMecanum);
 				if (isStraightDrive)
 				{
+					Input_Man.resetNav();
 					Drive_Man.straightDrive(joyX, joyY, joyZ, currentAngle);
 				}
 				else if (isFieldControl)
@@ -288,7 +301,7 @@ public:
 			}
 
 			// LIFT
-			Lift_Man.moveLift(leftControlY);
+			Lift_Man.moveLift(leftControlY, liftEncPos);
 
 			// MANIPULATOR
 			Manip_Man.moveManip(rightControlY);
